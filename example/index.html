@@ -1,0 +1,61 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="../dist/criipto-auth.js"></script>
+    <link href="../src/index.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <button id="button_login_responsive">Login (responsive)</button>
+    <button id="button_login_redirect_query">Login (redirect + query)</button>
+    <button id="button_login_popup_fragment">Login (popup + fragment)</button>
+    <textarea id="result"></textarea>
+    <script type="text/javascript">
+      var criiptoAuth = new criipto.Auth({
+        domain: 'javascript-library-test-test.criipto.id',
+        clientID: 'urn:my:application:identifier:6573'
+      });
+
+      document.getElementById('button_login_responsive').addEventListener('click', () => {
+        criiptoAuth.authorizeResponsive({
+          '(min-width: 601px)': {
+            via: 'popup',
+            redirectUri: 'http://localhost:8000/example/popup-callback.html',
+            acrValues: 'urn:grn:authn:dk:nemid:poces',
+            width: 320,
+            height: 460
+          },
+          '(max-width: 600px)': {
+            via: 'redirect',
+            redirectUri: 'http://localhost:8000/example/index.html',
+            acrValues: 'urn:grn:authn:dk:nemid:poces'
+          }
+        });
+      });
+
+      document.getElementById('button_login_redirect_query').addEventListener('click', () => {
+        criiptoAuth.redirect.authorize({
+          redirectUri: 'http://localhost:8000/example/index.html',
+          acrValues: 'urn:grn:authn:dk:nemid:poces'
+        });
+      });
+
+      if (criiptoAuth.redirect.match()) {
+        const result = criiptoAuth.redirect.match();
+        console.log(result);
+        document.getElementById('result').innerHTML = JSON.stringify(result);
+      }
+
+      document.getElementById('button_login_popup_fragment').addEventListener('click', () => {
+        criiptoAuth.popup.authorize({
+          redirectUri: 'http://localhost:8000/example/popup-callback.html',
+          acrValues: 'urn:grn:authn:dk:nemid:poces',
+          width: 320,
+          height: 460
+        }).then((result) => {
+          console.log(result);
+          document.getElementById('result').innerHTML = JSON.stringify(result);
+        });
+      });
+    </script>
+  </body>
+</html>

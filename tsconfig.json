@@ -1,0 +1,23 @@
+{
+  "declaration": true,
+  "compilerOptions": {
+    "sourceMap": true,
+    "lib": [
+      "dom",
+      "es7"
+    ],
+    "target": "es6",
+    
+    "outDir": "./dist/",
+    "noImplicitAny": true,
+    "allowJs": true
+  },
+  "exclude": [
+    "node_modules",
+    "test",
+    "coverage"
+  ],
+  "files": [
+    "src/index.ts"
+  ]
+}
