@@ -63,7 +63,7 @@ Parameters:
 
 - **domain (required, string)**: The domain which your Criipto Application belongs to, such as `example.criipto.id`.
 - **clientID (required, string)**: The Client ID/realm for your Criipto Application.
-- **additional authorization parameters**: See [Authorization parameters](#authorizationparameters)
+- **additional authorization parameters**: See [Authorization parameters](#authorization-parameters)
 
 ### Authorization parameters
 
@@ -97,7 +97,7 @@ criiptoAuth.authorizeResponsive({
 
 Provides a convenient way to pick authorization method (`popup` or `redirect`) based on a CSS media query (screen size).
 
-- **{[mediaQuery: string]: {via: 'popup' | 'redirect', [Authorization parameters](#authorizationparameters)}}** 
+- **{[mediaQuery: string]: {via: 'popup' | 'redirect', [Authorization parameters](#authorization-parameters)}}** 
 
 ## Auth.popup
 
@@ -114,7 +114,7 @@ criiptoAuth.popup.authorize({
 
 - **width (optional, number)**: Width of the popup.
 - **height (optional, number)**: Height of the popup
-- **[Authorization parameters](#authorizationparameters)**
+- **[Authorization parameters](#authorization-parameters)**
 
 ### callback
 ```javascript
@@ -136,7 +136,7 @@ criiptoAuth.redirect.authorize({
 
 Redirects the users browser tab to the authorization url. After authorization the user will be redirected back to the provided `redirectUri`.
 
-- **[Authorization parameters](#authorizationparameters)**
+- **[Authorization parameters](#authorization-parameters)**
 
 ### match
 
