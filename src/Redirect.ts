@@ -10,11 +10,7 @@ export default class CriiptoAuthRedirect {
   }
 
   authorize(params: RedirectAuthorizeParams): Promise<void> {
-    return this.criiptoAuth.buildAuthorizeUrl({
-      ...params,
-      responseMode: params.responseMode || 'query',
-      responseType: params.responseType || 'code'
-    }).then(url => {
+    return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams(params)).then(url => {
       window.location.href = url;
     });
   }

@@ -1,4 +1,4 @@
-import type {AuthorizeUrlParams, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams} from './types';
+import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams} from './types';
 import {ALL_VIA} from './types';
 
 import OpenIDConfiguration from './OpenID';
@@ -8,6 +8,11 @@ import CriiptoAuthPopup from './Popup';
 interface CriiptoAuthOptions {
   domain: string;
   clientID: string;
+
+  redirectUri?: string;
+  responseMode?: string;
+  responseType?: string;
+  acrValues?: string;
 }
 
 export class CriiptoAuth {
@@ -67,6 +72,23 @@ export class CriiptoAuth {
 
       return `${this._openIdConfiguration.authorization_endpoint}?client_id=${this.clientID}&acr_values=${params.acrValues}&redirect_uri=${encodeURIComponent(params.redirectUri)}&response_type=${params.responseType}&scope=openid&response_mode=${params.responseMode}`;  
     });
+  }
+
+  buildAuthorizeParams(params: AuthorizeUrlParamsOptional):AuthorizeUrlParams {
+    const redirectUri = params.redirectUri || this.options.redirectUri;
+    const responseMode = params.responseMode || this.options.responseMode || 'query';
+    const responseType = params.responseType || this.options.responseType || 'code';
+    const acrValues = params.acrValues || this.options.acrValues;
+
+    if (!redirectUri) throw new Error(`redirectUri must be defined`);
+    if (!acrValues) throw new Error(`acrValues must be defined`);
+
+    return {
+      redirectUri: redirectUri!,
+      responseMode: responseMode!,
+      responseType: responseType!,
+      acrValues: acrValues!
+    };
   }
 };
 

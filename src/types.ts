@@ -7,6 +7,13 @@ export interface AuthorizeUrlParams {
   responseMode: string;
 };
 
+export interface AuthorizeUrlParamsOptional {
+  acrValues?: string;
+  redirectUri?: string;
+  responseType?: string;
+  responseMode?: string;
+};
+
 export interface AuthorizeResponse extends GenericObject {
   code?: string;
   id_token?: string;
@@ -19,22 +26,22 @@ type Via = ViaTuple[number];
 
 export interface AuthorizeParams extends Partial<AuthorizeUrlParams> {
   via: Via,
-  acrValues: string;
-  redirectUri: string;
+  acrValues?: string;
+  redirectUri?: string;
   responseType?: string;
   responseMode?: string;
 }
 
 export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {
-  acrValues: string;
-  redirectUri: string;
+  acrValues?: string;
+  redirectUri?: string;
   responseType?: string;
   responseMode?: string;
 };
 
 export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
-  acrValues: string;
-  redirectUri: string;
+  acrValues?: string;
+  redirectUri?: string;
   responseType?: string;
   responseMode?: string;
   width?: number;

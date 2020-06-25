@@ -16,11 +16,11 @@ export default class CriiptoAuthPopup {
   open(params: PopupAuthorizeParams): Promise<Window> {
     const {width, height, ...authorizeUrlParams} = params;
 
-    return this.criiptoAuth.buildAuthorizeUrl({
+    return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
       ...authorizeUrlParams,
-      responseMode: params.responseMode || 'fragment',
-      responseType: params.responseType || 'id_token',
-    }).then(url => {
+      responseMode: authorizeUrlParams.responseMode || 'fragment',
+      responseType: authorizeUrlParams.responseType || 'id_token',
+    })).then(url => {
       return window.open(url, CRIIPTO_POPUP_ID, `width=${width || 400},height=${height || 600}`);
     }).then(window => {
       this.window = window;

@@ -220,4 +220,39 @@ describe('CriiptoAuth', () => {
       expect(actual).toBe(`${authorization_endpoint}?client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&scope=openid&response_mode=${values.responseMode}`)
     });
   });
+
+  describe('buildAuthorizeParams', () => {
+    it('uses values provided to constructor', () => {
+      const params = {
+        acrValues: Math.random().toString(),
+        redirectUri: Math.random().toString(),
+        responseMode: 'fragment',
+        responseType: 'id_token'
+      };
+
+      auth = new CriiptoAuth({
+        domain,
+        clientID,
+        ...params
+      });
+
+      const actual = auth.buildAuthorizeParams({});
+
+      expect(actual).toStrictEqual(params);
+    });
+
+    it('throws an error if redirectUri is not defined', () => {
+      expect(() => auth.buildAuthorizeParams({
+        acrValues: Math.random().toString(),
+        redirectUri: undefined
+      })).toThrow('redirectUri must be defined');
+    });
+
+    it('throws an error if acrValues is not defined', () => {
+      expect(() => auth.buildAuthorizeParams({
+        acrValues: undefined,
+        redirectUri: Math.random().toString(),
+      })).toThrow('acrValues must be defined');
+    });
+  });
 });
