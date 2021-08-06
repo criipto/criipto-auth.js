@@ -16,11 +16,14 @@ export default class CriiptoAuthPopup {
   open(params: PopupAuthorizeParams): Promise<Window> {
     const {width, height, ...authorizeUrlParams} = params;
 
-    return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
-      ...authorizeUrlParams,
-      responseMode: authorizeUrlParams.responseMode || 'fragment',
-      responseType: authorizeUrlParams.responseType || 'id_token',
-    })).then(url => {
+    return this.criiptoAuth.generatePKCE(authorizeUrlParams.redirectUri || this.criiptoAuth.options.redirectUri).then(pkce => {
+      return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+        ...authorizeUrlParams,
+        responseMode: 'query',
+        responseType: 'code',
+        pkce
+      }));
+    }).then(url => {
       return window.open(url, CRIIPTO_POPUP_ID, `width=${width || 400},height=${height || 600}`);
     }).then(window => {
       this.window = window;
@@ -41,13 +44,11 @@ export default class CriiptoAuthPopup {
           const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
           
           if (eventData && eventData.error) {
-            reject(eventData.error);
+            this.criiptoAuth.processResponse(eventData).then(resolve, reject);
             window.removeEventListener('message', receiveMessage);
           } else if (eventData && (eventData.code || eventData.id_token)) {
-            resolve(eventData);
+            this.criiptoAuth.processResponse(eventData).then(resolve, reject);
             window.removeEventListener('message', receiveMessage);
-          } else {
-            console.debug(eventType, eventData);
           }
         };
     
@@ -64,7 +65,7 @@ export default class CriiptoAuthPopup {
 
   callback() {
     const params = parseAuthorizeResponseFromLocation(window.location);
-    window.opener.postMessage(CRIIPTO_AUTHORIZE_RESPONSE + JSON.stringify(params));
+    window.opener.postMessage(CRIIPTO_AUTHORIZE_RESPONSE + JSON.stringify(params), window.location.origin);
     window.close();
   }
 }

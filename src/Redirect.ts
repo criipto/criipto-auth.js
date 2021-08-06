@@ -10,14 +10,20 @@ export default class CriiptoAuthRedirect {
   }
 
   authorize(params: RedirectAuthorizeParams): Promise<void> {
-    return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams(params)).then(url => {
-      window.location.href = url;
+    return this.criiptoAuth.generatePKCE(params.redirectUri || this.criiptoAuth.options.redirectUri).then(pkce => {
+      return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+        ...params,
+        responseMode: 'query',
+        responseType: 'code',
+        pkce
+      })).then(url => {
+        window.location.href = url;
+      });
     });
   }
 
-  match(): AuthorizeResponse {
+  match(): Promise<AuthorizeResponse> {
     const params = parseAuthorizeResponseFromLocation(window.location);
-    if (params.code || params.id_token) return params;
-    return null;
+    return this.criiptoAuth.processResponse(params);
   }
 }

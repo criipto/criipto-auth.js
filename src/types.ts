@@ -1,3 +1,5 @@
+import {PKCE} from './pkce';
+
 export type GenericObject = { [key: string]: any };
 
 export interface AuthorizeUrlParams {
@@ -5,6 +7,7 @@ export interface AuthorizeUrlParams {
   redirectUri: string;
   responseType: string;
   responseMode: string;
+  pkce?: PKCE;
 };
 
 export interface AuthorizeUrlParamsOptional {
@@ -12,6 +15,7 @@ export interface AuthorizeUrlParamsOptional {
   redirectUri?: string;
   responseType?: string;
   responseMode?: string;
+  pkce?: PKCE;
 };
 
 export interface AuthorizeResponse extends GenericObject {
@@ -35,15 +39,11 @@ export interface AuthorizeParams extends Partial<AuthorizeUrlParams> {
 export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {
   acrValues?: string;
   redirectUri?: string;
-  responseType?: string;
-  responseMode?: string;
 };
 
 export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
   acrValues?: string;
   redirectUri?: string;
-  responseType?: string;
-  responseMode?: string;
   width?: number;
   height?: number;
 };

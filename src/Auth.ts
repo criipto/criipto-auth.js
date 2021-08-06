@@ -1,5 +1,6 @@
 import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams} from './types';
 import {ALL_VIA} from './types';
+import {generate as generatePKCE, PKCE} from './pkce';
 
 import OpenIDConfiguration from './OpenID';
 import CriiptoAuthRedirect from './Redirect';
@@ -8,6 +9,7 @@ import CriiptoAuthPopup from './Popup';
 interface CriiptoAuthOptions {
   domain: string;
   clientID: string;
+  store: Storage;
 
   redirectUri?: string;
   responseMode?: string;
@@ -21,15 +23,17 @@ export class CriiptoAuth {
   clientID: string;
   popup: CriiptoAuthPopup;
   redirect: CriiptoAuthRedirect;
+  store: Storage;
   _setupPromise: Promise<void>;
   _openIdConfiguration: OpenIDConfiguration;
 
-  constructor(options:CriiptoAuthOptions) {
-    if (!options.domain || !options.clientID) throw new Error('new criipto.Auth({domain, clientID}) required');
+  constructor(options: CriiptoAuthOptions) {
+    if (!options.domain || !options.clientID || !options.store) throw new Error('new criipto.Auth({domain, clientID, store}) required');
 
     this.options = options;
     this.domain = options.domain;
     this.clientID = options.clientID;
+    this.store = options.store;
 
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
@@ -70,11 +74,62 @@ export class CriiptoAuth {
       if (!this._openIdConfiguration.acr_values_supported.includes(params.acrValues)) throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
-      return `${this._openIdConfiguration.authorization_endpoint}?client_id=${this.clientID}&acr_values=${params.acrValues}&redirect_uri=${encodeURIComponent(params.redirectUri)}&response_type=${params.responseType}&scope=openid&response_mode=${params.responseMode}`;  
+      const url = new URL(`${this._openIdConfiguration.authorization_endpoint}?scope=openid`);
+      url.searchParams.append('client_id', this.clientID);
+      url.searchParams.append('acr_values', params.acrValues);
+      url.searchParams.append('redirect_uri', params.redirectUri);
+      url.searchParams.append('response_type', params.responseType);
+      url.searchParams.append('response_mode', params.responseMode);
+
+      if (params.pkce) {
+        url.searchParams.append('code_challenge', params.pkce.code_challenge);
+        url.searchParams.append('code_challenge_method', params.pkce.code_challenge_method);
+      }
+
+      return url.toString();
     });
   }
 
-  buildAuthorizeParams(params: AuthorizeUrlParamsOptional):AuthorizeUrlParams {
+  generatePKCE(redirectUri : string) : Promise<PKCE> {
+    return generatePKCE().then(pkce => {
+      this.store.setItem('pkce_redirect_uri', redirectUri);
+      this.store.setItem('pkce_code_verifier', pkce.code_verifier);
+      return pkce;
+    });
+  }
+
+  processResponse(params : AuthorizeResponse) : Promise<AuthorizeResponse> {
+    if (params.error) return Promise.reject(params.error);
+    if (params.id_token) return Promise.resolve(params);
+    if (!params.code) return Promise.resolve(null);
+    
+    const pkce_code_verifier = this.store.getItem('pkce_code_verifier');
+    if (!pkce_code_verifier) return Promise.resolve(params);
+
+    const body = new URLSearchParams();
+    body.append('grant_type', "authorization_code");
+    body.append('code', params.code);
+    body.append('client_id', this.clientID);
+    body.append('redirect_uri', this.store.getItem('pkce_redirect_uri'));
+    body.append('code_verifier', pkce_code_verifier);
+
+    return this._setup().then(() => {
+      return window.fetch(this._openIdConfiguration.token_endpoint, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/x-www-form-urlencoded'
+        },
+        credentials: 'omit',
+        body: body.toString()
+      }).then((response : any) => {
+        return response.json();
+      }).then((params : AuthorizeResponse) => {
+        return params;
+      })
+    });    
+  }
+
+  buildAuthorizeParams(params: AuthorizeUrlParamsOptional): AuthorizeUrlParams {
     const redirectUri = params.redirectUri || this.options.redirectUri;
     const responseMode = params.responseMode || this.options.responseMode || 'query';
     const responseType = params.responseType || this.options.responseType || 'code';
@@ -87,7 +142,8 @@ export class CriiptoAuth {
       redirectUri: redirectUri!,
       responseMode: responseMode!,
       responseType: responseType!,
-      acrValues: acrValues!
+      acrValues: acrValues!,
+      pkce: params.pkce
     };
   }
 };

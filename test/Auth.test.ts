@@ -3,6 +3,7 @@ import {AuthorizeUrlParams} from '../src/types';
 import CriiptoAuth from '../src/Auth';
 import OpenIDConfiguration from '../src/OpenID';
 import CriiptoAuthRedirect from '../src/Redirect';
+import { MemoryStore } from './helper';
 
 jest.mock('../src/OpenID');
 
@@ -19,7 +20,8 @@ describe('CriiptoAuth', () => {
 
     auth = new CriiptoAuth({
       domain,
-      clientID
+      clientID,
+      store: new MemoryStore()
     });
 
     Object.defineProperty(global, 'window', {
@@ -30,11 +32,15 @@ describe('CriiptoAuth', () => {
 
   describe('constructor', () => {
     it('throws if domain is not provided', () => {
-      expect(() => new CriiptoAuth({clientID, domain: undefined})).toThrow('new criipto.Auth({domain, clientID}) required');
+      expect(() => new CriiptoAuth({clientID, domain: undefined, store: new MemoryStore()})).toThrow('new criipto.Auth({domain, clientID, store}) required');
     });
 
     it('throws if domain is not provided', () => {
-      expect(() => new CriiptoAuth({clientID: undefined, domain})).toThrow('new criipto.Auth({domain, clientID}) required');
+      expect(() => new CriiptoAuth({clientID: undefined, domain, store: new MemoryStore()})).toThrow('new criipto.Auth({domain, clientID, store}) required');
+    });
+
+    it('throws if store is not provided', () => {
+      expect(() => new CriiptoAuth({clientID, domain, store: undefined})).toThrow('new criipto.Auth({domain, clientID, store}) required');
     });
   })
 
@@ -152,7 +158,12 @@ describe('CriiptoAuth', () => {
       responseMode: Math.random().toString(),
       responseType: Math.random().toString(),
       redirectUri: Math.random().toString(),
-      acrValues: Math.random().toString()
+      acrValues: Math.random().toString(),
+      pkce: {
+        code_challenge: Math.random().toString(),
+        code_challenge_method: 'SHA-256',
+        code_verifier: Math.random().toString()
+      }
     };
 
     const authorization_endpoint:string = `https://${domain}/authorize`;
@@ -217,7 +228,7 @@ describe('CriiptoAuth', () => {
     it('builds url', async () => {
       const actual = await auth.buildAuthorizeUrl(values);
 
-      expect(actual).toBe(`${authorization_endpoint}?client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&scope=openid&response_mode=${values.responseMode}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce.code_challenge}&code_challenge_method=${values.pkce.code_challenge_method}`)
     });
   });
 
@@ -233,18 +244,26 @@ describe('CriiptoAuth', () => {
       auth = new CriiptoAuth({
         domain,
         clientID,
+        store: new MemoryStore(),
         ...params
       });
 
-      const actual = auth.buildAuthorizeParams({});
+      const actual = auth.buildAuthorizeParams({
 
-      expect(actual).toStrictEqual(params);
+      });
+
+      expect(actual).toStrictEqual({...params, pkce: undefined});
     });
 
     it('throws an error if redirectUri is not defined', () => {
       expect(() => auth.buildAuthorizeParams({
         acrValues: Math.random().toString(),
-        redirectUri: undefined
+        redirectUri: undefined,
+        pkce: {
+          code_challenge: Math.random().toString(),
+          code_challenge_method: 'SHA-256',
+          code_verifier: Math.random().toString()
+        }
       })).toThrow('redirectUri must be defined');
     });
 
@@ -252,6 +271,11 @@ describe('CriiptoAuth', () => {
       expect(() => auth.buildAuthorizeParams({
         acrValues: undefined,
         redirectUri: Math.random().toString(),
+        pkce: {
+          code_challenge: Math.random().toString(),
+          code_challenge_method: 'SHA-256',
+          code_verifier: Math.random().toString()
+        }
       })).toThrow('acrValues must be defined');
     });
   });
