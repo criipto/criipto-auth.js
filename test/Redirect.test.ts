@@ -1,3 +1,5 @@
+import * as crypto from 'crypto';
+import {MemoryStore} from './helper';
 import CriiptoAuth from '../src/Auth';
 import CriiptoAuthRedirect from '../src/Redirect';
 
@@ -7,14 +9,28 @@ describe('CriiptoAuthRedirect', () => {
   beforeEach(() => {
     auth = new CriiptoAuth({
       domain: Math.random().toString(),
-      clientID: Math.random().toString()
+      clientID: Math.random().toString(),
+      store: new MemoryStore()
     });
 
     redirect = new CriiptoAuthRedirect(auth);
 
     Object.defineProperty(global, 'window', {
       writable: true,
-      value: {}
+      value: {
+        crypto: {
+          getRandomValues: (arr : any) => crypto.randomBytes(arr.length),
+          subtle: {
+            digest: (algo : string, value : Uint8Array) => {
+              const hash = crypto.createHash('sha256');
+              hash.update(value);
+
+              return hash.digest('hex');
+            }
+          }
+        },
+        btoa: (input : string) => Buffer.from(input).toString('base64')
+      }
     });
     Object.defineProperty(window, 'location', {
       writable: true,
@@ -36,46 +52,15 @@ describe('CriiptoAuthRedirect', () => {
 
       await redirect.authorize({
         redirectUri,
-        acrValues,
-        responseMode: undefined,
-        responseType: undefined
+        acrValues
       });
 
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
         redirectUri,
         acrValues,
         responseMode: 'query',
-        responseType: 'code'
-      });
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
-      expect(window.location.href).toBe(authorizeUrl);
-    });
-
-    it('builds authorize url with custom response mode/type', async () => {
-      const authorizeUrl = Math.random().toString();
-      const redirectUri =  Math.random().toString();
-      const responseMode = 'id_token';
-      const responseType = 'fragment';
-      const acrValues = 'urn:grn:authn:dk:nemid:poces';
-
-      auth.buildAuthorizeUrl = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(authorizeUrl);
-        });
-      });
-
-      await redirect.authorize({
-        redirectUri,
-        acrValues,
-        responseMode,
-        responseType
-      });
-
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
-        redirectUri,
-        acrValues,
-        responseMode,
-        responseType
+        responseType: 'code',
+        pkce: expect.any(Object)
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(window.location.href).toBe(authorizeUrl);
@@ -83,41 +68,48 @@ describe('CriiptoAuthRedirect', () => {
   });
 
   describe('match', () => {
-    it('returns auth response if we are currently on a redirect end uri', () => {
+    it('returns auth response if we are currently on a redirect end uri', async () => {
       const code = Math.random().toString();
       const id_token = Math.random().toString();
+      let match;
 
       window.location = {
         ...window.location,
         hash: undefined,
         search: `?code=${code}`
       };
-      expect(redirect.match().code).toBe(code);
+
+      match = await redirect.match();
+      expect(match.code).toBe(code);
 
       window.location = {
         ...window.location,
         hash: undefined,
         search: `?id_token=${id_token}`
       };
-      expect(redirect.match().id_token).toBe(id_token);
+      match = await redirect.match();
+      expect(match.id_token).toBe(id_token);
 
       window.location = {
         ...window.location,
         search: undefined,
         hash: `#code=${code}`
       };
-      expect(redirect.match().code).toBe(code);
+      match = await redirect.match();
+      expect(match.code).toBe(code);
 
       window.location = {
         ...window.location,
         search: undefined,
         hash: `#id_token=${id_token}`
       };
-      expect(redirect.match().id_token).toBe(id_token);
+      match = await redirect.match();
+      expect(match.id_token).toBe(id_token);
     });
 
-    it('returns null', () => {
-      expect(redirect.match()).toBe(null);
+    it('returns null', async () => {
+      const match = await redirect.match();
+      expect(match).toBe(null);
     });
   });
 });
