@@ -2,7 +2,7 @@
   "name": "@criipto/auth-js",
   "version": "1.0.0",
   "description": "",
-  "main": "dist/index.js",
+  "main": "dist/criipto-auth.js",
   "types": "dist/index.d.ts",
   "scripts": {
     "test": "jest",
