@@ -1,6 +1,6 @@
 import { mocked } from 'ts-jest/utils';
 import {AuthorizeUrlParams} from '../src/types';
-import CriiptoAuth from '../src/Auth';
+import CriiptoAuth from '../src/index';
 import OpenIDConfiguration from '../src/OpenID';
 import CriiptoAuthRedirect from '../src/Redirect';
 import { MemoryStore } from './helper';

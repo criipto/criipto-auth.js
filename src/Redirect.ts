@@ -1,4 +1,4 @@
-import type {CriiptoAuth} from './Auth';
+import type CriiptoAuth from './index';
 import type {RedirectAuthorizeParams, AuthorizeResponse} from './types';
 import {parseAuthorizeResponseFromLocation} from './util';
 

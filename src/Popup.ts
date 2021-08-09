@@ -1,4 +1,4 @@
-import type {CriiptoAuth} from './Auth';
+import type CriiptoAuth from './index';
 import type {PopupAuthorizeParams, AuthorizeResponse, GenericObject} from './types';
 import {parseAuthorizeResponseFromLocation, CRIIPTO_AUTHORIZE_RESPONSE, CRIIPTO_POPUP_ID, CRIIPTO_POPUP_BACKDROP_ID, CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID, CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID} from './util';
 
@@ -17,12 +17,13 @@ export default class CriiptoAuthPopup {
     const {width, height, ...authorizeUrlParams} = params;
 
     return this.criiptoAuth.generatePKCE(authorizeUrlParams.redirectUri || this.criiptoAuth.options.redirectUri).then(pkce => {
-      return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+      const params = this.criiptoAuth.buildAuthorizeParams({
         ...authorizeUrlParams,
         responseMode: 'query',
         responseType: 'code',
         pkce
-      }));
+      });
+      return this.criiptoAuth.buildAuthorizeUrl(params);
     }).then(url => {
       return window.open(url, CRIIPTO_POPUP_ID, `width=${width || 400},height=${height || 600}`);
     }).then(window => {
@@ -63,9 +64,10 @@ export default class CriiptoAuthPopup {
     this.window.close();
   }
 
-  callback() {
+  callback(origin: string | "*") {
+    if (!origin) throw new Error('popup.callback required argument origin');
     const params = parseAuthorizeResponseFromLocation(window.location);
-    window.opener.postMessage(CRIIPTO_AUTHORIZE_RESPONSE + JSON.stringify(params), window.location.origin);
+    window.opener.postMessage(CRIIPTO_AUTHORIZE_RESPONSE + JSON.stringify(params), origin);
     window.close();
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "criipto-verify-auth",
+  "name": "@criipto/auth-js",
   "version": "1.0.0",
   "description": "",
   "main": "dist/index.js",
@@ -7,17 +7,19 @@
   "scripts": {
     "test": "jest",
     "coverage": "jest --collect-coverage",
-    "build": "webpack --config webpack.config.js",
+    "prepublish": "npm run build",
+    "build": "webpack --config webpack.config.js && tsc --declaration --emitDeclarationOnly",
     "dev": "webpack --config webpack.config.dev.js --watch"
   },
   "author": "",
   "devDependencies": {
     "@types/jest": "^26.0.0",
+    "copy-webpack-plugin": "^9.0.1",
     "jest": "^26.0.1",
     "ts-jest": "^26.1.0",
-    "ts-loader": "^7.0.5",
+    "ts-loader": "^9.2.5",
     "typescript": "^3.9.5",
-    "webpack": "^4.43.0",
+    "webpack": "^5.49.0",
     "webpack-cli": "^3.3.11"
   }
 }

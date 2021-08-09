@@ -1,4 +1,5 @@
 const path = require('path');
+const CopyPlugin = require("copy-webpack-plugin");
 
 module.exports = {
   mode: 'production',
@@ -6,10 +7,11 @@ module.exports = {
   output: {
     path: path.resolve(__dirname, 'dist'),
     filename: 'criipto-auth.js',
-    libraryTarget: 'umd',
-    globalObject: 'this',
-    libraryExport: 'default',
-    library: 'criipto'
+    library: {
+      name: 'CriiptoAuth',
+      type: 'umd',
+      export: 'default'
+    }
   },
   module: {
     rules: [
@@ -21,5 +23,12 @@ module.exports = {
   },
   resolve: {
     extensions: [ '.ts', '.tsx', '.js' ]
-  }
+  },
+  plugins: [
+    new CopyPlugin({
+      patterns: [
+        { from: "src/index.css", to: "dist/index.css" }
+      ]
+    })
+  ]
 };

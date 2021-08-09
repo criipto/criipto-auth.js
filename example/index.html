@@ -6,11 +6,11 @@
   </head>
   <body>
     <button id="button_login_responsive">Login (responsive)</button>
-    <button id="button_login_redirect_query">Login (redirect PKCE)</button>
-    <button id="button_login_popup_fragment">Login (popup PKCE)</button>
+    <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
+    <button id="button_login_popup">Login (PKCE + popup)</button>
     <textarea id="result"></textarea>
     <script type="text/javascript">
-      var criiptoAuth = new criipto.Auth({
+      var criiptoAuth = new CriiptoAuth({
         domain: 'javascript-library-test-test.criipto.id',
         clientID: 'urn:my:application:identifier:6573',
         store: sessionStorage
@@ -45,7 +45,7 @@
         document.getElementById('result').innerHTML = JSON.stringify(result);
       });
 
-      document.getElementById('button_login_popup_fragment').addEventListener('click', () => {
+      document.getElementById('button_login_popup').addEventListener('click', () => {
         criiptoAuth.popup.authorize({
           redirectUri: 'http://localhost:8080/example/popup-callback.html',
           acrValues: 'urn:grn:authn:dk:mitid:low',

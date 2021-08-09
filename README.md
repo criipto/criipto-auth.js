@@ -1,6 +1,6 @@
 # criipto-auth.js
 
-Javascript toolkit for Criipto Verify OIDC
+Javascript toolkit for Criipto Verify using PKCE
 
 ## Index
 
@@ -12,16 +12,16 @@ Javascript toolkit for Criipto Verify OIDC
 
 ## Install
 
-From CDN:
-
-```html
-<script src="https://criipto-cdn-url/criipto-auth.js"></script>
+```
+npm install --save @criipto/auth-js
 ```
 
 ## Usage
 
 ```javascript
-var criiptoAuth = new criipto.Auth({
+import CriiptoAuth from '@criipto/auth-js';
+
+var criiptoAuth = new CriiptoAuth({
   domain: '{YOUR_CRIIPTO_DOMAIN}',
   clientID: '{YOUR_CRIIPTO_APPLICATION_ID}'
 });
@@ -44,18 +44,16 @@ criiptoAuth.redirect.authorize({
 ### Initialize/Constructor
 
 ```javascript
-var criiptoAuth = new criipto.Auth({
+var criiptoAuth = new CriiptoAuth({
   domain: '{YOUR_CRIIPTO_DOMAIN}',
   clientID: '{YOUR_CRIIPTO_APPLICATION_ID}'
 });
 
-var criiptoAuth = new criipto.Auth({
+var criiptoAuth = new CriiptoAuth({
   domain: '{YOUR_CRIIPTO_DOMAIN}',
   clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
   redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:nemid:poces',
-  responseType: 'id_token',
-  responseMode: 'fragment'
+  acrValues: 'urn:grn:authn:dk:nemid:poces'
 });
 ```
 
@@ -67,14 +65,10 @@ Parameters:
 
 ### Authorization parameters
 
-All authorization methods like `criiptoAuth.popup.authorize`, `criiptoAuth.redirect.authorize` and `criiptoAuth.authorizeResponsive` take a set of authorization parameters. These authorization parameters can also be provided by default via the `criipto.Auth` constructor.
+All authorization methods like `criiptoAuth.popup.authorize`, `criiptoAuth.redirect.authorize` and `criiptoAuth.authorizeResponsive` take a set of authorization parameters. These authorization parameters can also be provided by default via the `CriiptoAuth` constructor.
 
 - **redirectUri (string)**: The URL where Auth0 will call back to with the result of a successful or failed authentication. It must be whitelisted in the "Callback URLs" in your Criipto application settings.
 - **acrValues (string)**: What EID to use for authentication, such as `urn:grn:authn:dk:nemid:poces`, a list of acceptable values can be found at `https://{YOUR_CRIIPTO_DOMAIN}/.well-known/openid-configuration`
-- **responseType (string)**: Response type for authentication requests. It can be one of `code`, `id_token`.
-- **responseMode (string)**: Supported values are `query`, `fragment`.
-
-`popup` defaults to `fragment`/`id_token` and `redirect` defaults to `code`/`query` (if not overwritten by the `criipto.Auth` constructor).
 
 ### authorizeResponsive
 
@@ -104,7 +98,7 @@ Provides a convenient way to pick authorization method (`popup` or `redirect`) b
 ### authorize
 
 ```javascript
-criiptoAuth.popup.authorize({
+await criiptoAuth.popup.authorize({
   width: 300,
   height: 400,
   redirectUri: 'http://localhost:8000/example/popup-callback.html',
@@ -118,10 +112,12 @@ criiptoAuth.popup.authorize({
 
 ### callback
 ```javascript
-criiptoAuth.popup.callback();
+criiptoAuth.popup.callback(window.location.origin);
 ```
 
-Communications with the parent window to send back `code` or `id_token` from `window.location` query/hash.
+Communicates with the parent window to send back `code` or `id_token` from `window.location` query/hash.
+
+- **origin (string)**: Origin restriction for window.postMessage, should always be restricted to a specific known origin if possible.
 
 ## Auth.redirect
 
@@ -141,7 +137,7 @@ Redirects the users browser tab to the authorization url. After authorization th
 ### match
 
 ```javascript
-const match = criiptoAuth.redirect.match();
+const match = await criiptoAuth.redirect.match();
 console.log(match.code);
 console.log(match.id_token);
 ```

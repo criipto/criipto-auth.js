@@ -4,18 +4,20 @@
     "sourceMap": true,
     "lib": [
       "dom",
-      "es7"
+      "es7",
+      "es2017.object",
+      "es2018.promise"
     ],
     "target": "es6",
-    
     "outDir": "./dist/",
     "noImplicitAny": true,
-    "allowJs": true
+    "allowJs": true,
+    "types": []
   },
   "exclude": [
-    "node_modules",
-    "test",
-    "coverage"
+    "./node_modules",
+    "./test",
+    "./coverage"
   ],
   "files": [
     "src/index.ts"

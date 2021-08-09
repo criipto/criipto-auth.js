@@ -4,13 +4,13 @@
     </head>
     <body>
         <script type="text/javascript">
-            var criiptoAuth = new criipto.Auth({
-                domain: 'asdasdasd.criipto.io',
-                clientID: 'urn:my:application:identifier:7244',
+            var criiptoAuth = new CriiptoAuth({
+                domain: 'javascript-library-test-test.criipto.id',
+                clientID: 'urn:my:application:identifier:6573',
                 store: sessionStorage
             });
 
-            criiptoAuth.popup.callback();
+            criiptoAuth.popup.callback('http://localhost:8080');
         </script>
     </body>
 </html>
