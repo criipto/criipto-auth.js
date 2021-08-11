@@ -25,7 +25,8 @@ export default class CriiptoAuthPopup {
       });
       return this.criiptoAuth.buildAuthorizeUrl(params);
     }).then(url => {
-      return window.open(url, CRIIPTO_POPUP_ID, `width=${width || 400},height=${height || 600}`);
+      const features = `width=${width || 330},height=${height || 600}`;
+      return window.open(url, CRIIPTO_POPUP_ID, features);
     }).then(window => {
       this.window = window;
       return window;

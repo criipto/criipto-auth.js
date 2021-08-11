@@ -21,9 +21,7 @@
           '(min-width: 601px)': {
             via: 'popup',
             redirectUri: 'http://localhost:8080/example/popup-callback.html',
-            acrValues: 'urn:grn:authn:dk:mitid:low',
-            width: 320,
-            height: 460
+            acrValues: 'urn:grn:authn:dk:mitid:low'
           },
           '(max-width: 600px)': {
             via: 'redirect',
@@ -48,9 +46,7 @@
       document.getElementById('button_login_popup').addEventListener('click', () => {
         criiptoAuth.popup.authorize({
           redirectUri: 'http://localhost:8080/example/popup-callback.html',
-          acrValues: 'urn:grn:authn:dk:mitid:low',
-          width: 320,
-          height: 460
+          acrValues: 'urn:grn:authn:dk:mitid:low'
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
