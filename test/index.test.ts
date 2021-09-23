@@ -176,7 +176,7 @@ describe('CriiptoAuth', () => {
       auth._openIdConfiguration.authorization_endpoint = authorization_endpoint;
       auth._openIdConfiguration.response_modes_supported = [values.responseMode];
       auth._openIdConfiguration.response_types_supported = [values.responseType];
-      auth._openIdConfiguration.acr_values_supported = [values.acrValues];
+      auth._openIdConfiguration.acr_values_supported = [values.acrValues!];
     });
 
     it('throws an error if responseMode is not one of supported', async () => {
@@ -223,6 +223,15 @@ describe('CriiptoAuth', () => {
       }).catch(err => {
         expect(err.message).toMatch(`redirectUri must be defined`);
       });
+    });
+
+    it('builds without acr value', async () => {
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        acrValues: undefined
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
     });
 
     it('builds url', async () => {

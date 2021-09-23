@@ -3,7 +3,7 @@ import {PKCE} from './pkce';
 export type GenericObject = { [key: string]: any };
 
 export interface AuthorizeUrlParams {
-  acrValues: string;
+  acrValues?: string;
   redirectUri: string;
   responseType: string;
   responseMode: string;
