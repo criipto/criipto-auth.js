@@ -1,7 +1,8 @@
+import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import OpenIDConfiguration from '../src/OpenID';
 
 describe('OpenIDConfiguration', () => {
-  let fetch: jest.Mock;
+  let fetch = jest.fn();
 
   beforeEach(() => {
     Object.defineProperty(global, 'window', {
@@ -9,7 +10,7 @@ describe('OpenIDConfiguration', () => {
       value: {}
     });
 
-    window.fetch = fetch =  jest.fn();
+    (window.fetch as any) = fetch = jest.fn();
   });
 
   it('fetches well-known metadata via authority', async () => {

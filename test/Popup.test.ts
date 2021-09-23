@@ -1,12 +1,13 @@
+import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
 import {generate as generatePKCE} from '../src/pkce';
-import CriiptoAuth from '../src/Auth';
+import CriiptoAuth from '../src/index';
 import CriiptoAuthPopup from '../src/Popup';
 import {CRIIPTO_POPUP_ID, CRIIPTO_POPUP_BACKDROP_ID, CRIIPTO_AUTHORIZE_RESPONSE} from '../src/util';
 
 describe('CriiptoAuthPopup', () => {
-  let auth:CriiptoAuth, popup:CriiptoAuthPopup, windowAddEventListener: jest.Mock, windowClose: jest.Mock;
+  let auth:CriiptoAuth, popup:CriiptoAuthPopup, windowAddEventListener = jest.fn(), windowClose = jest.fn();
 
   beforeEach(() => {
     auth = new CriiptoAuth({
@@ -53,13 +54,13 @@ describe('CriiptoAuthPopup', () => {
       }
     });
 
-    global.document.getElementById = jest.fn().mockImplementation((id) => {
+    (global.document.getElementById as any) = jest.fn().mockImplementation((id) => {
       if (id === CRIIPTO_POPUP_BACKDROP_ID) return null;
       return {
         addEventListener: jest.fn()
       };
     });
-    global.document.createElement = jest.fn().mockImplementation(() => ({
+    (global.document.createElement as any) = jest.fn().mockImplementation(() => ({
       addEventListener: jest.fn()
     }));
   });
@@ -71,8 +72,8 @@ describe('CriiptoAuthPopup', () => {
       const acrValues = 'urn:grn:authn:dk:nemid:poces';
       const createdWindow = {};
 
-      window.open = jest.fn().mockImplementation(() => createdWindow);
-      auth.buildAuthorizeUrl = jest.fn().mockImplementation(() => {
+      (window.open as any) = jest.fn().mockImplementation(() => createdWindow);
+      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolve(authorizeUrl);
         });
@@ -94,7 +95,7 @@ describe('CriiptoAuthPopup', () => {
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenCalledTimes(1);
-      expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=400,height=600`);
+      expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=330,height=600`);
     });
   });
 
@@ -103,7 +104,7 @@ describe('CriiptoAuthPopup', () => {
 
     beforeEach(() => {
       createdWindow = {} as Window;
-      popup.open = jest.fn().mockImplementation(() => Promise.resolve());
+      (popup.open as any) = jest.fn().mockImplementation(() => Promise.resolve());
       popup.window = createdWindow;
     });
 
@@ -126,7 +127,7 @@ describe('CriiptoAuthPopup', () => {
       expect(popup._latestParams).toBe(params); 
 
       await Promise.resolve(); // Wait for a promise cycle
-      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message');
+      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
       expect(messageEventListener).toBeDefined();
 
       // An ignored event, not prefixed correctly
@@ -146,17 +147,18 @@ describe('CriiptoAuthPopup', () => {
       };
       const id_token = Math.random().toString();
 
-      window.fetch = jest.fn().mockImplementation(async (url) => {
+      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
         if (url.includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata)
-          }
+          };
         }
         if (url === metadata.token_endpoint) {
           return {
             json: () => Promise.resolve({id_token})
-          }
+          };
         }
+        throw new Error('Unexpected url');
       });
 
       const code = Math.random().toString();
@@ -179,7 +181,7 @@ describe('CriiptoAuthPopup', () => {
       expect(popup._latestParams).toBe(params); 
 
       await Promise.resolve(); // Wait for a promise cycle
-      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message');
+      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
       expect(messageEventListener).toBeDefined();
 
       // An ignored event, not prefixed correctly
@@ -192,7 +194,7 @@ describe('CriiptoAuthPopup', () => {
       const result = await authorizePromise;
       expect(result.id_token).toBe(id_token);
 
-      const fetchCall = (window.fetch as jest.Mock<any>).mock.calls.find(([url]) => url === metadata.token_endpoint);
+      const fetchCall = (window.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
       expect(fetchCall[1].body).toContain(`code_verifier=${pkce.code_verifier}`);
     });
 
@@ -211,7 +213,7 @@ describe('CriiptoAuthPopup', () => {
       });
 
       await Promise.resolve(); // Wait for a promise cycle
-      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message');
+      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
 
       // An ignored event, not correct osurce
       messageEventListener[1]({
@@ -232,8 +234,8 @@ describe('CriiptoAuthPopup', () => {
       const createdWindow = {
         close: jest.fn()
       };
-      window.open = jest.fn().mockImplementation(() => createdWindow);
-      auth.buildAuthorizeUrl = jest.fn().mockImplementation(() => {
+      (window.open as any) = jest.fn().mockImplementation(() => createdWindow);
+      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolve(Math.random().toString());
         });
@@ -263,11 +265,11 @@ describe('CriiptoAuthPopup', () => {
       (window.opener.postMessage as any).mockClear();
       window.location = {
         ...window.location,
-        hash: undefined,
+        hash: '',
         search: `?code=${code}`,
         origin: Math.random().toString()
       };
-      popup.callback();
+      popup.callback(window.location.origin);
       expect(window.opener.postMessage).toHaveBeenCalledTimes(1);
       expect(window.opener.postMessage).toHaveBeenCalledWith(CRIIPTO_AUTHORIZE_RESPONSE+JSON.stringify({
         code
@@ -280,10 +282,10 @@ describe('CriiptoAuthPopup', () => {
       window.location = {
         ...window.location,
         hash: `#id_token=${id_token}`,
-        search: undefined,
+        search: '',
         origin: Math.random().toString()
       };
-      popup.callback();
+      popup.callback(window.location.origin);
       expect(window.opener.postMessage).toHaveBeenCalledTimes(1);
       expect(window.opener.postMessage).toHaveBeenCalledWith(CRIIPTO_AUTHORIZE_RESPONSE+JSON.stringify({
         id_token

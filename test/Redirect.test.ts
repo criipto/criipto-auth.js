@@ -1,6 +1,7 @@
+import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
-import CriiptoAuth from '../src/Auth';
+import CriiptoAuth from '../src/index';
 import CriiptoAuthRedirect from '../src/Redirect';
 
 describe('CriiptoAuthRedirect', () => {
@@ -44,7 +45,7 @@ describe('CriiptoAuthRedirect', () => {
       const redirectUri =  Math.random().toString();
       const acrValues = 'urn:grn:authn:dk:nemid:poces';
 
-      auth.buildAuthorizeUrl = jest.fn().mockImplementation(() => {
+      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolve(authorizeUrl);
         });
@@ -75,36 +76,36 @@ describe('CriiptoAuthRedirect', () => {
 
       window.location = {
         ...window.location,
-        hash: undefined,
+        hash: '',
         search: `?code=${code}`
       };
 
       match = await redirect.match();
-      expect(match.code).toBe(code);
+      expect(match?.code).toBe(code);
 
       window.location = {
         ...window.location,
-        hash: undefined,
+        hash: '',
         search: `?id_token=${id_token}`
       };
       match = await redirect.match();
-      expect(match.id_token).toBe(id_token);
+      expect(match?.id_token).toBe(id_token);
 
       window.location = {
         ...window.location,
-        search: undefined,
+        search: '',
         hash: `#code=${code}`
       };
       match = await redirect.match();
-      expect(match.code).toBe(code);
+      expect(match?.code).toBe(code);
 
       window.location = {
         ...window.location,
-        search: undefined,
+        search: '',
         hash: `#id_token=${id_token}`
       };
       match = await redirect.match();
-      expect(match.id_token).toBe(id_token);
+      expect(match?.id_token).toBe(id_token);
     });
 
     it('returns null', async () => {

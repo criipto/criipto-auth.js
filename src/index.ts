@@ -48,10 +48,10 @@ export class CriiptoAuth {
   }
 
   authorizeResponsive(queries:AuthorizeResponsiveParams): Promise<AuthorizeResponse | void> {
-    let match:RedirectAuthorizeParams | PopupAuthorizeParams;
+    let match:RedirectAuthorizeParams | PopupAuthorizeParams | undefined = undefined;
 
     for (let [query, params] of Object.entries(queries)) {
-      if (!ALL_VIA.includes(params.via)) {
+      if (!ALL_VIA.includes(params.via!)) {
         throw new Error(`Unknown match.via`);
       }
 
@@ -61,10 +61,11 @@ export class CriiptoAuth {
       }
     }
 
-    if (!match) throw new Error('No media queries matched');
+    if (match === undefined) throw new Error('No media queries matched');
     const {via, ...params} = match;
     if (via === 'redirect') return this.redirect.authorize(params as RedirectAuthorizeParams);
     if (via === 'popup') return this.popup.authorize(params as PopupAuthorizeParams);
+    throw new Error('Invalid media query');
   }
 
   buildAuthorizeUrl(params: AuthorizeUrlParams) {
@@ -98,7 +99,7 @@ export class CriiptoAuth {
     });
   }
 
-  processResponse(params : AuthorizeResponse) : Promise<AuthorizeResponse> {
+  processResponse(params : AuthorizeResponse) : Promise<AuthorizeResponse | null> {
     if (params.error) return Promise.reject(params.error);
     if (params.id_token) return Promise.resolve(params);
     if (!params.code) return Promise.resolve(null);
@@ -110,7 +111,7 @@ export class CriiptoAuth {
     body.append('grant_type', "authorization_code");
     body.append('code', params.code);
     body.append('client_id', this.clientID);
-    body.append('redirect_uri', this.store.getItem('pkce_redirect_uri'));
+    body.append('redirect_uri', this.store.getItem('pkce_redirect_uri')!);
     body.append('code_verifier', pkce_code_verifier);
 
     return this._setup().then(() => {

@@ -1,3 +1,4 @@
+import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import { mocked } from 'ts-jest/utils';
 import {AuthorizeUrlParams} from '../src/types';
 import CriiptoAuth from '../src/index';
@@ -32,15 +33,15 @@ describe('CriiptoAuth', () => {
 
   describe('constructor', () => {
     it('throws if domain is not provided', () => {
-      expect(() => new CriiptoAuth({clientID, domain: undefined, store: new MemoryStore()})).toThrow('new criipto.Auth({domain, clientID, store}) required');
+      expect(() => new CriiptoAuth({clientID, domain: undefined as any, store: new MemoryStore()})).toThrow('new criipto.Auth({domain, clientID, store}) required');
     });
 
     it('throws if domain is not provided', () => {
-      expect(() => new CriiptoAuth({clientID: undefined, domain, store: new MemoryStore()})).toThrow('new criipto.Auth({domain, clientID, store}) required');
+      expect(() => new CriiptoAuth({clientID: undefined as any, domain, store: new MemoryStore()})).toThrow('new criipto.Auth({domain, clientID, store}) required');
     });
 
     it('throws if store is not provided', () => {
-      expect(() => new CriiptoAuth({clientID, domain, store: undefined})).toThrow('new criipto.Auth({domain, clientID, store}) required');
+      expect(() => new CriiptoAuth({clientID, domain, store: undefined as any})).toThrow('new criipto.Auth({domain, clientID, store}) required');
     });
   })
 
@@ -60,13 +61,12 @@ describe('CriiptoAuth', () => {
   });
 
   describe('authorizeResponsive', () => {
-    let matchMediaMock: jest.Mock, popupAuthorizeMock: jest.Mock, redirectAuthorizeMock: jest.Mock;
+    let matchMediaMock = jest.fn(), popupAuthorizeMock = jest.fn(), redirectAuthorizeMock = jest.fn();
 
     beforeEach(() => {
-      window.matchMedia = matchMediaMock = jest.fn();
-
-      auth.popup.authorize = popupAuthorizeMock = jest.fn();
-      auth.redirect.authorize = redirectAuthorizeMock = jest.fn();
+      (window.matchMedia as any) = matchMediaMock = jest.fn();
+      (auth.popup.authorize as any) = popupAuthorizeMock = jest.fn();
+      (auth.redirect.authorize as any)= redirectAuthorizeMock = jest.fn();
     });
 
     it('maps to popup', async () => {
@@ -169,7 +169,7 @@ describe('CriiptoAuth', () => {
     const authorization_endpoint:string = `https://${domain}/authorize`;
 
     beforeEach(() => {
-      auth._setup = jest.fn().mockImplementation(() => Promise.resolve());
+      (auth._setup as any) = jest.fn().mockImplementation(() => Promise.resolve());
 
       auth._openIdConfiguration = new OpenIDConfiguration(domain);
       auth._openIdConfiguration.authority = domain;
@@ -219,7 +219,7 @@ describe('CriiptoAuth', () => {
       expect.assertions(1);
       await auth.buildAuthorizeUrl({
         ...values,
-        redirectUri: undefined
+        redirectUri: undefined as any
       }).catch(err => {
         expect(err.message).toMatch(`redirectUri must be defined`);
       });
@@ -228,7 +228,7 @@ describe('CriiptoAuth', () => {
     it('builds url', async () => {
       const actual = await auth.buildAuthorizeUrl(values);
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce.code_challenge}&code_challenge_method=${values.pkce.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
     });
   });
 

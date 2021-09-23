@@ -15,8 +15,9 @@ export default class CriiptoAuthPopup {
 
   open(params: PopupAuthorizeParams): Promise<Window> {
     const {width, height, ...authorizeUrlParams} = params;
+    const redirectUri = authorizeUrlParams.redirectUri || this.criiptoAuth.options.redirectUri;
 
-    return this.criiptoAuth.generatePKCE(authorizeUrlParams.redirectUri || this.criiptoAuth.options.redirectUri).then(pkce => {
+    return this.criiptoAuth.generatePKCE(redirectUri!).then(pkce => {
       const params = this.criiptoAuth.buildAuthorizeParams({
         ...authorizeUrlParams,
         responseMode: 'query',
@@ -28,8 +29,8 @@ export default class CriiptoAuthPopup {
       const features = `width=${width || 330},height=${height || 600}`;
       return window.open(url, CRIIPTO_POPUP_ID, features);
     }).then(window => {
-      this.window = window;
-      return window;
+      this.window = window!;
+      return window!;
     });
   }
 
@@ -38,11 +39,11 @@ export default class CriiptoAuthPopup {
     this.backdrop.render();
 
     return this.open(params).then(() => {
-      return new Promise((resolve, reject) => {
+      return new Promise<AuthorizeResponse>((resolve, reject) => {
         const receiveMessage = (event: MessageEvent) => {
           if (event.source !== this.window) return;
 
-          const eventType:string = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
+          const eventType:string | null = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
           const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
           
           if (eventData && eventData.error) {
@@ -104,8 +105,8 @@ export class CriiptoAuthPopupBackdrop {
       element.innerHTML = this.template;
 
       document.body.appendChild(element);
-      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID).addEventListener('click', this.handleOpen);
-      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID).addEventListener('click', this.handleCancel);
+      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID)?.addEventListener('click', this.handleOpen);
+      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID)?.addEventListener('click', this.handleCancel);
     }
   }
 
@@ -119,6 +120,6 @@ export class CriiptoAuthPopupBackdrop {
   }
 
   remove() {
-    document.body.removeChild(document.getElementById(CRIIPTO_POPUP_BACKDROP_ID));
+    document.body.removeChild(document.getElementById(CRIIPTO_POPUP_BACKDROP_ID)!);
   }
 }
