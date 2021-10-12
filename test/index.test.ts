@@ -275,17 +275,5 @@ describe('CriiptoAuth', () => {
         }
       })).toThrow('redirectUri must be defined');
     });
-
-    it('throws an error if acrValues is not defined', () => {
-      expect(() => auth.buildAuthorizeParams({
-        acrValues: undefined,
-        redirectUri: Math.random().toString(),
-        pkce: {
-          code_challenge: Math.random().toString(),
-          code_challenge_method: 'SHA-256',
-          code_verifier: Math.random().toString()
-        }
-      })).toThrow('acrValues must be defined');
-    });
   });
 });

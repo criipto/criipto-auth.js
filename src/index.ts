@@ -139,7 +139,6 @@ export class CriiptoAuth {
     const acrValues = params.acrValues || this.options.acrValues;
 
     if (!redirectUri) throw new Error(`redirectUri must be defined`);
-    if (!acrValues) throw new Error(`acrValues must be defined`);
 
     return {
       redirectUri: redirectUri!,
