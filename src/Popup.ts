@@ -14,7 +14,7 @@ export default class CriiptoAuthPopup {
   }
 
   open(params: PopupAuthorizeParams): Promise<Window> {
-    const {width, height, ...authorizeUrlParams} = params;
+    let {width, height, ...authorizeUrlParams} = params;
     const redirectUri = authorizeUrlParams.redirectUri || this.criiptoAuth.options.redirectUri;
 
     return this.criiptoAuth.generatePKCE(redirectUri!).then(pkce => {
@@ -26,7 +26,20 @@ export default class CriiptoAuthPopup {
       });
       return this.criiptoAuth.buildAuthorizeUrl(params);
     }).then(url => {
-      const features = `width=${width || 330},height=${height || 600}`;
+      width = width || 330;
+      height = height || 600;
+
+      const dualScreenLeft = window.screenLeft ?? window.screenX;
+      const dualScreenTop = window.screenTop ?? window.screenY;
+
+      const windowWidth = window.innerWidth ?? document.documentElement.clientWidth ?? screen.width;
+      const windowHeight = window.innerHeight ?? document.documentElement.clientHeight ?? screen.height;
+
+      const systemZoom = windowWidth / window.screen.availWidth;
+      const left = (windowWidth - width) / 2 / systemZoom + dualScreenLeft
+      const top = (windowHeight - height) / 2 / systemZoom + dualScreenTop
+
+      const features = `width=${width},height=${height},top=${top},left=${left}`;
       return window.open(url, CRIIPTO_POPUP_ID, features);
     }).then(window => {
       this.window = window!;

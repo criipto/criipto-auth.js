@@ -37,7 +37,14 @@ describe('CriiptoAuthPopup', () => {
             }
           }
         },
-        btoa: (input : string) => Buffer.from(input).toString('base64')
+        btoa: (input : string) => Buffer.from(input).toString('base64'),
+        screenLeft: 0,
+        screenTop: 0,
+        innerWidth: 1000,
+        innerHeight: 1000,
+        screen: {
+          availWidth: 1000
+        }
       }
     });
 
@@ -95,7 +102,7 @@ describe('CriiptoAuthPopup', () => {
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenCalledTimes(1);
-      expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=330,height=600`);
+      expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=330,height=600,top=200,left=335`);
     });
   });
 
