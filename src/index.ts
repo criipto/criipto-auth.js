@@ -89,6 +89,10 @@ export class CriiptoAuth {
         url.searchParams.append('code_challenge_method', params.pkce.code_challenge_method);
       }
 
+      if (params.state) {
+        url.searchParams.append('state', params.state);
+      }
+
       return url.toString();
     });
   }
@@ -109,6 +113,7 @@ export class CriiptoAuth {
     const pkce_code_verifier = this.store.getItem('pkce_code_verifier');
     if (!pkce_code_verifier) return Promise.resolve(params);
 
+    const state = params.state;
     const body = new URLSearchParams();
     body.append('grant_type', "authorization_code");
     body.append('code', params.code);
@@ -127,7 +132,7 @@ export class CriiptoAuth {
       }).then((response : any) => {
         return response.json();
       }).then((params : AuthorizeResponse) => {
-        return params;
+        return {...params, state};
       })
     });    
   }
@@ -145,7 +150,8 @@ export class CriiptoAuth {
       responseMode: responseMode!,
       responseType: responseType!,
       acrValues: acrValues!,
-      pkce: params.pkce
+      pkce: params.pkce,
+      state: params.state
     };
   }
 };

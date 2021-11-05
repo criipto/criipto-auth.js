@@ -7,6 +7,7 @@
   <body>
     <button id="button_login_responsive">Login (responsive)</button>
     <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
+    <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
     <button id="button_login_popup">Login (PKCE + popup)</button>
     <textarea id="result"></textarea>
     <script type="text/javascript">
@@ -35,6 +36,14 @@
         criiptoAuth.redirect.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
           acrValues: 'urn:grn:authn:dk:mitid:low'
+        });
+      });
+
+      document.getElementById('button_login_redirect_query_state').addEventListener('click', () => {
+        criiptoAuth.redirect.authorize({
+          redirectUri: 'http://localhost:8080/example/index.html',
+          acrValues: 'urn:grn:authn:dk:mitid:low',
+          state: Math.random().toString()
         });
       });
 

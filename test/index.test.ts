@@ -261,7 +261,7 @@ describe('CriiptoAuth', () => {
 
       });
 
-      expect(actual).toStrictEqual({...params, pkce: undefined});
+      expect(actual).toStrictEqual({...params, pkce: undefined, state: undefined});
     });
 
     it('throws an error if redirectUri is not defined', () => {

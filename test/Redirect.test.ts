@@ -72,6 +72,7 @@ describe('CriiptoAuthRedirect', () => {
     it('returns auth response if we are currently on a redirect end uri', async () => {
       const code = Math.random().toString();
       const id_token = Math.random().toString();
+      const state = Math.random().toString();
       let match;
 
       window.location = {
@@ -82,6 +83,16 @@ describe('CriiptoAuthRedirect', () => {
 
       match = await redirect.match();
       expect(match?.code).toBe(code);
+
+      window.location = {
+        ...window.location,
+        hash: '',
+        search: `?code=${code}&state=${state}`
+      };
+
+      match = await redirect.match();
+      expect(match?.code).toBe(code);
+      expect(match?.state).toBe(state);
 
       window.location = {
         ...window.location,

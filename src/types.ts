@@ -8,6 +8,7 @@ export interface AuthorizeUrlParams {
   responseType: string;
   responseMode: string;
   pkce?: PKCE;
+  state?: string;
 };
 
 export interface AuthorizeUrlParamsOptional {
@@ -16,12 +17,14 @@ export interface AuthorizeUrlParamsOptional {
   responseType?: string;
   responseMode?: string;
   pkce?: PKCE;
+  state?: string
 };
 
 export interface AuthorizeResponse extends GenericObject {
   code?: string;
   id_token?: string;
   error?: string;
+  state?: string
 };
 
 export const ALL_VIA = ['redirect', 'popup'] as const; // TS 3.4
