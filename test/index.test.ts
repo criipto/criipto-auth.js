@@ -234,6 +234,28 @@ describe('CriiptoAuth', () => {
       expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
     });
 
+    it('builds with login_hint', async () => {
+      const loginHint = Math.random().toString();
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        acrValues: undefined,
+        loginHint
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&login_hint=${loginHint}`)
+    });
+
+    it('builds with ui_locales', async () => {
+      const uiLocales = Math.random().toString();
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        acrValues: undefined,
+        uiLocales
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&ui_locales=${uiLocales}`)
+    });
+
     it('builds url', async () => {
       const actual = await auth.buildAuthorizeUrl(values);
 

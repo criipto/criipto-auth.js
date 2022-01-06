@@ -9,6 +9,8 @@ export interface AuthorizeUrlParams {
   responseMode: string;
   pkce?: PKCE;
   state?: string;
+  loginHint?: string;
+  uiLocales?: string;
 };
 
 export interface AuthorizeUrlParamsOptional {

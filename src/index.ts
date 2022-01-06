@@ -93,6 +93,14 @@ export class CriiptoAuth {
         url.searchParams.append('state', params.state);
       }
 
+      if (params.loginHint) {
+        url.searchParams.append('login_hint', params.loginHint);
+      }
+
+      if (params.uiLocales) {
+        url.searchParams.append('ui_locales', params.uiLocales);
+      }
+
       return url.toString();
     });
   }
