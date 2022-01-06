@@ -49,7 +49,7 @@ export default class CriiptoAuthPopup {
 
   authorize(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
     this._latestParams = params;
-    this.backdrop.render();
+    this.backdrop.render(params);
 
     return this.open(params).then(() => {
       return new Promise<AuthorizeResponse>((resolve, reject) => {
@@ -87,15 +87,7 @@ export default class CriiptoAuthPopup {
   }
 }
 
-export class CriiptoAuthPopupBackdrop {
-  popup: CriiptoAuthPopup;
-  enabled: boolean;
-  template: string;
-  
-  constructor(popup: CriiptoAuthPopup) {
-    this.popup = popup;
-    this.enabled = true;
-    this.template = `
+const EN_TEMPLATE = `
 <div class="criipto-auth-popup-backdrop-background"></div>
 <div class="criipto-auth-popup-backdrop-content">
   <p>Don't see the login popup?</p>
@@ -103,19 +95,36 @@ export class CriiptoAuthPopupBackdrop {
   <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID}">Cancel</button>
 </div>
 `;
+const DA_TEMPLATE = `
+<div class="criipto-auth-popup-backdrop-background"></div>
+<div class="criipto-auth-popup-backdrop-content">
+  <p>Kan du ikke se pop-uppen?</p>
+  <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID}">Åben popup</button>
+  <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID}">Fortryd</button>
+</div>
+`;
+export class CriiptoAuthPopupBackdrop {
+  popup: CriiptoAuthPopup;
+  enabled: boolean;
+  template: string | null = null;
+  
+  constructor(popup: CriiptoAuthPopup) {
+    this.popup = popup;
+    this.enabled = true;
 
     this.handleOpen = this.handleOpen.bind(this);
     this.handleCancel = this.handleCancel.bind(this);
   }
 
-  render() {
+  render(params: PopupAuthorizeParams) {
     const exists = document.getElementById(CRIIPTO_POPUP_BACKDROP_ID);
+    const template = this.template ?? (params.uiLocales?.includes('da') ? DA_TEMPLATE : EN_TEMPLATE);
     
     if (!exists) {
       const element = document.createElement('div');
       element.id = CRIIPTO_POPUP_BACKDROP_ID;
       element.className = 'criipto-auth-popup-backdrop';
-      element.innerHTML = this.template;
+      element.innerHTML = template;
 
       document.body.appendChild(element);
       document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID)?.addEventListener('click', this.handleOpen);
@@ -128,8 +137,8 @@ export class CriiptoAuthPopupBackdrop {
   }
 
   handleCancel() {
-    this.popup.close();
     this.remove();
+    this.popup.close();
   }
 
   remove() {

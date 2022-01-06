@@ -9,6 +9,7 @@
     <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
     <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
     <button id="button_login_popup">Login (PKCE + popup)</button>
+    <button id="button_login_popup_da">Login (PKCE + popup + Danish)</button>
     <textarea id="result"></textarea>
     <script type="text/javascript">
       var criiptoAuth = new CriiptoAuth({
@@ -56,6 +57,17 @@
         criiptoAuth.popup.authorize({
           redirectUri: 'http://localhost:8080/example/popup-callback.html',
           acrValues: 'urn:grn:authn:dk:mitid:low'
+        }).then((result) => {
+          console.log(result);
+          document.getElementById('result').innerHTML = JSON.stringify(result);
+        });
+      });
+
+      document.getElementById('button_login_popup_da').addEventListener('click', () => {
+        criiptoAuth.popup.authorize({
+          redirectUri: 'http://localhost:8080/example/popup-callback.html',
+          acrValues: 'urn:grn:authn:dk:mitid:low',
+          uiLocales: 'da'
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
