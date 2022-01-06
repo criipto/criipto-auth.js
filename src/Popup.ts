@@ -103,6 +103,23 @@ const DA_TEMPLATE = `
   <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID}">Fortryd</button>
 </div>
 `;
+const SE_TEMPLATE = `
+<div class="criipto-auth-popup-backdrop-background"></div>
+<div class="criipto-auth-popup-backdrop-content">
+  <p>Ser du inte inloggningspopupen?</p>
+  <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID}">Öppna popup igen</button>
+  <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID}">Avbryt</button>
+</div>
+`;
+const NO_TEMPLATE = `
+<div class="criipto-auth-popup-backdrop-background"></div>
+<div class="criipto-auth-popup-backdrop-content">
+  <p>Ser du ikke popup-dialogboksen for pålogging?</p>
+  <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID}">Åpne popup på nytt</button>
+  <button id="${CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID}">Avbryt</button>
+</div>
+`;
+
 export class CriiptoAuthPopupBackdrop {
   popup: CriiptoAuthPopup;
   enabled: boolean;
@@ -118,7 +135,12 @@ export class CriiptoAuthPopupBackdrop {
 
   render(params: PopupAuthorizeParams) {
     const exists = document.getElementById(CRIIPTO_POPUP_BACKDROP_ID);
-    const template = this.template ?? (params.uiLocales?.includes('da') ? DA_TEMPLATE : EN_TEMPLATE);
+    const template =
+      this.template ??
+        params.uiLocales == 'da' ? DA_TEMPLATE :
+        (params.uiLocales == 'se' || params.uiLocales == 'sv') ? SE_TEMPLATE : 
+        params.uiLocales == 'nb' ? NO_TEMPLATE : 
+        EN_TEMPLATE;
     
     if (!exists) {
       const element = document.createElement('div');
