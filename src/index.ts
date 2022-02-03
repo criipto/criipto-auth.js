@@ -159,7 +159,9 @@ export class CriiptoAuth {
       responseType: responseType!,
       acrValues: acrValues!,
       pkce: params.pkce,
-      state: params.state
+      state: params.state,
+      loginHint: params.loginHint,
+      uiLocales: params.uiLocales
     };
   }
 };
