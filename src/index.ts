@@ -72,7 +72,10 @@ export class CriiptoAuth {
     return this._setup().then(() => {
       if (!this._openIdConfiguration.response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${this._openIdConfiguration.response_modes_supported.join(',')}`);
       if (!this._openIdConfiguration.response_types_supported.includes(params.responseType)) throw new Error(`responseType must be one of ${this._openIdConfiguration.response_types_supported.join(',')}`);
-      if (params.acrValues && !this._openIdConfiguration.acr_values_supported.includes(params.acrValues)) throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
+      if (this._openIdConfiguration.acr_values_supported &&
+          params.acrValues &&
+          !this._openIdConfiguration.acr_values_supported.includes(params.acrValues))
+        throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
       const url = new URL(`${this._openIdConfiguration.authorization_endpoint}?scope=openid`);
@@ -99,6 +102,12 @@ export class CriiptoAuth {
 
       if (params.uiLocales) {
         url.searchParams.append('ui_locales', params.uiLocales);
+      }
+
+      if(params.extraUrlParams) {
+        for (let entry of params.extraUrlParams.entries()) {
+          url.searchParams.append(entry[0], entry[1]);
+        }
       }
 
       return url.toString();

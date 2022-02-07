@@ -163,7 +163,10 @@ describe('CriiptoAuth', () => {
         code_challenge: Math.random().toString(),
         code_challenge_method: 'SHA-256',
         code_verifier: Math.random().toString()
-      }
+      },
+      extraUrlParams: new Map<string,string>([
+        ['connection', 'my-conection']
+      ])
     };
 
     const authorization_endpoint:string = `https://${domain}/authorize`;
@@ -231,7 +234,7 @@ describe('CriiptoAuth', () => {
         acrValues: undefined
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&connection=my-conection`)
     });
 
     it('builds with login_hint', async () => {
@@ -242,7 +245,7 @@ describe('CriiptoAuth', () => {
         loginHint
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&login_hint=${loginHint}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&login_hint=${loginHint}&connection=my-conection`)
     });
 
     it('builds with ui_locales', async () => {
@@ -253,13 +256,13 @@ describe('CriiptoAuth', () => {
         uiLocales
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&ui_locales=${uiLocales}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&ui_locales=${uiLocales}&connection=my-conection`)
     });
 
     it('builds url', async () => {
       const actual = await auth.buildAuthorizeUrl(values);
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&connection=my-conection`)
     });
   });
 
