@@ -105,7 +105,7 @@ export class CriiptoAuth {
       }
 
       if(params.extraUrlParams) {
-        for (let entry of params.extraUrlParams.entries()) {
+        for (let entry of Object.entries(params.extraUrlParams)) {
           url.searchParams.append(entry[0], entry[1]);
         }
       }
