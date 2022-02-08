@@ -1,0 +1,30 @@
+name: publish to npm
+
+on:
+  push:
+    branches: [ master ]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - uses: actions/checkout@v2
+
+    - name: Use Node.js 12
+      uses: actions/setup-node@v1
+      with:
+        node-version: 12
+
+    - run: npm ci
+      env:
+        CI: true
+        
+    - name: setup npm config
+      run: |
+            echo "//registry.npmjs.org/:_authToken=${{ secrets.NPMJS_APIKEY }}" > .npmrc
+            npm config set scope criipto
+            npm version "1.6.$GITHUB_RUN_NUMBER"
+      working-directory: dist/
+    - name: push to npmjs
+      run: npm publish --access public
