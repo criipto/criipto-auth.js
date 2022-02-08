@@ -11,6 +11,7 @@ export interface AuthorizeUrlParams {
   state?: string;
   loginHint?: string;
   uiLocales?: string;
+  extraUrlParams?: {[key: string]: string};
 };
 
 export interface AuthorizeUrlParamsOptional {
