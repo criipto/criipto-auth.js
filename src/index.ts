@@ -170,7 +170,8 @@ export class CriiptoAuth {
       pkce: params.pkce,
       state: params.state,
       loginHint: params.loginHint,
-      uiLocales: params.uiLocales
+      uiLocales: params.uiLocales,
+      extraUrlParams: params.extraUrlParams
     };
   }
 };

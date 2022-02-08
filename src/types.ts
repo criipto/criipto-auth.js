@@ -22,7 +22,8 @@ export interface AuthorizeUrlParamsOptional {
   pkce?: PKCE;
   state?: string
   loginHint?: string;
-  uiLocales?: string
+  uiLocales?: string;
+  extraUrlParams?: {[key: string]: string};
 };
 
 export interface AuthorizeResponse extends GenericObject {
