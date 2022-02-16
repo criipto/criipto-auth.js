@@ -15,6 +15,7 @@ interface CriiptoAuthOptions {
   responseMode?: string;
   responseType?: string;
   acrValues?: string;
+  scope?: string;
 }
 
 export class CriiptoAuth {
@@ -26,6 +27,7 @@ export class CriiptoAuth {
   store: Storage;
   _setupPromise: Promise<void>;
   _openIdConfiguration: OpenIDConfiguration;
+  scope: string;
 
   constructor(options: CriiptoAuthOptions) {
     if (!options.domain || !options.clientID || !options.store) throw new Error('new criipto.Auth({domain, clientID, store}) required');
@@ -38,6 +40,7 @@ export class CriiptoAuth {
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
     this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`);
+    this.scope = options.scope || 'openid';
   }
 
   _setup() {
@@ -78,7 +81,8 @@ export class CriiptoAuth {
         throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
-      const url = new URL(`${this._openIdConfiguration.authorization_endpoint}?scope=openid`);
+      const url = new URL(this._openIdConfiguration.authorization_endpoint);
+      url.searchParams.append('scope', this.scope);
       url.searchParams.append('client_id', this.clientID);
       if (params.acrValues) {
         url.searchParams.append('acr_values', params.acrValues);

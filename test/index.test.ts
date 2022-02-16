@@ -278,6 +278,16 @@ describe('CriiptoAuth', () => {
       expect(actual).toBe(`${authorization_endpoint}?scope=openid&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&connection=my-connection`);
     });
 
+    it('builds with custom scope', async () => {
+      const scope ='openid profile';
+      auth.scope = scope;
+      const actual = await auth.buildAuthorizeUrl({
+        ...values
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=${scope.replace(/ /, "+")}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`);
+    });
+
     it('builds url', async () => {
       const actual = await auth.buildAuthorizeUrl(values);
 
