@@ -61,7 +61,8 @@ describe('CriiptoAuthRedirect', () => {
         acrValues,
         responseMode: 'query',
         responseType: 'code',
-        pkce: expect.any(Object)
+        pkce: expect.any(Object),
+        scope: 'openid'
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(window.location.href).toBe(authorizeUrl);

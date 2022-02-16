@@ -40,7 +40,6 @@ export class CriiptoAuth {
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
     this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`);
-    this.scope = options.scope || 'openid';
   }
 
   _setup() {
@@ -82,7 +81,8 @@ export class CriiptoAuth {
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
       const url = new URL(this._openIdConfiguration.authorization_endpoint);
-      url.searchParams.append('scope', this.scope);
+
+      url.searchParams.append('scope', params.scope);
       url.searchParams.append('client_id', this.clientID);
       if (params.acrValues) {
         url.searchParams.append('acr_values', params.acrValues);
@@ -163,6 +163,7 @@ export class CriiptoAuth {
     const responseMode = params.responseMode || this.options.responseMode || 'query';
     const responseType = params.responseType || this.options.responseType || 'code';
     const acrValues = params.acrValues || this.options.acrValues;
+    const scope = params.scope || this.options.scope || 'openid';
 
     if (!redirectUri) throw new Error(`redirectUri must be defined`);
 
@@ -175,7 +176,8 @@ export class CriiptoAuth {
       state: params.state,
       loginHint: params.loginHint,
       uiLocales: params.uiLocales,
-      extraUrlParams: params.extraUrlParams
+      extraUrlParams: params.extraUrlParams,
+      scope: scope
     };
   }
 };

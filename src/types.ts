@@ -12,6 +12,7 @@ export interface AuthorizeUrlParams {
   loginHint?: string;
   uiLocales?: string;
   extraUrlParams?: {[key: string]: string};
+  scope: string;
 };
 
 export interface AuthorizeUrlParamsOptional {
@@ -24,6 +25,7 @@ export interface AuthorizeUrlParamsOptional {
   loginHint?: string;
   uiLocales?: string;
   extraUrlParams?: {[key: string]: string};
+  scope?: string;
 };
 
 export interface AuthorizeResponse extends GenericObject {
