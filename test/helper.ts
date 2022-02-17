@@ -15,7 +15,6 @@ export class MemoryStore {
     delete this.data[key]
   }
   clear() {
-    console.log('clear');
     this.data = {};
   }
   getItem(key : string) {

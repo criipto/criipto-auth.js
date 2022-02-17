@@ -24,7 +24,6 @@ export default class CriiptoAuthPopup {
         responseType: 'code',
         pkce
       });
-      console.log(params);
       return this.criiptoAuth.buildAuthorizeUrl(params);
     }).then(url => {
       width = width || 330;
@@ -52,7 +51,6 @@ export default class CriiptoAuthPopup {
     this._latestParams = params;
     this.backdrop.render(params);
 
-    console.log(params);
     return this.open(params).then(() => {
       return new Promise<AuthorizeResponse>((resolve, reject) => {
         const receiveMessage = (event: MessageEvent) => {
