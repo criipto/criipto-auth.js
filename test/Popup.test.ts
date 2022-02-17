@@ -98,6 +98,7 @@ describe('CriiptoAuthPopup', () => {
         acrValues,
         responseMode: 'query',
         responseType: 'code',
+        scope: 'openid',
         pkce: expect.any(Object)
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);

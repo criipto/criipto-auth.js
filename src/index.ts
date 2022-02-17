@@ -15,6 +15,7 @@ interface CriiptoAuthOptions {
   responseMode?: string;
   responseType?: string;
   acrValues?: string;
+  scope?: string;
 }
 
 export class CriiptoAuth {
@@ -26,6 +27,7 @@ export class CriiptoAuth {
   store: Storage;
   _setupPromise: Promise<void>;
   _openIdConfiguration: OpenIDConfiguration;
+  scope: string;
 
   constructor(options: CriiptoAuthOptions) {
     if (!options.domain || !options.clientID || !options.store) throw new Error('new criipto.Auth({domain, clientID, store}) required');
@@ -78,7 +80,9 @@ export class CriiptoAuth {
         throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
-      const url = new URL(`${this._openIdConfiguration.authorization_endpoint}?scope=openid`);
+      const url = new URL(this._openIdConfiguration.authorization_endpoint);
+
+      url.searchParams.append('scope', params.scope);
       url.searchParams.append('client_id', this.clientID);
       if (params.acrValues) {
         url.searchParams.append('acr_values', params.acrValues);
@@ -159,6 +163,7 @@ export class CriiptoAuth {
     const responseMode = params.responseMode || this.options.responseMode || 'query';
     const responseType = params.responseType || this.options.responseType || 'code';
     const acrValues = params.acrValues || this.options.acrValues;
+    const scope = params.scope || this.options.scope || 'openid';
 
     if (!redirectUri) throw new Error(`redirectUri must be defined`);
 
@@ -171,7 +176,8 @@ export class CriiptoAuth {
       state: params.state,
       loginHint: params.loginHint,
       uiLocales: params.uiLocales,
-      extraUrlParams: params.extraUrlParams
+      extraUrlParams: params.extraUrlParams,
+      scope: scope
     };
   }
 };
