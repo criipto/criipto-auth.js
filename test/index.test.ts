@@ -160,6 +160,7 @@ describe('CriiptoAuth', () => {
       redirectUri: Math.random().toString(),
       acrValues: Math.random().toString(),
       scope: Math.random().toString(),
+      prompt: undefined,
       pkce: {
         code_challenge: Math.random().toString(),
         code_challenge_method: 'SHA-256',
@@ -246,6 +247,17 @@ describe('CriiptoAuth', () => {
       expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&login_hint=${loginHint}`)
     });
 
+    it('builds with prompt', async () => {
+      const prompt = 'login';
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        acrValues: undefined,
+        prompt
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&prompt=${prompt}`)
+    });
+
     it('builds with ui_locales', async () => {
       const uiLocales = Math.random().toString();
       const actual = await auth.buildAuthorizeUrl({
@@ -317,7 +329,7 @@ describe('CriiptoAuth', () => {
 
       });
 
-      expect(actual).toStrictEqual({...params, pkce: undefined, state: undefined, loginHint: undefined, uiLocales: undefined, extraUrlParams: undefined});
+      expect(actual).toStrictEqual({...params, pkce: undefined, state: undefined, loginHint: undefined, uiLocales: undefined, extraUrlParams: undefined, prompt: undefined});
     });
 
     it('throws an error if redirectUri is not defined', () => {

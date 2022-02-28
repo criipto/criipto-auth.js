@@ -108,6 +108,10 @@ export class CriiptoAuth {
         url.searchParams.append('ui_locales', params.uiLocales);
       }
 
+      if (params.prompt) {
+        url.searchParams.append('prompt', params.prompt);
+      }
+
       if(params.extraUrlParams) {
         for (let entry of Object.entries(params.extraUrlParams)) {
           url.searchParams.append(entry[0], entry[1]);
@@ -177,7 +181,8 @@ export class CriiptoAuth {
       loginHint: params.loginHint,
       uiLocales: params.uiLocales,
       extraUrlParams: params.extraUrlParams,
-      scope: scope
+      scope: scope,
+      prompt: params.prompt
     };
   }
 };

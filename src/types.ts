@@ -2,6 +2,8 @@ import {PKCE} from './pkce';
 
 export type GenericObject = { [key: string]: any };
 
+export type Prompt = undefined | 'none' | 'login';
+
 export interface AuthorizeUrlParams {
   acrValues?: string;
   redirectUri: string;
@@ -13,6 +15,7 @@ export interface AuthorizeUrlParams {
   uiLocales?: string;
   extraUrlParams?: {[key: string]: string};
   scope: string;
+  prompt?: Prompt;
 };
 
 export interface AuthorizeUrlParamsOptional {
@@ -26,6 +29,7 @@ export interface AuthorizeUrlParamsOptional {
   uiLocales?: string;
   extraUrlParams?: {[key: string]: string};
   scope?: string;
+  prompt?: Prompt;
 };
 
 export interface AuthorizeResponse extends GenericObject {
