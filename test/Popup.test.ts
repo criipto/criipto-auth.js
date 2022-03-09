@@ -18,6 +18,9 @@ describe('CriiptoAuthPopup', () => {
 
     popup = new CriiptoAuthPopup(auth);
 
+    jest.spyOn(popup.backdrop, 'render');
+    jest.spyOn(popup.backdrop, 'remove');
+
     windowAddEventListener = jest.fn();
     windowClose = jest.fn();
     Object.defineProperty(global, 'window', {
@@ -130,6 +133,7 @@ describe('CriiptoAuthPopup', () => {
       };
 
       const authorizePromise = popup.authorize(params);
+      expect(popup.backdrop.render).toHaveBeenCalledTimes(1);
       expect(popup.open).toHaveBeenCalledTimes(1);
       expect(popup.open).toHaveBeenCalledWith(params);
       expect(popup._latestParams).toBe(params); 
@@ -147,6 +151,9 @@ describe('CriiptoAuthPopup', () => {
       messageEventListener[1](messageEvent);
       const result = await authorizePromise;
       expect(result.id_token).toBe(id_token);
+
+      
+      expect(popup.backdrop.remove).toHaveBeenCalledTimes(1);
     });
 
     it('opens popup and does PKCE token exchange', async () => {
@@ -204,6 +211,17 @@ describe('CriiptoAuthPopup', () => {
 
       const fetchCall = (window.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
       expect(fetchCall[1].body).toContain(`code_verifier=${pkce.code_verifier}`);
+    });
+
+    it('allows disabling backdrop', async () => {
+      const params = {
+        redirectUri: Math.random().toString(),
+        acrValues: 'urn:grn:authn:dk:nemid:poces',
+        backdrop: false
+      };
+
+      popup.authorize(params);
+      expect(popup.backdrop.render).toHaveBeenCalledTimes(0);
     });
 
     it('receives error message from popup window', async () => {

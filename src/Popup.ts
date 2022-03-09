@@ -49,7 +49,8 @@ export default class CriiptoAuthPopup {
 
   authorize(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
     this._latestParams = params;
-    this.backdrop.render(params);
+
+    if (params.backdrop !== false) this.backdrop.render(params);
 
     return this.open(params).then(() => {
       return new Promise<AuthorizeResponse>((resolve, reject) => {
@@ -71,7 +72,7 @@ export default class CriiptoAuthPopup {
         window.addEventListener('message', receiveMessage);
       });
     }).finally(() => {
-      this.backdrop.remove();
+      if (params.backdrop !== false) this.backdrop.remove();
     });
   }
 

@@ -61,6 +61,7 @@ export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
   redirectUri?: string;
   width?: number;
   height?: number;
+  backdrop?: boolean;
 };
 
 export interface AuthorizeResponsiveParams {
