@@ -18,6 +18,18 @@ interface CriiptoAuthOptions {
   scope?: string;
 }
 
+export class OAuth2Error extends Error {
+  error: string;
+  error_description?: string;
+
+  constructor(error: string, error_description?: string) {
+    super(`OAuth2Error: ${error} (${error_description})`);
+    this.name = "OAuth2Error";
+    this.error = error;
+    this.error_description = error_description;
+  }
+}
+
 export class CriiptoAuth {
   options: CriiptoAuthOptions;
   domain: string;
@@ -131,7 +143,7 @@ export class CriiptoAuth {
   }
 
   processResponse(params : AuthorizeResponse) : Promise<AuthorizeResponse | null> {
-    if (params.error) return Promise.reject(params.error);
+    if (params.error) return Promise.reject(new OAuth2Error(params.error, params.error_description))
     if (params.id_token) return Promise.resolve(params);
     if (!params.code) return Promise.resolve(null);
     

@@ -2,7 +2,7 @@ import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
 import {generate as generatePKCE} from '../src/pkce';
-import CriiptoAuth from '../src/index';
+import CriiptoAuth, { OAuth2Error } from '../src/index';
 import CriiptoAuthPopup from '../src/Popup';
 import {CRIIPTO_POPUP_ID, CRIIPTO_POPUP_BACKDROP_ID, CRIIPTO_AUTHORIZE_RESPONSE} from '../src/util';
 
@@ -226,10 +226,12 @@ describe('CriiptoAuthPopup', () => {
 
     it('receives error message from popup window', async () => {
       const error = Math.random().toString();
+      const error_description = Math.random().toString();
       const messageEvent = {
         source: createdWindow,
         data: CRIIPTO_AUTHORIZE_RESPONSE+JSON.stringify({
-          error
+          error,
+          error_description
         })
       };
 
@@ -250,7 +252,7 @@ describe('CriiptoAuthPopup', () => {
       messageEventListener[1](messageEvent);
       expect.assertions(1);
       await authorizePromise.catch(err => {
-        expect(err).toBe(error);
+        expect(err).toStrictEqual(new OAuth2Error(error, error_description));
       });
     });
   });
