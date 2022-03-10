@@ -10,7 +10,7 @@ module.exports = {
     path: path.resolve(__dirname, 'dist'),
     filename: 'criipto-auth.cjs',
     library: {
-      type: 'commonjs'
+      type: 'commonjs2'
     }
   },
 };
