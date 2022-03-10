@@ -8,7 +8,7 @@ module.exports = {
   },
   output: {
     path: path.resolve(__dirname, 'dist'),
-    filename: 'criipto-auth.esm',
+    filename: 'criipto-auth.mjs',
     library: {
       type: 'module'
     }

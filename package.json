@@ -2,18 +2,17 @@
   "name": "@criipto/auth-js",
   "version": "2.0.2",
   "description": "",
-  "main": "dist/criipto-auth.js",
   "types": "dist/index.d.ts",
+  "main": "dist/criipto-auth.mjs",
   "exports": {
-    "import": "./dist/criipto-auth.esm",
-    "require": "./dist/criipto-auth.cjs",
-    "default": "./dist/criipto-auth.js"
+    "import": "./dist/criipto-auth.mjs",
+    "require": "./dist/criipto-auth.cjs"
   },
   "scripts": {
     "test": "jest",
     "coverage": "jest --collect-coverage",
     "prepublish": "npm run build",
-    "build": "webpack --config webpack.config.umd.js && webpack --config webpack.config.es.js && webpack --config webpack.config.cjs.js && tsc --declaration --emitDeclarationOnly",
+    "build": "webpack --config webpack.config.umd.js && webpack --config webpack.config.mjs.js && webpack --config webpack.config.cjs.js && tsc --declaration --emitDeclarationOnly",
     "dev": "webpack --config webpack.config.dev.js --watch"
   },
   "author": "",
