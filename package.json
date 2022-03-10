@@ -5,8 +5,9 @@
   "main": "dist/criipto-auth.js",
   "types": "dist/index.d.ts",
   "exports": {
-    "import": "./main-module.esm",
-    "require": "./main-require.cjs"
+    "import": "./dist/criipto-auth.esm",
+    "require": "./dist/criipto-auth.cjs",
+    "default": "./dist/criipto-auth.js"
   },
   "scripts": {
     "test": "jest",
