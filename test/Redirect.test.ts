@@ -1,7 +1,7 @@
 import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
-import CriiptoAuth from '../src/index';
+import CriiptoAuth, { OAuth2Error } from '../src/index';
 import CriiptoAuthRedirect from '../src/Redirect';
 
 describe('CriiptoAuthRedirect', () => {
@@ -123,6 +123,22 @@ describe('CriiptoAuthRedirect', () => {
     it('returns null', async () => {
       const match = await redirect.match();
       expect(match).toBe(null);
+    });
+
+    it('rejects with error', async () => {
+      const error = Math.random().toString();
+      const error_description = Math.random().toString();
+
+      window.location = {
+        ...window.location,
+        hash: '',
+        search: `?error=${error}&error_description=${error_description}`
+      };
+
+      expect.assertions(1);
+      await redirect.match().catch(err => {
+        expect(err).toStrictEqual(new OAuth2Error(error, error_description));
+      });
     });
   });
 });

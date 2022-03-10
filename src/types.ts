@@ -36,7 +36,8 @@ export interface AuthorizeResponse extends GenericObject {
   code?: string;
   id_token?: string;
   error?: string;
-  state?: string
+  error_description?: string;
+  state?: string;
 };
 
 export const ALL_VIA = ['redirect', 'popup'] as const; // TS 3.4
