@@ -4,11 +4,15 @@
   "description": "",
   "main": "dist/criipto-auth.js",
   "types": "dist/index.d.ts",
+  "exports": {
+    "import": "./main-module.esm",
+    "require": "./main-require.cjs"
+  },
   "scripts": {
     "test": "jest",
     "coverage": "jest --collect-coverage",
     "prepublish": "npm run build",
-    "build": "webpack --config webpack.config.js && tsc --declaration --emitDeclarationOnly",
+    "build": "webpack --config webpack.config.umd.js && webpack --config webpack.config.es.js && webpack --config webpack.config.cjs.js && tsc --declaration --emitDeclarationOnly",
     "dev": "webpack --config webpack.config.dev.js --watch"
   },
   "author": "",
