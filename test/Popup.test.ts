@@ -15,6 +15,20 @@ jest.mock('../src/pkce');
   });
 });
 
+const metadata_example = {
+  authorization_endpoint: 'https://example.com',
+  response_modes_supported: [
+    "query",
+    "form_post",
+    "fragment"
+  ],
+  response_types_supported: [
+    "code",
+    "id_token",
+    "code id_token"
+  ]
+};
+
 describe('CriiptoAuthPopup', () => {
   let auth:CriiptoAuth, popup:CriiptoAuthPopup, windowAddEventListener = jest.fn(), windowClose = jest.fn();
 
@@ -107,61 +121,23 @@ describe('CriiptoAuthPopup', () => {
 
     beforeEach(() => {
       createdWindow = {} as Window;
-      (popup.open as any) = jest.fn().mockImplementation(() => Promise.resolve());
       popup.window = createdWindow;
-    });
 
-    it('opens popup and receives success message from popup window', async () => {
-      const id_token = Math.random().toString();
-      const params = {
-        redirectUri: Math.random().toString(),
-        acrValues: 'urn:grn:authn:dk:nemid:poces'
-      };
-      const messageEvent = {
-        source: createdWindow,
-        data: CRIIPTO_AUTHORIZE_RESPONSE+JSON.stringify({
-          id_token
-        })
-      };
+      (popup.open as any) = jest.fn().mockImplementation(() => createdWindow);
+      (popup.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => Promise.resolve({
+        url: Math.random().toString(),
+        pkce: {},
+        params: {
+          redirectUri: Math.random().toString()
+        }
+      }));
 
-      const authorizePromise = popup.authorize(params);
-      expect(popup.backdrop.render).toHaveBeenCalledTimes(1);
-      expect(popup.open).toHaveBeenCalledTimes(1);
-      expect(popup.open).toHaveBeenCalledWith(params);
-      expect(popup._latestParams).toBe(params); 
-
-      await Promise.resolve(); // Wait for a promise cycle
-      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
-      expect(messageEventListener).toBeDefined();
-
-      // An ignored event, not prefixed correctly
-      messageEventListener[1]({
-        source: createdWindow,
-        data: Math.random().toString()
-      });
-
-      messageEventListener[1](messageEvent);
-      const result = await authorizePromise;
-      expect(result.id_token).toBe(id_token);
-
-      
-      expect(popup.backdrop.remove).toHaveBeenCalledTimes(1);
     });
 
     it('opens popup and does PKCE token exchange', async () => {
       const metadata = {
-        token_endpoint: Math.random().toString(),
-        authorization_endpoint: 'https://example.com',
-        response_modes_supported: [
-          "query",
-          "form_post",
-          "fragment"
-        ],
-        response_types_supported: [
-          "code",
-          "id_token",
-          "code id_token"
-        ]
+        ...metadata_example,
+        token_endpoint: Math.random().toString()
       };
       const id_token = Math.random().toString();
 
@@ -191,16 +167,13 @@ describe('CriiptoAuthPopup', () => {
         })
       };
 
-      const authorizePromise = popup.authorize(params).catch(console.error.bind(console));
+      const authorizePromise = popup.authorize(params);
       await Promise.resolve();
-      await Promise.resolve();
-      console.log((popup.open as any).mock.calls);
       expect(popup.open).toHaveBeenCalledTimes(1);
       expect(popup._latestParams).toBe(params); 
       expect(popup._latestUrl).toBeDefined();
 
       await Promise.resolve(); // Wait for a promise cycle
-      console.log('morp');
       const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
       expect(messageEventListener).toBeDefined();
 
@@ -230,6 +203,20 @@ describe('CriiptoAuthPopup', () => {
     });
 
     it('receives error message from popup window', async () => {
+      const metadata = {
+        ...metadata_example,
+        token_endpoint: Math.random().toString(),
+      };
+
+      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
+        if (url.includes('.well-known/openid-configuration')) {
+          return {
+            json: () => Promise.resolve(metadata)
+          };
+        }
+        throw new Error('Unexpected url');
+      });
+
       const error = Math.random().toString();
       const error_description = Math.random().toString();
       const messageEvent = {
@@ -247,7 +234,7 @@ describe('CriiptoAuthPopup', () => {
 
       await Promise.resolve(); // Wait for a promise cycle
       const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
-
+      
       // An ignored event, not correct osurce
       messageEventListener[1]({
         source: {},

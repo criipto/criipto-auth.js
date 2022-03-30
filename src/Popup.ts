@@ -36,11 +36,7 @@ export default class CriiptoAuthPopup {
     return this.window;
   }
 
-  authorize(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
-    this._latestParams = params;
-
-    if (params.backdrop !== false) this.backdrop.render(params);
-    
+  buildAuthorizeUrl(params: PopupAuthorizeParams) {
     return generatePKCE().then(pkce => {
       const fullParams = this.criiptoAuth.buildAuthorizeParams({
         ...params,
@@ -50,23 +46,34 @@ export default class CriiptoAuthPopup {
       });
 
       return this.criiptoAuth.buildAuthorizeUrl(fullParams).then(url => {
-        this._latestUrl = url;
-        const popupWindow = this.open(url, params);
-        return new Promise<AuthorizeResponse>((resolve, reject) => {
-          const receiveMessage = (event: MessageEvent) => {
-            if (event.source !== popupWindow) return;
+        return {url, pkce, params: fullParams};
+      });
+    });
+  }
 
-            const eventType:string | null = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
-            const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
-            
-            if (eventData && (eventData.code || eventData.id_token || eventData.error)) {
-              this.criiptoAuth.processResponse(eventData, {code_verifier: pkce.code_verifier, redirect_uri: fullParams.redirectUri}).then(resolve, reject);
-              window.removeEventListener('message', receiveMessage);
-            }
-          };
+  authorize(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
+    this._latestParams = params;
+
+    if (params.backdrop !== false) this.backdrop.render(params);
+    
+    return this.buildAuthorizeUrl(params).then(({url, pkce, params}) => {
+      this._latestUrl = url;
+      const popupWindow = this.open(url, params);
       
-          window.addEventListener('message', receiveMessage);
-        });
+      return new Promise<AuthorizeResponse>((resolve, reject) => {
+        const receiveMessage = (event: MessageEvent) => {
+          if (event.source !== popupWindow) return;
+
+          const eventType:string | null = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
+          const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
+          
+          if (eventData && (eventData.code || eventData.id_token || eventData.error)) {
+            this.criiptoAuth.processResponse(eventData, {code_verifier: pkce.code_verifier, redirect_uri: params.redirectUri}).then(resolve, reject);
+            window.removeEventListener('message', receiveMessage);
+          }
+        };
+    
+        window.addEventListener('message', receiveMessage);
       });
     }).finally(() => {
       if (params.backdrop !== false) this.backdrop.remove();
