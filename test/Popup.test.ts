@@ -1,10 +1,19 @@
 import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
-import {generate as generatePKCE} from '../src/pkce';
+import * as pkce from '../src/pkce';
 import CriiptoAuth, { OAuth2Error } from '../src/index';
 import CriiptoAuthPopup from '../src/Popup';
 import {CRIIPTO_POPUP_ID, CRIIPTO_POPUP_BACKDROP_ID, CRIIPTO_AUTHORIZE_RESPONSE} from '../src/util';
+
+jest.mock('../src/pkce');
+(pkce.generate as any).mockImplementation(() => {
+  return Promise.resolve({
+    code_verifier: Math.random().toString(),
+    code_challenge: Math.random().toString(),
+    code_challenge_method: 'S256'
+  });
+});
 
 describe('CriiptoAuthPopup', () => {
   let auth:CriiptoAuth, popup:CriiptoAuthPopup, windowAddEventListener = jest.fn(), windowClose = jest.fn();
@@ -83,28 +92,11 @@ describe('CriiptoAuthPopup', () => {
       const createdWindow = {};
 
       (window.open as any) = jest.fn().mockImplementation(() => createdWindow);
-      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(authorizeUrl);
-        });
-      });
 
-      const actual = await popup.open({
-        redirectUri,
-        acrValues
-      });
+      const actual = await popup.open(authorizeUrl, {});
 
       expect(actual).toBe(createdWindow);
       expect(popup.window).toBe(actual);
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
-        redirectUri,
-        acrValues,
-        responseMode: 'query',
-        responseType: 'code',
-        scope: 'openid',
-        pkce: expect.any(Object)
-      });
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenCalledTimes(1);
       expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=330,height=600,top=200,left=335`);
     });
@@ -158,7 +150,18 @@ describe('CriiptoAuthPopup', () => {
 
     it('opens popup and does PKCE token exchange', async () => {
       const metadata = {
-        token_endpoint: Math.random().toString()
+        token_endpoint: Math.random().toString(),
+        authorization_endpoint: 'https://example.com',
+        response_modes_supported: [
+          "query",
+          "form_post",
+          "fragment"
+        ],
+        response_types_supported: [
+          "code",
+          "id_token",
+          "code id_token"
+        ]
       };
       const id_token = Math.random().toString();
 
@@ -188,14 +191,16 @@ describe('CriiptoAuthPopup', () => {
         })
       };
 
-      const pkce = await auth.generatePKCE(params.redirectUri);
-
-      const authorizePromise = popup.authorize(params);
+      const authorizePromise = popup.authorize(params).catch(console.error.bind(console));
+      await Promise.resolve();
+      await Promise.resolve();
+      console.log((popup.open as any).mock.calls);
       expect(popup.open).toHaveBeenCalledTimes(1);
-      expect(popup.open).toHaveBeenCalledWith(params);
       expect(popup._latestParams).toBe(params); 
+      expect(popup._latestUrl).toBeDefined();
 
       await Promise.resolve(); // Wait for a promise cycle
+      console.log('morp');
       const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
       expect(messageEventListener).toBeDefined();
 
@@ -210,7 +215,7 @@ describe('CriiptoAuthPopup', () => {
       expect(result.id_token).toBe(id_token);
 
       const fetchCall = (window.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
-      expect(fetchCall[1].body).toContain(`code_verifier=${pkce.code_verifier}`);
+      expect(fetchCall[1].body).toContain(`code_verifier=`);
     });
 
     it('allows disabling backdrop', async () => {
@@ -268,10 +273,7 @@ describe('CriiptoAuthPopup', () => {
           resolve(Math.random().toString());
         });
       });
-      await popup.open({
-        redirectUri: Math.random().toString(),
-        acrValues: Math.random().toString(),
-      });
+      await popup.open(Math.random().toString(), {});
 
       popup.close();
 
@@ -325,17 +327,19 @@ describe('CriiptoAuthPopup', () => {
   describe('CriiptoAuthPopupBackdrop', () => {
     describe('handleOpen', () => {
       it('reopens popup with last known params', () => {
+        const url = Math.random().toString();
         const params = {
           redirectUri: Math.random().toString(),
           acrValues: 'urn:grn:authn:dk:nemid:poces'
         };
+        popup._latestUrl = url;
         popup._latestParams = params;
         popup.open = jest.fn();
 
         popup.backdrop.handleOpen();
         
         expect(popup.open).toHaveBeenCalledTimes(1);
-        expect(popup.open).toHaveBeenCalledWith(params);
+        expect(popup.open).toHaveBeenCalledWith(url, params);
       });
     });
 

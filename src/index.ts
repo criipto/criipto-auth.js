@@ -124,7 +124,7 @@ export class CriiptoAuth {
         url.searchParams.append('prompt', params.prompt);
       }
 
-      if(params.extraUrlParams) {
+      if (params.extraUrlParams) {
         for (let entry of Object.entries(params.extraUrlParams)) {
           url.searchParams.append(entry[0], entry[1]);
         }
@@ -134,29 +134,18 @@ export class CriiptoAuth {
     });
   }
 
-  generatePKCE(redirectUri : string) : Promise<PKCE> {
-    return generatePKCE().then(pkce => {
-      this.store.setItem('pkce_redirect_uri', redirectUri);
-      this.store.setItem('pkce_code_verifier', pkce.code_verifier);
-      return pkce;
-    });
-  }
-
-  processResponse(params : AuthorizeResponse) : Promise<AuthorizeResponse | null> {
+  processResponse(params : AuthorizeResponse, pkce: {code_verifier: string, redirect_uri: string}) : Promise<AuthorizeResponse | null> {
     if (params.error) return Promise.reject(new OAuth2Error(params.error, params.error_description))
     if (params.id_token) return Promise.resolve(params);
     if (!params.code) return Promise.resolve(null);
     
-    const pkce_code_verifier = this.store.getItem('pkce_code_verifier');
-    if (!pkce_code_verifier) return Promise.resolve(params);
-
     const state = params.state;
     const body = new URLSearchParams();
     body.append('grant_type', "authorization_code");
     body.append('code', params.code);
     body.append('client_id', this.clientID);
-    body.append('redirect_uri', this.store.getItem('pkce_redirect_uri')!);
-    body.append('code_verifier', pkce_code_verifier);
+    body.append('redirect_uri', pkce.redirect_uri);
+    body.append('code_verifier', pkce.code_verifier);
 
     return this._setup().then(() => {
       return window.fetch(this._openIdConfiguration.token_endpoint, {
