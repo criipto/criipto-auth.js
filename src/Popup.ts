@@ -1,10 +1,12 @@
 import type CriiptoAuth from './index';
 import type {PopupAuthorizeParams, AuthorizeResponse, GenericObject} from './types';
 import {parseAuthorizeResponseFromLocation, CRIIPTO_AUTHORIZE_RESPONSE, CRIIPTO_POPUP_ID, CRIIPTO_POPUP_BACKDROP_ID, CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID, CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID} from './util';
+import {generate as generatePKCE} from './pkce';
 
 export default class CriiptoAuthPopup {
   criiptoAuth: CriiptoAuth;
   _latestParams: PopupAuthorizeParams;
+  _latestUrl: string;
   backdrop: CriiptoAuthPopupBackdrop;
   window: Window;
 
@@ -13,37 +15,39 @@ export default class CriiptoAuthPopup {
     this.backdrop = new CriiptoAuthPopupBackdrop(this);
   }
 
-  open(params: PopupAuthorizeParams): Promise<Window> {
-    let {width, height, ...authorizeUrlParams} = params;
-    const redirectUri = authorizeUrlParams.redirectUri || this.criiptoAuth.options.redirectUri;
+  open(url: string, params: PopupAuthorizeParams): Window {
+    let {width, height} = params;
 
-    return this.criiptoAuth.generatePKCE(redirectUri!).then(pkce => {
-      const params = this.criiptoAuth.buildAuthorizeParams({
-        ...authorizeUrlParams,
+    width = width || 330;
+    height = height || 600;
+
+    const dualScreenLeft = window.screenLeft ?? window.screenX;
+    const dualScreenTop = window.screenTop ?? window.screenY;
+
+    const windowWidth = window.innerWidth ?? document.documentElement.clientWidth ?? screen.width;
+    const windowHeight = window.innerHeight ?? document.documentElement.clientHeight ?? screen.height;
+
+    const systemZoom = windowWidth / window.screen.availWidth;
+    const left = (windowWidth - width) / 2 / systemZoom + dualScreenLeft
+    const top = (windowHeight - height) / 2 / systemZoom + dualScreenTop
+
+    const features = `width=${width},height=${height},top=${top},left=${left}`;
+    this.window = window.open(url, CRIIPTO_POPUP_ID, features)!;
+    return this.window;
+  }
+
+  buildAuthorizeUrl(params: PopupAuthorizeParams) {
+    return generatePKCE().then(pkce => {
+      const fullParams = this.criiptoAuth.buildAuthorizeParams({
+        ...params,
         responseMode: 'query',
         responseType: 'code',
         pkce
       });
-      return this.criiptoAuth.buildAuthorizeUrl(params);
-    }).then(url => {
-      width = width || 330;
-      height = height || 600;
 
-      const dualScreenLeft = window.screenLeft ?? window.screenX;
-      const dualScreenTop = window.screenTop ?? window.screenY;
-
-      const windowWidth = window.innerWidth ?? document.documentElement.clientWidth ?? screen.width;
-      const windowHeight = window.innerHeight ?? document.documentElement.clientHeight ?? screen.height;
-
-      const systemZoom = windowWidth / window.screen.availWidth;
-      const left = (windowWidth - width) / 2 / systemZoom + dualScreenLeft
-      const top = (windowHeight - height) / 2 / systemZoom + dualScreenTop
-
-      const features = `width=${width},height=${height},top=${top},left=${left}`;
-      return window.open(url, CRIIPTO_POPUP_ID, features);
-    }).then(window => {
-      this.window = window!;
-      return window!;
+      return this.criiptoAuth.buildAuthorizeUrl(fullParams).then(url => {
+        return {url, pkce, params: fullParams};
+      });
     });
   }
 
@@ -51,20 +55,20 @@ export default class CriiptoAuthPopup {
     this._latestParams = params;
 
     if (params.backdrop !== false) this.backdrop.render(params);
-
-    return this.open(params).then(() => {
+    
+    return this.buildAuthorizeUrl(params).then(({url, pkce, params}) => {
+      this._latestUrl = url;
+      const popupWindow = this.open(url, params);
+      
       return new Promise<AuthorizeResponse>((resolve, reject) => {
         const receiveMessage = (event: MessageEvent) => {
-          if (event.source !== this.window) return;
+          if (event.source !== popupWindow) return;
 
           const eventType:string | null = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
           const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
           
-          if (eventData && eventData.error) {
-            this.criiptoAuth.processResponse(eventData).then(resolve, reject);
-            window.removeEventListener('message', receiveMessage);
-          } else if (eventData && (eventData.code || eventData.id_token)) {
-            this.criiptoAuth.processResponse(eventData).then(resolve, reject);
+          if (eventData && (eventData.code || eventData.id_token || eventData.error)) {
+            this.criiptoAuth.processResponse(eventData, {code_verifier: pkce.code_verifier, redirect_uri: params.redirectUri}).then(resolve, reject);
             window.removeEventListener('message', receiveMessage);
           }
         };
@@ -156,7 +160,7 @@ export class CriiptoAuthPopupBackdrop {
   }
 
   handleOpen() {
-    this.popup.open(this.popup._latestParams);
+    this.popup.open(this.popup._latestUrl, this.popup._latestParams);
   }
 
   handleCancel() {
