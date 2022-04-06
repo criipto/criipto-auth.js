@@ -55,7 +55,7 @@ describe('CriiptoAuth', () => {
       await auth._setup();
       await auth._setup(); // Test cache
 
-      expect(mockedOpenID).toHaveBeenCalledWith(`https://${domain}`);
+      expect(mockedOpenID).toHaveBeenCalledWith(`https://${domain}`, clientID);
       expect(mockedOpenID.mock.instances[0].fetchMetadata).toHaveBeenCalledTimes(1);
     });
   });
@@ -173,7 +173,7 @@ describe('CriiptoAuth', () => {
     beforeEach(() => {
       (auth._setup as any) = jest.fn().mockImplementation(() => Promise.resolve());
 
-      auth._openIdConfiguration = new OpenIDConfiguration(domain);
+      auth._openIdConfiguration = new OpenIDConfiguration(domain, clientID);
       auth._openIdConfiguration.authority = domain;
       auth._openIdConfiguration.authorization_endpoint = authorization_endpoint;
       auth._openIdConfiguration.response_modes_supported = [values.responseMode];

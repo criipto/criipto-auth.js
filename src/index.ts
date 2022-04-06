@@ -51,7 +51,7 @@ export class CriiptoAuth {
 
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
-    this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`);
+    this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`, this.clientID);
   }
 
   _setup() {
@@ -59,6 +59,10 @@ export class CriiptoAuth {
       this._setupPromise = this._openIdConfiguration.fetchMetadata();
     }
     return this._setupPromise;
+  }
+
+  fetchOpenIDConfiguration() {
+    return this._setup().then(() => this._openIdConfiguration);
   }
 
   authorizeResponsive(queries:AuthorizeResponsiveParams): Promise<AuthorizeResponse | void> {
