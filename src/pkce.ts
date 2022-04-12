@@ -17,8 +17,9 @@ export function generate() : Promise<PKCE> {
   window.crypto.getRandomValues(bytes);
   const code_verifier = base64URLEncode(bytes);
   const code_challenge_method = 'S256';
+  const subtle = ((window.crypto as any).webkitSubtle as SubtleCrypto) ?? window.crypto.subtle;
 
-  return Promise.resolve(window.crypto.subtle.digest('SHA-256', encoder.encode(code_verifier)))
+  return Promise.resolve(subtle.digest('SHA-256', encoder.encode(code_verifier)))
     .then(arrayBuffer => base64URLEncode(new Uint8Array(arrayBuffer)))
     .then<PKCE>(code_challenge => {
       return {code_verifier, code_challenge, code_challenge_method};  
