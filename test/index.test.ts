@@ -178,7 +178,7 @@ describe('CriiptoAuth', () => {
       auth._openIdConfiguration.authorization_endpoint = authorization_endpoint;
       auth._openIdConfiguration.response_modes_supported = [values.responseMode];
       auth._openIdConfiguration.response_types_supported = [values.responseType];
-      auth._openIdConfiguration.acr_values_supported = [values.acrValues!];
+      auth._openIdConfiguration.acr_values_supported = [values.acrValues as string];
     });
 
     it('throws an error if responseMode is not one of supported', async () => {
@@ -305,6 +305,17 @@ describe('CriiptoAuth', () => {
       const actual = await auth.buildAuthorizeUrl(values);
 
       expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+    });
+
+    it('builds url with multiple acr values', async () => {
+      auth._openIdConfiguration.acr_values_supported = ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr'];
+
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr']
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${encodeURIComponent('urn:grn:authn:dk:mitid:low urn:grn:authn:se:bankid:another-device:qr').replace("%20", "+")}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
     });
   });
 

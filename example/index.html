@@ -8,6 +8,7 @@
     <div>
       <button id="button_login_responsive">Login (responsive)</button>
       <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
+      <button id="button_login_redirect_query_acr_values">Login (PKCE + redirect + multiple ACR values)</button>
       <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
       <button id="button_login_popup">Login (PKCE + popup)</button>
       <button id="button_login_popup_da">Login (PKCE + popup + Danish)</button>
@@ -41,6 +42,13 @@
         criiptoAuth.redirect.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
           acrValues: 'urn:grn:authn:dk:mitid:low'
+        });
+      });
+
+      document.getElementById('button_login_redirect_query_acr_values').addEventListener('click', () => {
+        criiptoAuth.redirect.authorize({
+          redirectUri: 'http://localhost:8080/example/index.html',
+          acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr']
         });
       });
 
