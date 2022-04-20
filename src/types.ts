@@ -5,7 +5,7 @@ export type GenericObject = { [key: string]: any };
 export type Prompt = undefined | 'none' | 'login';
 
 export interface AuthorizeUrlParams {
-  acrValues?: string;
+  acrValues?: string | string[];
   redirectUri: string;
   responseType: string;
   responseMode: string;
@@ -19,7 +19,7 @@ export interface AuthorizeUrlParams {
 };
 
 export interface AuthorizeUrlParamsOptional {
-  acrValues?: string;
+  acrValues?: string | string[];
   redirectUri?: string;
   responseType?: string;
   responseMode?: string;
@@ -46,19 +46,19 @@ type Via = ViaTuple[number];
 
 export interface AuthorizeParams extends Partial<AuthorizeUrlParams> {
   via: Via,
-  acrValues?: string;
+  acrValues?: string | string[];
   redirectUri?: string;
   responseType?: string;
   responseMode?: string;
 }
 
 export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {
-  acrValues?: string;
+  acrValues?: string | string[];
   redirectUri?: string;
 };
 
 export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
-  acrValues?: string;
+  acrValues?: string | string[];
   redirectUri?: string;
   width?: number;
   height?: number;
