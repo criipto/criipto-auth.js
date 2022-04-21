@@ -90,22 +90,31 @@ export class CriiptoAuth {
     return this._setup().then(() => {
       if (!this._openIdConfiguration.response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${this._openIdConfiguration.response_modes_supported.join(',')}`);
       if (!this._openIdConfiguration.response_types_supported.includes(params.responseType)) throw new Error(`responseType must be one of ${this._openIdConfiguration.response_types_supported.join(',')}`);
-      if (this._openIdConfiguration.acr_values_supported && params.acrValues)
-        if (Array.isArray(params.acrValues)) {
-          if (params.acrValues.some(v => !this._openIdConfiguration.acr_values_supported.includes(v))) {
+
+      const acrValues =
+        params.acrValues ?
+          Array.isArray(params.acrValues) ?
+            params.acrValues :
+              params.acrValues.includes(" ") ? params.acrValues.split(" ") : params.acrValues
+          : undefined
+      if (this._openIdConfiguration.acr_values_supported && acrValues) {
+        if (Array.isArray(acrValues)) {
+          if (acrValues.some(v => !this._openIdConfiguration.acr_values_supported.includes(v))) {
             throw new Error(`acrValues must all be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
           }
-        } else if (!this._openIdConfiguration.acr_values_supported.includes(params.acrValues)) {
+        } else if (!this._openIdConfiguration.acr_values_supported.includes(acrValues)) {
           throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
         }
+      }
+
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
       const url = new URL(this._openIdConfiguration.authorization_endpoint);
 
       url.searchParams.append('scope', params.scope);
       url.searchParams.append('client_id', this.clientID);
-      if (params.acrValues) {
-        url.searchParams.append('acr_values', Array.isArray(params.acrValues) ? params.acrValues.join(' ') : params.acrValues);
+      if (acrValues) {
+        url.searchParams.append('acr_values', Array.isArray(acrValues) ? acrValues.join(' ') : acrValues);
       }
       url.searchParams.append('redirect_uri', params.redirectUri);
       url.searchParams.append('response_type', params.responseType);
