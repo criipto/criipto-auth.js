@@ -1,4 +1,4 @@
-import {PKCE} from './pkce';
+import {PKCE, PKCEPublicPart} from './pkce';
 
 export type GenericObject = { [key: string]: any };
 
@@ -9,7 +9,7 @@ export interface AuthorizeUrlParams {
   redirectUri: string;
   responseType: string;
   responseMode: string;
-  pkce?: PKCE;
+  pkce?: PKCE | PKCEPublicPart;
   state?: string;
   loginHint?: string;
   uiLocales?: string;
@@ -23,7 +23,7 @@ export interface AuthorizeUrlParamsOptional {
   redirectUri?: string;
   responseType?: string;
   responseMode?: string;
-  pkce?: PKCE;
+  pkce?: PKCE | PKCEPublicPart;
   state?: string
   loginHint?: string;
   uiLocales?: string;
