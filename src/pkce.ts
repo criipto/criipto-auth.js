@@ -10,6 +10,7 @@ export interface PKCE {
   code_challenge: string
   code_challenge_method: string
 }
+export type PKCEPublicPart = Omit<PKCE, 'code_verifier'>;
 
 export function generate() : Promise<PKCE> {
   const encoder = new TextEncoder();
