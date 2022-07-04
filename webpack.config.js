@@ -38,6 +38,10 @@ module.exports = {
   resolve: {
     extensions: [ '.ts', '.tsx', '.js' ]
   },
+  output: {
+    path: path.resolve(__dirname, 'dist'),
+    filename: '[name].js'
+  },
   plugins: [
     new CopyPlugin({
       patterns: [
