@@ -6,6 +6,9 @@ import OpenIDConfiguration from './OpenID';
 import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 
+export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE};
+export {generatePKCE, OpenIDConfiguration};
+
 interface CriiptoAuthOptions {
   domain: string;
   clientID: string;
@@ -193,7 +196,7 @@ export class CriiptoAuth {
       redirectUri: redirectUri!,
       responseMode: responseMode!,
       responseType: responseType!,
-      acrValues: acrValues!,
+      acrValues: acrValues,
       pkce: params.pkce,
       state: params.state,
       loginHint: params.loginHint,
