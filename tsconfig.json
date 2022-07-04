@@ -9,7 +9,7 @@
       "es2018.promise"
     ],
     "target": "es6",
-    "outDir": "./dist/",
+    "outDir": "./dist",
     "noImplicitAny": true,
     "allowJs": true,
     "strictNullChecks": true,
