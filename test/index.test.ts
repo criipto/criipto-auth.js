@@ -189,7 +189,7 @@ describe('CriiptoAuth', () => {
         ...values,
         responseMode: Math.random().toString()
       }).catch(err => {
-        expect(err.message).toMatch(`responseMode must be one of ${auth._openIdConfiguration.response_modes_supported.join(',')}`);
+        expect(err.message).toMatch(`responseMode must be one of ${auth._openIdConfiguration.response_modes_supported.join(',')},json`);
       });
     });
 
@@ -299,6 +299,15 @@ describe('CriiptoAuth', () => {
       });
 
       expect(actual).toBe(`${authorization_endpoint}?scope=${scope.replace(/ /, "+")}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`);
+    });
+
+    it('builds with custom json response_mode', async () => {
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        responseMode: 'json'
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=json&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`);
     });
 
     it('builds url', async () => {

@@ -91,7 +91,9 @@ export class CriiptoAuth {
 
   buildAuthorizeUrl(params: AuthorizeUrlParams) {
     return this._setup().then(() => {
-      if (!this._openIdConfiguration.response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${this._openIdConfiguration.response_modes_supported.join(',')}`);
+      // Criipto offers a `json` embrace-and-extend response-mode to support certain native app flows
+      const response_modes_supported = this._openIdConfiguration.response_modes_supported.concat(['json']);
+      if (!response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${response_modes_supported.join(',')}`);
       if (!this._openIdConfiguration.response_types_supported.includes(params.responseType)) throw new Error(`responseType must be one of ${this._openIdConfiguration.response_types_supported.join(',')}`);
 
       const acrValues =
