@@ -1,4 +1,4 @@
-import type {AuthorizeResponse} from './types';
+import type {AuthorizeResponse, AuthorizeUrlParamsOptional, Prompt} from './types';
 
 type GenericObject = { [key: string]: any };
 
@@ -13,6 +13,29 @@ export function parseQueryParams(input:string): GenericObject {
     memo[segments[0]] = decodeURIComponent(segments[1]);
     return memo;
   }, memo);  
+}
+
+export function parseAuthorizeParamsFromUrl(input: string) : AuthorizeUrlParamsOptional & {domain: string, clientID: string} {
+  const url = new URL(input);
+
+  return {
+    domain: url.host,
+    clientID: url.searchParams.get('client_id')!,
+    acrValues: url.searchParams.get('acr_values')?.split(' ') ?? undefined,
+    redirectUri: url.searchParams.get('redirect_uri') ?? undefined,
+    responseType: url.searchParams.get('response_type') ?? undefined,
+    responseMode: url.searchParams.get('response_mode') ?? undefined,
+    pkce: url.searchParams.get('code_challenge') ? {
+      code_challenge: url.searchParams.get('code_challenge')!,
+      code_challenge_method: url.searchParams.get('code_challenge_method')!
+    } : undefined,
+    state: url.searchParams.get('state') ?? undefined,
+    loginHint: url.searchParams.get('login_hint') ?? undefined,
+    uiLocales: url.searchParams.get('ui_locales') ?? undefined,
+    scope: url.searchParams.get('scope') ?? undefined,
+    nonce: url.searchParams.get('nonce') ?? undefined,
+    prompt: (url.searchParams.get('prompt') ?? undefined) as Prompt
+  };
 }
 
 export function parseQueryParamsFromLocation(location: Location): GenericObject {

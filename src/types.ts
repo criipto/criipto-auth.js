@@ -16,6 +16,7 @@ export interface AuthorizeUrlParams {
   extraUrlParams?: {[key: string]: string};
   scope: string;
   prompt?: Prompt;
+  nonce?: string
 };
 
 export interface AuthorizeUrlParamsOptional {
@@ -30,6 +31,7 @@ export interface AuthorizeUrlParamsOptional {
   extraUrlParams?: {[key: string]: string};
   scope?: string;
   prompt?: Prompt;
+  nonce?: string
 };
 
 export interface AuthorizeResponse extends GenericObject {

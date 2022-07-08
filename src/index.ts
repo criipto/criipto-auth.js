@@ -1,13 +1,14 @@
 import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams} from './types';
 import {ALL_VIA} from './types';
 import {generate as generatePKCE, PKCE, PKCEPublicPart} from './pkce';
+import {parseAuthorizeParamsFromUrl} from './util';
 
 import OpenIDConfiguration from './OpenID';
 import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
-export {generatePKCE, OpenIDConfiguration};
+export {generatePKCE, OpenIDConfiguration, parseAuthorizeParamsFromUrl};
 
 interface CriiptoAuthOptions {
   domain: string;
@@ -134,6 +135,10 @@ export class CriiptoAuth {
         url.searchParams.append('state', params.state);
       }
 
+      if (params.nonce) {
+        url.searchParams.append('nonce', params.nonce);
+      }
+
       if (params.loginHint) {
         url.searchParams.append('login_hint', params.loginHint);
       }
@@ -205,7 +210,8 @@ export class CriiptoAuth {
       uiLocales: params.uiLocales,
       extraUrlParams: params.extraUrlParams,
       scope: scope,
-      prompt: params.prompt
+      prompt: params.prompt,
+      nonce: params.nonce
     };
   }
 };
