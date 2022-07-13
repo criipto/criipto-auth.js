@@ -1,7 +1,7 @@
 import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
-import CriiptoAuth, { OAuth2Error, savePKCEState } from '../src/index';
+import CriiptoAuth, { generatePKCE, OAuth2Error, savePKCEState } from '../src/index';
 import CriiptoAuthRedirect from '../src/Redirect';
 
 describe('CriiptoAuthRedirect', () => {
@@ -62,6 +62,35 @@ describe('CriiptoAuthRedirect', () => {
         responseMode: 'query',
         responseType: 'code',
         pkce: expect.any(Object),
+        scope: 'openid'
+      });
+      expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
+      expect(window.location.href).toBe(authorizeUrl);
+    });
+
+    it('builds authorize url with existing PKCE values', async () => {
+      const authorizeUrl = Math.random().toString();
+      const redirectUri =  Math.random().toString();
+      const acrValues = 'urn:grn:authn:dk:nemid:poces';
+      const pkce = await generatePKCE();
+
+      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
+        return new Promise((resolve) => {
+          resolve(authorizeUrl);
+        });
+      });
+
+      await redirect.authorize({
+        redirectUri,
+        acrValues
+      });
+
+      expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
+        redirectUri,
+        acrValues,
+        responseMode: 'query',
+        responseType: 'code',
+        pkce,
         scope: 'openid'
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);

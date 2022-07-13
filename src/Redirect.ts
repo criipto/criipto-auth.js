@@ -14,7 +14,7 @@ export default class CriiptoAuthRedirect {
 
   authorize(params: RedirectAuthorizeParams): Promise<void> {
     let redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
-    return generatePKCE().then(pkce => {
+    return (params.pkce && "code_verifier" in params.pkce ? Promise.resolve(params.pkce) : generatePKCE()).then(pkce => {
       savePKCEState(this.store, {
         redirect_uri: redirectUri!,
         pkce_code_verifier: pkce.code_verifier
