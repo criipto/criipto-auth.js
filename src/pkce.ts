@@ -26,3 +26,5 @@ export function generate() : Promise<PKCE> {
       return {code_verifier, code_challenge, code_challenge_method};  
     });
 }
+
+export const PKCE_STATE_KEY = '@criipto/verify-js:pkce:state';

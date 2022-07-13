@@ -1,7 +1,7 @@
 import type CriiptoAuth from './index';
 import type {RedirectAuthorizeParams, AuthorizeResponse} from './types';
 import {parseAuthorizeResponseFromLocation} from './util';
-import {generate as generatePKCE} from './pkce';
+import {generate as generatePKCE, PKCE_STATE_KEY} from './pkce';
 
 export default class CriiptoAuthRedirect {
   criiptoAuth: CriiptoAuth
@@ -15,8 +15,10 @@ export default class CriiptoAuthRedirect {
   authorize(params: RedirectAuthorizeParams): Promise<void> {
     let redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
     return generatePKCE().then(pkce => {
-      this.store.setItem('pkce_redirect_uri', redirectUri!);
-      this.store.setItem('pkce_code_verifier', pkce.code_verifier);
+      this.store.setItem(PKCE_STATE_KEY, JSON.stringify({
+        redirect_uri: redirectUri!,
+        pkce_code_verifier: pkce.code_verifier
+      }));
 
       return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
         ...params,
@@ -33,22 +35,21 @@ export default class CriiptoAuthRedirect {
     const params = parseAuthorizeResponseFromLocation(window.location);
     if (!params.code && !params.error && !params.id_token) return Promise.resolve(null);
 
-    const pkce_code_verifier = this.store.getItem('pkce_code_verifier');
+    const state = this.store.getItem(PKCE_STATE_KEY);
+    if (!state) return Promise.reject(new Error('No pkce_code_verifier available'));
 
-    if (!pkce_code_verifier) return Promise.reject(new Error('No pkce_code_verifier available'));
+    const {pkce_code_verifier, redirect_uri} = JSON.parse(state);
 
     return this.criiptoAuth.processResponse(params, {
       code_verifier: pkce_code_verifier,
-      redirect_uri: this.store.getItem('pkce_redirect_uri')!
+      redirect_uri
     }).then(response => {
       if (response) {
-        this.store.removeItem('pkce_redirect_uri');
-        this.store.removeItem('pkce_code_verifier');
+        this.store.removeItem(PKCE_STATE_KEY);
       }
       return response;
     }).catch(err => {
-      this.store.removeItem('pkce_redirect_uri');
-      this.store.removeItem('pkce_code_verifier');
+      this.store.removeItem(PKCE_STATE_KEY);
       return Promise.reject(err);
     });
   }
