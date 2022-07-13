@@ -1,32 +1,9 @@
 const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
 
-module.exports = {
+const commonConfig = {
   mode: 'production',
   entry: './src/index.ts',
-  experiments: {
-    outputModule: true
-  },
-  entry: {
-    'criipto-auth.esm': {
-      import: path.resolve(__dirname, 'src/index.ts'),
-      library: {
-        type: 'module'
-      }
-    },
-    'criipto-auth.cjs': {
-      import: path.resolve(__dirname, 'src/index.ts'),
-      library: {
-        type: 'commonjs'
-      }
-    },
-    'criipto-auth.umd': {
-      import: path.resolve(__dirname, 'src/index.ts'),
-      library: {
-        type: 'umd'
-      }
-    }
-  },
   module: {
     rules: [
       {
@@ -38,10 +15,6 @@ module.exports = {
   resolve: {
     extensions: [ '.ts', '.tsx', '.js' ]
   },
-  output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: '[name].js'
-  },
   plugins: [
     new CopyPlugin({
       patterns: [
@@ -49,4 +22,42 @@ module.exports = {
       ]
     })
   ]
-};
+}
+
+module.exports = [
+  {
+    ...commonConfig,
+    experiments: {
+      outputModule: true
+    },
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'criipto-auth.esm.js',
+      library: {
+        type: 'module'
+      }
+    }
+  },
+  {
+    ...commonConfig,
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'criipto-auth.cjs.js',
+      library: {
+        type: 'commonjs'
+      }
+    }
+  },
+  {
+    ...commonConfig,
+    output: {
+      path: path.resolve(__dirname, 'dist'),
+      filename: 'criipto-auth.umd.js',
+      library: {
+        name: 'CriiptoAuth',
+        type: 'umd',
+        export: 'default'
+      }
+    }
+  }
+];
