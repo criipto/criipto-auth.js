@@ -2,6 +2,7 @@ import type CriiptoAuth from './index';
 import type {RedirectAuthorizeParams, AuthorizeResponse} from './types';
 import {parseAuthorizeResponseFromLocation} from './util';
 import {clearPKCEState, generate as generatePKCE, getPKCEState, PKCE_STATE_KEY, savePKCEState} from './pkce';
+import { OAuth2Error } from './index';
 
 export default class CriiptoAuthRedirect {
   criiptoAuth: CriiptoAuth
@@ -31,9 +32,14 @@ export default class CriiptoAuthRedirect {
     });
   }
 
+  /* 
+   * Asynchronously check url for oauth2 response parameters and perform PKCE/token exchange
+   */
   match(): Promise<AuthorizeResponse | null> {
     const params = parseAuthorizeResponseFromLocation(window.location);
     if (!params.code && !params.error && !params.id_token) return Promise.resolve(null);
+    if (params.error) return Promise.reject(new OAuth2Error(params.error, params.error_description, params.state))
+    if (params.id_token) return Promise.resolve(params);
 
     const state = getPKCEState(this.store);
     if (!state) return Promise.reject(new Error('No pkce_code_verifier available'));
@@ -52,5 +58,14 @@ export default class CriiptoAuthRedirect {
       clearPKCEState(this.store);
       return Promise.reject(err);
     });
+  }
+
+  /*
+   * Synchronously check url for oauth2 response parameters, does not PKCE or token exchange.
+   */
+  hasMatch() {
+    const params = parseAuthorizeResponseFromLocation(window.location);
+    if (!params.code && !params.error && !params.id_token) return false;
+    return true;
   }
 }
