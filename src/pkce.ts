@@ -28,3 +28,19 @@ export function generate() : Promise<PKCE> {
 }
 
 export const PKCE_STATE_KEY = '@criipto/verify-js:pkce:state';
+type PKCE_STATE = {redirect_uri: string, pkce_code_verifier: string};
+
+export function savePKCEState(store: Storage, input: PKCE_STATE) {
+  store.setItem(PKCE_STATE_KEY, JSON.stringify(input));
+}
+
+export function getPKCEState(store: Storage) : PKCE_STATE | null {
+  const state = store.getItem(PKCE_STATE_KEY);
+  if (!state) return null;
+
+  return JSON.parse(state) as PKCE_STATE;
+}
+
+export function clearPKCEState(store: Storage) {
+  store.removeItem(PKCE_STATE_KEY);
+}

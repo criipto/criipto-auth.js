@@ -1,7 +1,7 @@
 import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import * as crypto from 'crypto';
 import {MemoryStore} from './helper';
-import CriiptoAuth, { OAuth2Error } from '../src/index';
+import CriiptoAuth, { OAuth2Error, savePKCEState } from '../src/index';
 import CriiptoAuthRedirect from '../src/Redirect';
 
 describe('CriiptoAuthRedirect', () => {
@@ -138,7 +138,10 @@ describe('CriiptoAuthRedirect', () => {
 
       expect.assertions(1);
 
-      auth.store.setItem('pkce_code_verifier', Math.random().toString());
+      savePKCEState(auth.store, {
+        redirect_uri: Math.random().toString(),
+        pkce_code_verifier: Math.random().toString(),
+      });
       await redirect.match().catch(err => {
         expect(err).toStrictEqual(new OAuth2Error(error, error_description));
       });
