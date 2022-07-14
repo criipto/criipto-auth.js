@@ -73,7 +73,7 @@ export default class CriiptoAuthPopup {
               this.criiptoAuth.processResponse(eventData, {code_verifier: pkce.code_verifier, redirect_uri: params.redirectUri}).then(resolve, reject);
               window.removeEventListener('message', receiveMessage);
             }
-          } else if (event.data && (event.data.includes('code') || event.data.includes('id_token') || event.data.includes('error'))) {
+          } else if (event.data && (event.data.includes('code=') || event.data.includes('id_token=') || event.data.includes('error='))) {
             const response = parseAuthorizeResponseFromUrl(event.data);
             this.criiptoAuth.processResponse(response, {code_verifier: pkce.code_verifier, redirect_uri: params.redirectUri}).then(resolve, reject);
             window.removeEventListener('message', receiveMessage);
