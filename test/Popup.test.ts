@@ -120,7 +120,7 @@ describe('CriiptoAuthPopup', () => {
     let createdWindow: Window;
 
     beforeEach(() => {
-      createdWindow = {} as Window;
+      createdWindow = {close: jest.fn()} as any as Window;
       popup.window = createdWindow;
 
       (popup.open as any) = jest.fn().mockImplementation(() => createdWindow);
@@ -134,7 +134,7 @@ describe('CriiptoAuthPopup', () => {
 
     });
 
-    it('opens popup and does PKCE token exchange', async () => {
+    it('opens popup, receives callback with JSON and does PKCE token exchange', async () => {
       const metadata = {
         ...metadata_example,
         token_endpoint: Math.random().toString()
@@ -165,6 +165,61 @@ describe('CriiptoAuthPopup', () => {
         data: CRIIPTO_AUTHORIZE_RESPONSE+JSON.stringify({
           code
         })
+      };
+
+      const authorizePromise = popup.authorize(params);
+      await Promise.resolve();
+      expect(popup.open).toHaveBeenCalledTimes(1);
+      expect(popup._latestParams).toBe(params); 
+      expect(popup._latestUrl).toBeDefined();
+
+      await Promise.resolve(); // Wait for a promise cycle
+      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
+      expect(messageEventListener).toBeDefined();
+
+      // An ignored event, not prefixed correctly
+      messageEventListener[1]({
+        source: createdWindow,
+        data: Math.random().toString()
+      });
+
+      messageEventListener[1](messageEvent);
+      const result = await authorizePromise;
+      expect(result.id_token).toBe(id_token);
+
+      const fetchCall = (window.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
+      expect(fetchCall[1].body).toContain(`code_verifier=`);
+    });
+
+    it('opens popup, receives callback with redirectUri and does PKCE token exchange', async () => {
+      const metadata = {
+        ...metadata_example,
+        token_endpoint: Math.random().toString()
+      };
+      const id_token = Math.random().toString();
+
+      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
+        if (url.includes('.well-known/openid-configuration')) {
+          return {
+            json: () => Promise.resolve(metadata)
+          };
+        }
+        if (url === metadata.token_endpoint) {
+          return {
+            json: () => Promise.resolve({id_token})
+          };
+        }
+        throw new Error('Unexpected url');
+      });
+
+      const code = Math.random().toString();
+      const params = {
+        redirectUri: Math.random().toString(),
+        acrValues: 'urn:grn:authn:dk:nemid:poces'
+      };
+      const messageEvent = {
+        source: createdWindow,
+        data: `https://example.com/?code=${code}`
       };
 
       const authorizePromise = popup.authorize(params);

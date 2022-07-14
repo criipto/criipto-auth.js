@@ -110,15 +110,6 @@ await criiptoAuth.popup.authorize({
 - **height (optional, number)**: Height of the popup
 - **[Authorization parameters](#authorization-parameters)**
 
-### callback
-```javascript
-criiptoAuth.popup.callback(window.location.origin);
-```
-
-Communicates with the parent window to send back `code` or `id_token` from `window.location` query/hash.
-
-- **origin (string)**: Origin restriction for window.postMessage, should always be restricted to a specific known origin if possible.
-
 ## Auth.redirect
 
 ### authorize
