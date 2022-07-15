@@ -1,8 +1,7 @@
 import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt} from './types';
 import {ALL_VIA} from './types';
 import {generate as generatePKCE, PKCE, PKCEPublicPart} from './pkce';
-import {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
-
+export {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
 export {savePKCEState, getPKCEState, clearPKCEState} from './pkce';
 
 import OpenIDConfiguration from './OpenID';
@@ -10,7 +9,7 @@ import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
-export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse, parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation};
+export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse};
 
 interface CriiptoAuthOptions {
   domain: string;
