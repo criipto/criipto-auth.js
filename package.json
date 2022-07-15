@@ -8,7 +8,7 @@
   "scripts": {
     "test": "jest",
     "coverage": "jest --collect-coverage",
-    "prepublish": "npm run build",
+    "prepublishOnly": "npm run build",
     "build": "webpack --config webpack.config.js && tsc --declaration --emitDeclarationOnly",
     "dev": "webpack --config webpack.config.dev.js --watch"
   },
