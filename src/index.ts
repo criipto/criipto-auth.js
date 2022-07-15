@@ -9,7 +9,7 @@ import CriiptoConfiguration from './CriiptoConfiguration';
 import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 
-export * as CDSC from './csdc/index';
+export * as CSDC from './csdc/index';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
 export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse};
