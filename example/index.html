@@ -27,13 +27,15 @@
         criiptoAuth.authorizeResponsive({
           '(min-width: 601px)': {
             via: 'popup',
-            redirectUri: 'http://localhost:8080/example/popup-callback.html',
-            acrValues: 'urn:grn:authn:dk:mitid:low'
+            redirectUri: 'http://localhost:8080/example/index.html',
+            acrValues: 'urn:grn:authn:dk:mitid:low',
+            prompt: 'login'
           },
           '(max-width: 600px)': {
             via: 'redirect',
             redirectUri: 'http://localhost:8080/example/index.html',
-            acrValues: 'urn:grn:authn:dk:mitid:low'
+            acrValues: 'urn:grn:authn:dk:mitid:low',
+            prompt: 'login'
           }
         });
       });
@@ -41,14 +43,16 @@
       document.getElementById('button_login_redirect_query').addEventListener('click', () => {
         criiptoAuth.redirect.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
-          acrValues: 'urn:grn:authn:dk:mitid:low'
+          acrValues: 'urn:grn:authn:dk:mitid:low',
+          prompt: 'login'
         });
       });
 
       document.getElementById('button_login_redirect_query_acr_values').addEventListener('click', () => {
         criiptoAuth.redirect.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
-          acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr']
+          acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr'],
+          prompt: 'login'
         });
       });
 
@@ -56,7 +60,8 @@
         criiptoAuth.redirect.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
           state: Math.random().toString(),
-          nonce: Math.random().toString()
+          nonce: Math.random().toString(),
+          prompt: 'login'
         });
       });
 
@@ -67,7 +72,8 @@
 
       document.getElementById('button_login_popup').addEventListener('click', () => {
         criiptoAuth.popup.authorize({
-          redirectUri: 'http://localhost:8080/example/popup-callback.html'
+          redirectUri: 'http://localhost:8080/example/index.html',
+          prompt: 'login'
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
@@ -76,8 +82,9 @@
 
       document.getElementById('button_login_popup_da').addEventListener('click', () => {
         criiptoAuth.popup.authorize({
-          redirectUri: 'http://localhost:8080/example/popup-callback.html',
-          uiLocales: 'da'
+          redirectUri: 'http://localhost:8080/example/index.html',
+          uiLocales: 'da',
+          prompt: 'login'
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
@@ -86,8 +93,9 @@
 
       document.getElementById('button_login_popup_se').addEventListener('click', () => {
         criiptoAuth.popup.authorize({
-          redirectUri: 'http://localhost:8080/example/popup-callback.html',
-          uiLocales: 'se'
+          redirectUri: 'http://localhost:8080/example/index.html',
+          uiLocales: 'se',
+          prompt: 'login'
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
@@ -96,9 +104,10 @@
 
       document.getElementById('button_login_popup_nb').addEventListener('click', () => {
         criiptoAuth.popup.authorize({
-          redirectUri: 'http://localhost:8080/example/popup-callback.html',
+          redirectUri: 'http://localhost:8080/example/index.html',
           loginHint: 'flow:sign',
-          uiLocales: 'nb'
+          uiLocales: 'nb',
+          prompt: 'login'
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);

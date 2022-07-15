@@ -49,6 +49,11 @@ export function parseAuthorizeResponseFromLocation(location: Location): Authoriz
   return parseQueryParamsFromLocation(location);
 }
 
+export function parseAuthorizeResponseFromUrl(input: string): AuthorizeResponse {
+  const url = new URL(input);
+  return parseQueryParams(url.search);
+}
+
 export const CRIIPTO_AUTHORIZE_RESPONSE = 'CRIIPTO_AUTHORIZE_RESPONSE';
 export const CRIIPTO_POPUP_ID = 'CRIIPTO_POPUP_ID';
 export const CRIIPTO_POPUP_BACKDROP_ID = 'criipto_popup_backdrop';
