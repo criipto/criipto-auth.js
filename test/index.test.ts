@@ -2,11 +2,11 @@ import {describe, beforeEach, it, expect, jest} from '@jest/globals';
 import { mocked } from 'ts-jest/utils';
 import {AuthorizeUrlParams} from '../src/types';
 import CriiptoAuth from '../src/index';
-import OpenIDConfiguration from '../src/OpenID';
+import OpenIDConfiguration from '../src/OpenIDConfiguration';
 import CriiptoAuthRedirect from '../src/Redirect';
 import { MemoryStore } from './helper';
 
-jest.mock('../src/OpenID');
+jest.mock('../src/OpenIDConfiguration');
 
 const mockedOpenID = mocked(OpenIDConfiguration, true);
 

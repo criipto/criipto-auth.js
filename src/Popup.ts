@@ -88,9 +88,9 @@ export default class CriiptoAuthPopup {
    * Start customized login flow in a popup
    * You probably want to use `popup.authorize` instead.
    */
-  trigger(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
-    return this.buildAuthorizeUrl(params).then(({url, params}) => {
-      this.open(url, params);
+  trigger(initialParams: PopupAuthorizeParams): Promise<AuthorizeResponse> {
+    return this.buildAuthorizeUrl(initialParams).then(({url, params}) => {
+      this.open(url, initialParams);
       return this.listen().then(response => {
         return this.criiptoAuth.processResponse(
           response,
@@ -100,7 +100,7 @@ export default class CriiptoAuthPopup {
         ).then(response => response!);
       });
     }).finally(() => {
-      if (params.backdrop !== false) this.backdrop.remove();
+      if (initialParams.backdrop !== false) this.backdrop.remove();
     });
   }
 

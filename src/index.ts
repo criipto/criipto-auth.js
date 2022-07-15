@@ -4,7 +4,8 @@ import {generate as generatePKCE, PKCE, PKCEPublicPart} from './pkce';
 export {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
 export {savePKCEState, getPKCEState, clearPKCEState} from './pkce';
 
-import OpenIDConfiguration from './OpenID';
+import OpenIDConfiguration from './OpenIDConfiguration';
+import CriiptoConfiguration from './CriiptoConfiguration';
 import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 
@@ -38,14 +39,17 @@ export class OAuth2Error extends Error {
 }
 
 export class CriiptoAuth {
+  // Private class fields aren't yet supported in all browsers so this is simply removed by the compiler for now.
+  #_setupPromise: Promise<void>;
+  _openIdConfiguration: OpenIDConfiguration;
+  #_criiptoConfiguration: CriiptoConfiguration;
+
   options: CriiptoAuthOptions;
   domain: string;
   clientID: string;
   popup: CriiptoAuthPopup;
   redirect: CriiptoAuthRedirect;
   store: Storage;
-  _setupPromise: Promise<void>;
-  _openIdConfiguration: OpenIDConfiguration;
   scope: string;
 
   constructor(options: CriiptoAuthOptions) {
@@ -59,13 +63,14 @@ export class CriiptoAuth {
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
     this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`, this.clientID);
+    this.#_criiptoConfiguration = new CriiptoConfiguration(`https://${this.domain}`, this.clientID);
   }
 
   _setup() {
-    if (!this._setupPromise) {
-      this._setupPromise = this._openIdConfiguration.fetchMetadata();
+    if (!this.#_setupPromise) {
+      this.#_setupPromise = this._openIdConfiguration.fetchMetadata();
     }
-    return this._setupPromise;
+    return this.#_setupPromise;
   }
 
   fetchOpenIDConfiguration() {

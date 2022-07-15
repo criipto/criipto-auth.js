@@ -1,5 +1,5 @@
 import {describe, beforeEach, it, expect, jest} from '@jest/globals';
-import OpenIDConfiguration from '../src/OpenID';
+import OpenIDConfiguration from '../src/OpenIDConfiguration';
 
 describe('OpenIDConfiguration', () => {
   let fetch = jest.fn();
