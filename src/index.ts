@@ -166,18 +166,19 @@ export class CriiptoAuth {
     });
   }
 
-  processResponse(params : AuthorizeResponse, pkce: {code_verifier: string, redirect_uri: string}) : Promise<AuthorizeResponse | null> {
+  processResponse(params : AuthorizeResponse, pkce?: {code_verifier: string, redirect_uri: string}) : Promise<AuthorizeResponse | null> {
     if (params.error) return Promise.reject(new OAuth2Error(params.error, params.error_description, params.state))
     if (params.id_token) return Promise.resolve(params);
     if (!params.code) return Promise.resolve(null);
+    if (params.code && !pkce) return Promise.resolve(params);
     
     const state = params.state;
     const body = new URLSearchParams();
     body.append('grant_type', "authorization_code");
     body.append('code', params.code);
     body.append('client_id', this.clientID);
-    body.append('redirect_uri', pkce.redirect_uri);
-    body.append('code_verifier', pkce.code_verifier);
+    body.append('redirect_uri', pkce!.redirect_uri);
+    body.append('code_verifier', pkce!.code_verifier);
 
     return this._setup().then(() => {
       return window.fetch(this._openIdConfiguration.token_endpoint, {
