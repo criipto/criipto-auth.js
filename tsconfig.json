@@ -14,7 +14,9 @@
     "allowJs": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
-    "types": []
+    "types": [
+      "jest"
+    ]
   },
   "exclude": [
     "./node_modules",

@@ -1,8 +1,10 @@
 const path = require('path');
 const CopyPlugin = require("copy-webpack-plugin");
+const webpack = require('webpack');
 
 const commonConfig = {
   mode: 'production',
+  devtool: 'source-map',
   entry: './src/index.ts',
   module: {
     rules: [
@@ -16,6 +18,9 @@ const commonConfig = {
     extensions: [ '.ts', '.tsx', '.js' ]
   },
   plugins: [
+    new webpack.DefinePlugin({
+      __VERSION__: JSON.stringify(require("./package.json").version)
+    }),
     new CopyPlugin({
       patterns: [
         { from: "src/index.css", to: "index.css" }

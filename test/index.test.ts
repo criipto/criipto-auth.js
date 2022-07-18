@@ -1,14 +1,12 @@
 import {describe, beforeEach, it, expect, jest} from '@jest/globals';
-import { mocked } from 'ts-jest/utils';
-import {AuthorizeUrlParams} from '../src/types';
+import {AuthorizeUrlParams, ResponseType} from '../src/types';
 import CriiptoAuth from '../src/index';
 import OpenIDConfiguration from '../src/OpenIDConfiguration';
-import CriiptoAuthRedirect from '../src/Redirect';
 import { MemoryStore } from './helper';
 
 jest.mock('../src/OpenIDConfiguration');
 
-const mockedOpenID = mocked(OpenIDConfiguration, true);
+const mockedOpenID = jest.mocked(OpenIDConfiguration, true);
 
 describe('CriiptoAuth', () => {
   let domain:string, clientID:string, auth:CriiptoAuth;
@@ -156,7 +154,7 @@ describe('CriiptoAuth', () => {
   describe('buildAuthorizeUrl', () => {
     const values:AuthorizeUrlParams = {
       responseMode: Math.random().toString(),
-      responseType: Math.random().toString(),
+      responseType: "id_token",
       redirectUri: Math.random().toString(),
       acrValues: Math.random().toString(),
       scope: Math.random().toString(),
@@ -199,7 +197,7 @@ describe('CriiptoAuth', () => {
       expect.assertions(1);
       await auth.buildAuthorizeUrl({
         ...values,
-        responseType: Math.random().toString()
+        responseType: "id_token"
       }).catch(err => {
         expect(err.message).toMatch(`responseType must be one of ${auth._openIdConfiguration.response_types_supported.join(',')}`);
       });
@@ -345,7 +343,7 @@ describe('CriiptoAuth', () => {
         acrValues: Math.random().toString(),
         redirectUri: Math.random().toString(),
         responseMode: 'fragment',
-        responseType: 'id_token',
+        responseType: 'id_token' as ResponseType,
         scope: Math.random().toString()
       };
 

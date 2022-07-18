@@ -23,7 +23,8 @@ import CriiptoAuth from '@criipto/auth-js';
 
 var criiptoAuth = new CriiptoAuth({
   domain: '{YOUR_CRIIPTO_DOMAIN}',
-  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}'
+  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
+  store: sessionStorage
 });
 
 criiptoAuth.popup.authorize({
@@ -46,12 +47,14 @@ criiptoAuth.redirect.authorize({
 ```javascript
 var criiptoAuth = new CriiptoAuth({
   domain: '{YOUR_CRIIPTO_DOMAIN}',
-  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}'
+  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
+  store: sessionStorage
 });
 
 var criiptoAuth = new CriiptoAuth({
   domain: '{YOUR_CRIIPTO_DOMAIN}',
   clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
+  store: sessionStorage,
   redirectUri: 'http://localhost:8000/example/index.html',
   acrValues: 'urn:grn:authn:dk:nemid:poces'
 });
@@ -134,3 +137,20 @@ console.log(match.id_token);
 ```
 
 Returns an object with a code or id_token key if present in the `window.location` search (query params) or hash.
+
+## QRCode 
+
+```javascript
+criiptoAuth.qr.authorize(document.getElementById('qr_code_div', {
+  acrValues: 'urn:grn:authn:dk:nemid:poces',
+  // onAcknowledged is executed when the QR code is first scanned
+  onAcknowledged: () => {}
+}).then(result => {
+  console.log(result.id_token ?? result.code);
+}).catch(error => {
+  console.error(`${error.error}: ${error.error_description}`);
+});
+```
+
+A canvas with a QR code will be rendered inside the target element.
+The user can scan the QR code and then complete the Criipto login flow on their phone, however the result will end up in the initating browser (usually a desktop browser).

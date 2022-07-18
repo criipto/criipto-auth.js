@@ -151,11 +151,11 @@ describe('CriiptoAuthPopup', () => {
     });
 
     it('opens popup, receives callback with id_token redirectUri', async () => {
-      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
-        if (url.includes('.well-known/openid-configuration')) {
+      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+        if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata_example)
-          };
+          } as any;
         }
         throw new Error('Unexpected url');
       });
@@ -192,11 +192,11 @@ describe('CriiptoAuthPopup', () => {
     });
 
     it('opens popup, receives callback with code redirectUri', async () => {
-      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
-        if (url.includes('.well-known/openid-configuration')) {
+      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+        if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata_example)
-          };
+          } as any;
         }
         throw new Error('Unexpected url');
       });
@@ -249,11 +249,11 @@ describe('CriiptoAuthPopup', () => {
       };
       const id_token = Math.random().toString();
 
-      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
-        if (url.includes('.well-known/openid-configuration')) {
+      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+        if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata)
-          };
+          } as any;
         }
         if (url === metadata.token_endpoint) {
           return {
@@ -307,11 +307,11 @@ describe('CriiptoAuthPopup', () => {
       };
       const id_token = Math.random().toString();
 
-      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
-        if (url.includes('.well-known/openid-configuration')) {
+      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+        if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata)
-          };
+          } as any;
         }
         if (url === metadata.token_endpoint) {
           return {
@@ -361,11 +361,11 @@ describe('CriiptoAuthPopup', () => {
         token_endpoint: Math.random().toString(),
       };
 
-      (window.fetch as any) = jest.fn<Promise<any>, string[]>().mockImplementation(async (url : string) => {
-        if (url.includes('.well-known/openid-configuration')) {
+      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+        if (url.toString().includes('.well-known/openid-configuration')) {
           return {
-            json: () => Promise.resolve(metadata)
-          };
+            json: () => Promise.resolve(metadata_example)
+          } as any;
         }
         throw new Error('Unexpected url');
       });
@@ -474,7 +474,7 @@ describe('CriiptoAuthPopup', () => {
         };
         popup._latestUrl = url;
         popup._latestParams = params;
-        popup.open = jest.fn();
+        (popup as any).open = jest.fn();
 
         popup.backdrop.handleOpen();
         

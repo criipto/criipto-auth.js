@@ -1,4 +1,4 @@
-import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt} from './types';
+import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt, ResponseType} from './types';
 import {ALL_VIA} from './types';
 import {generate as generatePKCE, PKCE, PKCEPublicPart} from './pkce';
 export {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
@@ -8,11 +8,15 @@ import OpenIDConfiguration from './OpenIDConfiguration';
 import CriiptoConfiguration from './CriiptoConfiguration';
 import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
+import CriiptoAuthQrCode from './QrCode';
 
 export * as CSDC from './csdc/index';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
 export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse};
+
+declare var __VERSION__: string;
+export const VERSION = typeof __VERSION__ === "undefined" ? "N/A" : __VERSION__;
 
 interface CriiptoAuthOptions {
   domain: string;
@@ -21,7 +25,7 @@ interface CriiptoAuthOptions {
 
   redirectUri?: string;
   responseMode?: string;
-  responseType?: string;
+  responseType?: ResponseType;
   acrValues?: string | string[];
   scope?: string;
 }
@@ -44,6 +48,8 @@ export class CriiptoAuth {
   // Private class fields aren't yet supported in all browsers so this is simply removed by the compiler for now.
   #_setupPromise: Promise<void>;
   _openIdConfiguration: OpenIDConfiguration;
+
+  #_criiptoConfigurationPromise: Promise<CriiptoConfiguration>;
   #_criiptoConfiguration: CriiptoConfiguration;
 
   options: CriiptoAuthOptions;
@@ -51,6 +57,7 @@ export class CriiptoAuth {
   clientID: string;
   popup: CriiptoAuthPopup;
   redirect: CriiptoAuthRedirect;
+  qr: CriiptoAuthQrCode;
   store: Storage;
   scope: string;
 
@@ -64,6 +71,7 @@ export class CriiptoAuth {
 
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
+    this.qr = new CriiptoAuthQrCode(this);
     this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`, this.clientID);
     this.#_criiptoConfiguration = new CriiptoConfiguration(`https://${this.domain}`, this.clientID);
   }
@@ -77,6 +85,13 @@ export class CriiptoAuth {
 
   fetchOpenIDConfiguration() {
     return this._setup().then(() => this._openIdConfiguration);
+  }
+
+  fetchCriiptoConfiguration() {
+    if (!this.#_criiptoConfigurationPromise) {
+      this.#_criiptoConfigurationPromise = this.#_criiptoConfiguration.fetchMetadata();
+    }
+    return this.#_criiptoConfigurationPromise;
   }
 
   authorizeResponsive(queries:AuthorizeResponsiveParams): Promise<AuthorizeResponse | void> {

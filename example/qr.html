@@ -1,0 +1,30 @@
+<html>
+  <head>
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <script type="text/javascript" src="../dist/criipto-auth.umd.js"></script>
+    <link href="../src/index.css" type="text/css" rel="stylesheet" />
+  </head>
+  <body>
+    <div id="qrcode" style="width: 400px; height: 400px"></div>
+    <textarea id="result" style="width: 400px; height: 400px"></textarea>
+    <script type="text/javascript">
+      var criiptoAuth = new CriiptoAuth({
+        // domain: 'javascript-library-test-test.criipto.id',
+        // clientID: 'urn:my:application:identifier:6573',
+        domain: 'qr-test.criipto.io',
+        clientID: 'urn:my:application:identifier:8811',
+        store: sessionStorage
+      });
+
+      criiptoAuth.qr.authorize(document.getElementById('qrcode'), {
+
+      }).then((result) => {
+        console.log(result);
+        document.getElementById('result').innerHTML = JSON.stringify(result);
+      }).catch(err => {
+        console.log(err);
+        document.getElementById('result').innerHTML = JSON.stringify(result);
+      })
+    </script>
+  </body>
+</html>

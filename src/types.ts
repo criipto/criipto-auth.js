@@ -3,11 +3,12 @@ import {PKCE, PKCEPublicPart} from './pkce';
 export type GenericObject = { [key: string]: any };
 
 export type Prompt = undefined | 'none' | 'login';
+export type ResponseType = 'code' | 'id_token';
 
 export interface AuthorizeUrlParams {
   acrValues?: string | string[];
   redirectUri: string;
-  responseType: string;
+  responseType: ResponseType;
   responseMode: string;
   pkce?: PKCE | PKCEPublicPart;
   state?: string;
@@ -22,7 +23,7 @@ export interface AuthorizeUrlParams {
 export interface AuthorizeUrlParamsOptional {
   acrValues?: string | string[];
   redirectUri?: string;
-  responseType?: string;
+  responseType?: ResponseType;
   responseMode?: string;
   pkce?: PKCE | PKCEPublicPart;
   state?: string
@@ -50,7 +51,7 @@ export interface AuthorizeParams extends Partial<AuthorizeUrlParams> {
   via: Via,
   acrValues?: string | string[];
   redirectUri?: string;
-  responseType?: string;
+  responseType?: ResponseType;
   responseMode?: string;
 }
 
