@@ -3,7 +3,8 @@ import CriiptoConfiguration from './CriiptoConfiguration';
 
 import { arrayBufferToBase64, base64ToArrayBuffer, exportPublicKeyAsBase64, generateClientId, generateKeyPair, generateSessionId, IsAckMessage, IsCancelMessage, IsOAuth2CodeMessage, IsOAuth2ErrorMessage, KeyPair, Message, SessionAPI } from './csdc/index';
 import type CriiptoAuth from './index';
-import { generatePKCE, OAuth2Error } from './index';
+import { generatePKCE } from './index';
+import OAuth2Error from './OAuth2Error';
 import type {AuthorizeResponse, AuthorizeUrlParamsOptional} from './types';
 
 type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'>;
@@ -194,7 +195,7 @@ export default class CriiptoAuthQrCode {
               currentSession = session;
               qrPromise.acknowledge();
             } else if (IsCancelMessage(data)) {
-              reject(new UserCancelledError('access_denied', 'User cancelled login.'));
+              reject(new OAuth2Error('access_denied', 'User cancelled login.'));
               cleanup();
             } else if (IsOAuth2ErrorMessage(data)) {
               reject(new OAuth2Error(data.error, data.error_description ?? undefined));
@@ -211,6 +212,7 @@ export default class CriiptoAuthQrCode {
           cleanup();
         };
       } catch (error) {
+        cleanup();
         reject(error);
       }
     });

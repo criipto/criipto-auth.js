@@ -3,6 +3,7 @@ import {ALL_VIA} from './types';
 import {generate as generatePKCE, PKCE, PKCEPublicPart} from './pkce';
 export {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
 export {savePKCEState, getPKCEState, clearPKCEState} from './pkce';
+import OAuth2Error from './OAuth2Error';
 
 import OpenIDConfiguration from './OpenIDConfiguration';
 import CriiptoConfiguration from './CriiptoConfiguration';
@@ -10,12 +11,12 @@ import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 import CriiptoAuthQrCode from './QrCode';
 
-export {UserCancelledError, PromiseCancelledError} from './QrCode';
+export {PromiseCancelledError, UserCancelledError} from './QrCode';
 
 export * as CSDC from './csdc/index';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
-export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse};
+export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse, OAuth2Error};
 
 declare var __VERSION__: string;
 export const VERSION = typeof __VERSION__ === "undefined" ? "N/A" : __VERSION__;
@@ -30,21 +31,6 @@ interface CriiptoAuthOptions {
   acrValues?: string | string[];
   scope?: string;
 }
-
-export class OAuth2Error extends Error {
-  error: string;
-  error_description?: string;
-  state?: string;
-
-  constructor(error: string, error_description?: string, state?: string) {
-    super(`${error} (${error_description})`);
-    this.name = "OAuth2Error";
-    this.error = error;
-    this.error_description = error_description;
-    this.state = state;
-  }
-}
-
 export class CriiptoAuth {
   // Private class fields aren't yet supported in all browsers so this is simply removed by the compiler for now.
   #_setupPromise: Promise<void>;
