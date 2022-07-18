@@ -50,7 +50,7 @@ export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
     this.#_reject = _reject!;
   }
 
-  cancel(error: Error = ) {
+  cancel() {
     this.cancelled = true;
     this.#_reject(new PromiseCancelledError());
     if (this.onCancel) this.onCancel();
