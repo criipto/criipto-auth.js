@@ -14,6 +14,7 @@ export * as CSDC from './csdc/index';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
 export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse};
+export {CancelablePromise, PromiseCancelledError} from './QrCode';
 
 declare var __VERSION__: string;
 export const VERSION = typeof __VERSION__ === "undefined" ? "N/A" : __VERSION__;

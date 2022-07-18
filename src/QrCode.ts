@@ -17,6 +17,31 @@ type Session = {
   keyPair: KeyPair
 }
 
+export class PromiseCancelledError extends Error {
+  constructor() {
+    super('Promise cancelled');
+    Object.setPrototypeOf(this, PromiseCancelledError.prototype);
+  }
+}
+export class CancelablePromise<T> extends Promise<T> {
+  public onCancel: () => void | PromiseLike<void>
+  public cancelled: boolean = false;
+
+  #_reject: (reason?: any) => void
+
+  constructor(executor: (resolve: (value: T | PromiseLike<T>) => void, reject: (reason?: any) => void) => void) {
+    super((resolve, reject) => {
+      this.#_reject = reject;
+      executor(resolve, reject);
+    });
+  }
+
+  async cancel() {
+    this.cancelled = true;
+    this.#_reject(new PromiseCancelledError());
+  }
+}
+
 export default class CriiptoAuthQrCode {
   criiptoAuth: CriiptoAuth
   #_clientID: string;
@@ -99,8 +124,14 @@ export default class CriiptoAuthQrCode {
       refresh();
     }, REFRESH_INTERVAL);
 
-    return await new Promise((resolve, reject) => {
+    const promise = new CancelablePromise<AuthorizeResponse>((resolve, reject) => {
       const handleMessage = async (message: MessageEvent<any>) => {
+        if (promise.cancelled) {
+          this.#_websocket.removeEventListener('message', handleMessage);
+          cleanup();
+          return;
+        }
+
         for (const session of sessionHistory) {
           const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
             {
@@ -151,6 +182,8 @@ export default class CriiptoAuthQrCode {
 
       this.#_websocket.addEventListener('message', handleMessage);
     });
+
+    return promise;
   }
 
   async #createSession(data?: {[key: string]: any}) : Promise<Session> {
