@@ -143,10 +143,15 @@ Returns an object with a code or id_token key if present in the `window.location
 ```javascript
 criiptoAuth.qr.authorize(document.getElementById('qr_code_div', {
   acrValues: 'urn:grn:authn:dk:nemid:poces',
+}).then(session => {
   // onAcknowledged is executed when the QR code is first scanned
-  onAcknowledged: () => {}
-}).then(result => {
-  console.log(result.id_token ?? result.code);
+  session.onAcknowledged = () => {
+    console.log('Session acknowledged.');
+  };
+
+  return session.then(result => {
+    console.log(result.id_token ?? result.code);
+  });
 }).catch(error => {
   console.error(`${error.error}: ${error.error_description}`);
 });

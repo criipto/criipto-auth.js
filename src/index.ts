@@ -14,7 +14,6 @@ export * as CSDC from './csdc/index';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
 export {generatePKCE, OpenIDConfiguration, Prompt, AuthorizeResponse};
-export {CancelablePromise, PromiseCancelledError} from './QrCode';
 
 declare var __VERSION__: string;
 export const VERSION = typeof __VERSION__ === "undefined" ? "N/A" : __VERSION__;
@@ -36,7 +35,7 @@ export class OAuth2Error extends Error {
   state?: string;
 
   constructor(error: string, error_description?: string, state?: string) {
-    super(`OAuth2Error: ${error} (${error_description})`);
+    super(`${error} (${error_description})`);
     this.name = "OAuth2Error";
     this.error = error;
     this.error_description = error_description;
