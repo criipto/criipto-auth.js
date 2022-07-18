@@ -24,6 +24,12 @@ export class PromiseCancelledError extends Error {
     Object.setPrototypeOf(this, PromiseCancelledError.prototype);
   }
 }
+export class UserCancelledError extends OAuth2Error {
+  constructor(error: string, error_description?: string, state?: string) {
+    super(error, error_description, state);
+  }
+}
+
 export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
   public onCancel: () => void | PromiseLike<void>
   public onAcknowledged: () => void
@@ -44,7 +50,7 @@ export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
     this.#_reject = _reject!;
   }
 
-  cancel() {
+  cancel(error: Error = ) {
     this.cancelled = true;
     this.#_reject(new PromiseCancelledError());
     if (this.onCancel) this.onCancel();
@@ -188,7 +194,7 @@ export default class CriiptoAuthQrCode {
               currentSession = session;
               qrPromise.acknowledge();
             } else if (IsCancelMessage(data)) {
-              reject(new OAuth2Error('access_denied', 'User cancelled login.'));
+              reject(new UserCancelledError('access_denied', 'User cancelled login.'));
               cleanup();
             } else if (IsOAuth2ErrorMessage(data)) {
               reject(new OAuth2Error(data.error, data.error_description ?? undefined));
@@ -210,123 +216,6 @@ export default class CriiptoAuthQrCode {
     });
 
     return qrPromise;
-
-    // const responseType = params.responseType ?? 'id_token';
-    // const pkce = await (
-    //   params.pkce ?
-    //     Promise.resolve(params.pkce) :
-    //     responseType === 'id_token' ?
-    //       generatePKCE() : Promise.resolve(undefined)
-    // );
-
-    // const redirectUri = config.qr_intermediary_url.replace('{id}', '');
-    // const canvas = this.#createCanvas(element);
-
-    // const authorizeUrl = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
-    //   pkce,
-    //   redirectUri,
-    //   responseMode: 'query',
-    //   responseType: 'code',
-    //   prompt: 'login'
-    // }));
-    
-    // let currentSession : Session | null = null;
-    // let sessionHistory : Session[] = [];
-    // let isAcked = false;
-    // let refreshInterval : any;
-
-    // const cleanup = () => {
-    //   if (refreshInterval) clearInterval(refreshInterval);
-    //   if (canvas.parentElement === element) element.removeChild(canvas);
-    // };
-
-    // const refresh = async () => {
-    //   if (isAcked) {
-    //     if (refreshInterval) clearInterval(refreshInterval);
-    //     return;
-    //   }
-
-    //   currentSession = await this.#createSession({action: {authorize: authorizeUrl}});
-    //   sessionHistory = sessionHistory.concat([currentSession]).slice(0, 5);
-
-    //   const url = config.qr_intermediary_url.replace('{id}', currentSession!.id);
-    //   QRCode.toCanvas(canvas, url, {
-    //     errorCorrectionLevel: 'low',
-    //     scale: 10,
-    //     width: canvas.width
-    //   });
-    // };
-
-    // await refresh();
-    // refreshInterval = setInterval(() => {
-    //   refresh();
-    // }, REFRESH_INTERVAL);
-
-    // const sessionPromise = new CriiptoQrPromise<AuthorizeResponse>((resolve, reject) => {
-    //   const handleMessage = async (message: MessageEvent<any>) => {
-    //     if (sessionPromise.cancelled) {
-    //       this.#_websocket.removeEventListener('message', handleMessage);
-    //       cleanup();
-    //       return;
-    //     }
-
-    //     for (const session of sessionHistory) {
-    //       const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
-    //         {
-    //           name: session.keyPair.algorithm
-    //         },
-    //         session.keyPair.privateKey,
-    //         base64ToArrayBuffer(message.data)
-    //       ).catch(err => {
-    //         return null; // Failed to decrypt, not the correct session
-    //       });
-
-    //       if (!decrypted) {
-    //         continue;
-    //       }
-          
-    //       const data : Message = JSON.parse(atob(arrayBufferToBase64(decrypted)));
-              
-    //       if (IsOAuth2CodeMessage(data)) {
-    //         cleanup();
-
-    //         await this.criiptoAuth.processResponse({
-    //           code: data.code
-    //         }, (pkce && "code_verifier" in pkce) ? {
-    //           redirect_uri: redirectUri,
-    //           code_verifier: pkce.code_verifier
-    //         } : undefined).then(authorizeResponse => {
-    //           resolve(authorizeResponse!);
-    //           this.#_websocket.removeEventListener('message', handleMessage);
-    //         }).catch((authorizeError : OAuth2Error | Error) => {
-    //           reject(authorizeError);
-    //           this.#_websocket.removeEventListener('message', handleMessage);
-    //         });
-    //       } else if (IsAckMessage(data)) {
-    //         isAcked = true;
-    //         sessionHistory = [session];
-    //         currentSession = session;
-    //         sessionPromise.acknowledge();
-    //       } else if (IsCancelMessage(data)) {
-    //         reject(new OAuth2Error('access_denied', 'User cancelled login.'));
-    //         cleanup();
-    //       } else if (IsOAuth2ErrorMessage(data)) {
-    //         reject(new OAuth2Error(data.error, data.error_description ?? undefined));
-    //         this.#_websocket.removeEventListener('message', handleMessage);
-    //         cleanup();
-    //       }
-    //     }
-    //   }
-
-    //   this.#_websocket.addEventListener('message', handleMessage);
-    // });
-
-    // sessionPromise.onCancel = () => {
-    //   cleanup();
-    // };
-
-    // // To make sure the session promise is returned as a promise and not awaited.
-    // return new Promise((resolve) => resolve(sessionPromise));
   }
 
   async #createSession(data?: {[key: string]: any}) : Promise<Session> {

@@ -10,6 +10,8 @@ import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 import CriiptoAuthQrCode from './QrCode';
 
+export {UserCancelledError, PromiseCancelledError} from './QrCode';
+
 export * as CSDC from './csdc/index';
 
 export type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, PKCE, PKCEPublicPart};
