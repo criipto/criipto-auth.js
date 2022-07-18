@@ -66,7 +66,7 @@ export default class CriiptoAuthQrCode {
 
     const cleanup = () => {
       if (refreshInterval) clearInterval(refreshInterval);
-      element.removeChild(canvas);
+      if (canvas.parentElement === element) element.removeChild(canvas);
     };
 
     const refresh = async () => {
@@ -79,7 +79,6 @@ export default class CriiptoAuthQrCode {
       sessionHistory = sessionHistory.concat([currentSession]).slice(0, 5);
 
       const url = config.qr_intermediary_url.replace('{id}', currentSession!.id);
-      console.log(url);
       QRCode.toCanvas(canvas, url, {
         errorCorrectionLevel: 'low',
         scale: 10,
