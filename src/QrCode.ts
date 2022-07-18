@@ -195,7 +195,7 @@ export default class CriiptoAuthQrCode {
               currentSession = session;
               qrPromise.acknowledge();
             } else if (IsCancelMessage(data)) {
-              reject(new OAuth2Error('access_denied', 'User cancelled login.'));
+              reject(new UserCancelledError('access_denied', 'User cancelled login.'));
               cleanup();
             } else if (IsOAuth2ErrorMessage(data)) {
               reject(new OAuth2Error(data.error, data.error_description ?? undefined));
