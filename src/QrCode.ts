@@ -19,7 +19,6 @@ type Session = {
 
 export default class CriiptoAuthQrCode {
   criiptoAuth: CriiptoAuth
-  store: Storage
   #_clientID: string;
   #_sessionAPI: SessionAPI
   #_websocket: WebSocket
@@ -27,7 +26,6 @@ export default class CriiptoAuthQrCode {
 
   constructor(criiptoAuth: CriiptoAuth) {
     this.criiptoAuth = criiptoAuth;
-    this.store = this.criiptoAuth.store;
   }
 
   async setup() {
