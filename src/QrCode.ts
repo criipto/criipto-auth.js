@@ -42,7 +42,15 @@ export default class CriiptoAuthQrCode {
 
   async authorize(element: HTMLElement, params: QrAuthorizeParams) : Promise<AuthorizeResponse> {
     const config = await this.setup();
-    const pkce = await (params.pkce && "code_verifier" in params.pkce ? Promise.resolve(params.pkce) : generatePKCE());
+
+    const responseType = params.responseType ?? 'id_token';
+    const pkce = await (
+      params.pkce ?
+        Promise.resolve(params.pkce) :
+        responseType === 'id_token' ?
+          generatePKCE() : Promise.resolve(undefined)
+    );
+
     const redirectUri = config.qr_intermediary_url.replace('{id}', '');
 
     const canvas = document.createElement('canvas');
@@ -115,10 +123,10 @@ export default class CriiptoAuthQrCode {
 
             await this.criiptoAuth.processResponse({
               code: data.code
-            }, {
+            }, (pkce && "code_verifier" in pkce) ? {
               redirect_uri: redirectUri,
               code_verifier: pkce.code_verifier
-            }).then(authorizeResponse => {
+            } : undefined).then(authorizeResponse => {
               resolve(authorizeResponse!);
               this.#_websocket.removeEventListener('message', handleMessage);
             }).catch((authorizeError : OAuth2Error | Error) => {

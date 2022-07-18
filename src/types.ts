@@ -47,12 +47,11 @@ export const ALL_VIA = ['redirect', 'popup'] as const; // TS 3.4
 type ViaTuple = typeof ALL_VIA;
 type Via = ViaTuple[number];
 
-export interface AuthorizeParams extends Partial<AuthorizeUrlParams> {
+export interface AuthorizeParams extends Partial<Omit<AuthorizeUrlParams, 'responseMode'>> {
   via: Via,
   acrValues?: string | string[];
   redirectUri?: string;
   responseType?: ResponseType;
-  responseMode?: string;
 }
 
 export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {

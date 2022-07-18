@@ -107,13 +107,19 @@ export default class CriiptoAuthPopup {
   /*
    * Start PKCE based login flow in a popup
    */
-  authorize(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
-    return generatePKCE().then(pkce => {
-      return this.trigger({
-        ...params,
-        responseType: 'code',
-        pkce
-      });
+  async authorize(params: PopupAuthorizeParams): Promise<AuthorizeResponse> {
+    const responseType = params.responseType ?? 'id_token';
+    const pkce = await (
+      params.pkce ?
+        Promise.resolve(params.pkce) :
+        responseType === 'id_token' ?
+          generatePKCE() : Promise.resolve(undefined)
+    );
+
+    return this.trigger({
+      ...params,
+      responseType: 'code',
+      pkce
     });
   }
 

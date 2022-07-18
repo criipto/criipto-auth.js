@@ -8,6 +8,7 @@
     <div>
       <button id="button_login_responsive">Login (responsive)</button>
       <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
+      <button id="button_login_redirect_code">Login (code + redirect)</button>
       <button id="button_login_redirect_query_acr_values">Login (PKCE + redirect + multiple ACR values)</button>
       <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
       <button id="button_login_popup">Login (PKCE + popup)</button>
@@ -45,8 +46,15 @@
       document.getElementById('button_login_redirect_query').addEventListener('click', () => {
         criiptoAuth.redirect.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
-          acrValues: 'urn:grn:authn:dk:mitid:low',
           prompt: 'login'
+        });
+      });
+
+      document.getElementById('button_login_redirect_code').addEventListener('click', () => {
+        criiptoAuth.redirect.authorize({
+          redirectUri: 'http://localhost:8080/example/index.html',
+          prompt: 'login',
+          responseType: 'code'
         });
       });
 
@@ -83,7 +91,7 @@
       });
 
       document.getElementById('button_login_popup_code').addEventListener('click', () => {
-        criiptoAuth.popup.trigger({
+        criiptoAuth.popup.authorize({
           redirectUri: 'http://localhost:8080/example/index.html',
           prompt: 'login',
           responseType: 'code'
