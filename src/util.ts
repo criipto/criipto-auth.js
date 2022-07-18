@@ -1,4 +1,4 @@
-import type {AuthorizeResponse, AuthorizeUrlParamsOptional, Prompt} from './types';
+import type {AuthorizeResponse, AuthorizeUrlParamsOptional, Prompt, ResponseType} from './types';
 
 type GenericObject = { [key: string]: any };
 
@@ -23,7 +23,7 @@ export function parseAuthorizeParamsFromUrl(input: string) : AuthorizeUrlParamsO
     clientID: url.searchParams.get('client_id')!,
     acrValues: url.searchParams.get('acr_values')?.split(' ') ?? undefined,
     redirectUri: url.searchParams.get('redirect_uri') ?? undefined,
-    responseType: url.searchParams.get('response_type') ?? undefined,
+    responseType: url.searchParams.get('response_type') ? url.searchParams.get('response_type') as ResponseType : undefined,
     responseMode: url.searchParams.get('response_mode') ?? undefined,
     pkce: url.searchParams.get('code_challenge') ? {
       code_challenge: url.searchParams.get('code_challenge')!,

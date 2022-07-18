@@ -14,7 +14,10 @@
     "allowJs": true,
     "strictNullChecks": true,
     "esModuleInterop": true,
-    "types": []
+    "moduleResolution": "node",
+    "types": [
+      "jest"
+    ]
   },
   "exclude": [
     "./node_modules",
