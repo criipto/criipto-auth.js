@@ -168,6 +168,7 @@ describe('CriiptoAuthRedirect', () => {
       expect.assertions(1);
 
       savePKCEState(auth.store, {
+        response_type: 'id_token',
         redirect_uri: Math.random().toString(),
         pkce_code_verifier: Math.random().toString(),
       });

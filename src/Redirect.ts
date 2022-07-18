@@ -1,7 +1,7 @@
 import type CriiptoAuth from './index';
 import type {RedirectAuthorizeParams, AuthorizeResponse} from './types';
 import {parseAuthorizeResponseFromLocation} from './util';
-import {clearPKCEState, generate as generatePKCE, getPKCEState, PKCE_STATE_KEY, savePKCEState} from './pkce';
+import {clearPKCEState, generate as generatePKCE, getPKCEState, PKCE, PKCEPublicPart, PKCE_STATE_KEY, savePKCEState} from './pkce';
 import { OAuth2Error } from './index';
 
 export default class CriiptoAuthRedirect {
@@ -13,23 +13,33 @@ export default class CriiptoAuthRedirect {
     this.store = this.criiptoAuth.store;
   }
 
-  authorize(params: RedirectAuthorizeParams): Promise<void> {
-    let redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
-    return (params.pkce && "code_verifier" in params.pkce ? Promise.resolve(params.pkce) : generatePKCE()).then(pkce => {
-      savePKCEState(this.store, {
-        redirect_uri: redirectUri!,
-        pkce_code_verifier: pkce.code_verifier
-      });
+  async authorize(params: RedirectAuthorizeParams): Promise<void> {
+    const redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
+    const responseType = params.responseType ?? 'id_token';
+    const pkce = await (
+      params.pkce ?
+        Promise.resolve(params.pkce) :
+        responseType === 'id_token' ?
+          generatePKCE() : Promise.resolve(undefined)
+    );
 
-      return this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
-        ...params,
-        responseMode: 'query',
-        responseType: 'code',
-        pkce
-      })).then(url => {
-        window.location.href = url;
-      });
+    savePKCEState(this.store, pkce && "code_verifier" in pkce ? {
+      response_type: 'id_token',
+      redirect_uri: redirectUri!,
+      pkce_code_verifier: pkce.code_verifier
+    } : {
+      response_type: 'code',
+      redirect_uri: redirectUri!
     });
+
+    const url = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+      ...params,
+      responseMode: 'query',
+      responseType: 'code',
+      pkce
+    }));
+
+    window.location.href = url;
   }
 
   /* 
@@ -42,14 +52,12 @@ export default class CriiptoAuthRedirect {
     if (params.id_token) return Promise.resolve(params);
 
     const state = getPKCEState(this.store);
-    if (!state) return Promise.reject(new Error('No pkce_code_verifier available'));
+    if (!state) return Promise.reject(new Error('No redirect state available'));
 
-    const {pkce_code_verifier, redirect_uri} = state;
-
-    return this.criiptoAuth.processResponse(params, {
-      code_verifier: pkce_code_verifier,
-      redirect_uri
-    }).then(response => {
+    return this.criiptoAuth.processResponse(params, state.response_type === 'id_token' ? {
+      code_verifier: state.pkce_code_verifier,
+      redirect_uri: state.redirect_uri
+    } : undefined).then(response => {
       if (response) {
         clearPKCEState(this.store);
       }

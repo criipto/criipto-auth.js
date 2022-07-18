@@ -342,7 +342,6 @@ describe('CriiptoAuth', () => {
       const params = {
         acrValues: Math.random().toString(),
         redirectUri: Math.random().toString(),
-        responseMode: 'fragment',
         responseType: 'id_token' as ResponseType,
         scope: Math.random().toString()
       };
@@ -358,7 +357,7 @@ describe('CriiptoAuth', () => {
 
       });
 
-      expect(actual).toStrictEqual({...params, pkce: undefined, state: undefined, loginHint: undefined, uiLocales: undefined, extraUrlParams: undefined, prompt: undefined, nonce: undefined});
+      expect(actual).toStrictEqual({...params, responseMode: "query", pkce: undefined, state: undefined, loginHint: undefined, uiLocales: undefined, extraUrlParams: undefined, prompt: undefined, nonce: undefined});
     });
 
     it('throws an error if redirectUri is not defined', () => {

@@ -24,7 +24,6 @@ interface CriiptoAuthOptions {
   store: Storage;
 
   redirectUri?: string;
-  responseMode?: string;
   responseType?: ResponseType;
   acrValues?: string | string[];
   scope?: string;
@@ -219,7 +218,6 @@ export class CriiptoAuth {
 
   buildAuthorizeParams(params: AuthorizeUrlParamsOptional): AuthorizeUrlParams {
     const redirectUri = params.redirectUri || this.options.redirectUri;
-    const responseMode = params.responseMode || this.options.responseMode || 'query';
     const responseType = params.responseType || this.options.responseType || 'code';
     const acrValues = params.acrValues || this.options.acrValues;
     const scope = params.scope || this.options.scope || 'openid';
@@ -228,7 +226,7 @@ export class CriiptoAuth {
 
     return {
       redirectUri: redirectUri!,
-      responseMode: responseMode!,
+      responseMode: params.responseMode || 'query',
       responseType: responseType!,
       acrValues: acrValues,
       pkce: params.pkce,

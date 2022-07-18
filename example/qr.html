@@ -5,7 +5,16 @@
     <link href="../src/index.css" type="text/css" rel="stylesheet" />
   </head>
   <body>
-    <div id="qrcode" style="width: 400px; height: 400px"></div>
+    <div style="display: flex; flex-flow: row; gap: 16px">
+      <div>
+        <strong>id_token response</strong>
+        <div id="qrcode_token" style="width: 400px; height: 400px"></div>
+      </div>
+      <div>
+        <strong>code response</strong>
+        <div id="qrcode_code" style="width: 400px; height: 400px"></div>
+      </div>
+    </div>
     <textarea id="result" style="width: 400px; height: 400px"></textarea>
     <script type="text/javascript">
       var criiptoAuth = new CriiptoAuth({
@@ -14,7 +23,7 @@
         store: sessionStorage
       });
 
-      criiptoAuth.qr.authorize(document.getElementById('qrcode'), {
+      criiptoAuth.qr.authorize(document.getElementById('qrcode_token'), {
 
       }).then((result) => {
         console.log(result);
@@ -22,7 +31,17 @@
       }).catch(err => {
         console.log(err);
         document.getElementById('result').innerHTML = JSON.stringify(result);
-      })
+      });
+
+      criiptoAuth.qr.authorize(document.getElementById('qrcode_code'), {
+        responseType: 'code'
+      }).then((result) => {
+        console.log(result);
+        document.getElementById('result').innerHTML = JSON.stringify(result);
+      }).catch(err => {
+        console.log(err);
+        document.getElementById('result').innerHTML = JSON.stringify(result);
+      });
     </script>
   </body>
 </html>
