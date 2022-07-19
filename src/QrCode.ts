@@ -76,14 +76,21 @@ export default class CriiptoAuthQrCode {
 
   async setup() {
     if (!this.#_setupPromise) {
-      this.#_clientID = generateClientId();
-      this.#_setupPromise = this.criiptoAuth.fetchCriiptoConfiguration();
-      const config = await this.#_setupPromise;
-      this.#_sessionAPI = new SessionAPI(config.csdc_session_url);
-      this.#_websocket = new WebSocket(`${config.csdc_wss_url}?clientId=${this.#_clientID}`);
+      this.#_setupPromise = Promise.resolve().then(async () => {
+        this.#_clientID = generateClientId();
+        const config = await this.criiptoAuth.fetchCriiptoConfiguration();;
+        this.#_sessionAPI = new SessionAPI(config.csdc_session_url);
+        this.#_websocket = new WebSocket(`${config.csdc_wss_url}?clientId=${this.#_clientID}`);
+
+        await new Promise((resolve, reject) => {
+          this.#_websocket.addEventListener('open', resolve);
+        });
+
+        return config;
+      });
     }
 
-    return this.#_setupPromise;
+    return await this.#_setupPromise;
   }
 
   #createCanvas(element: HTMLElement) {
@@ -106,7 +113,6 @@ export default class CriiptoAuthQrCode {
       let refreshInterval : any;
       let currentSession : Session | null = null;
       let sessionHistory : Session[] = [];
-      let isAcked = false;
   
       const cleanup = () => {
         if (refreshInterval) clearInterval(refreshInterval);
@@ -133,15 +139,19 @@ export default class CriiptoAuthQrCode {
         }));
 
         const refresh = async () => {
-          if (isAcked) {
+          if (qrPromise.acknowledged) {
             if (refreshInterval) clearInterval(refreshInterval);
             return;
           }
+          if (qrPromise.cancelled) {
+            cleanup();
+            return;
+          }
 
-          currentSession = await this.#createSession({action: {authorize: authorizeUrl}});
-          sessionHistory = sessionHistory.concat([currentSession]).slice(0, 5);
+          const newSession = await this.#createSession({action: {authorize: authorizeUrl}});
+          sessionHistory = sessionHistory.concat([newSession]).slice(0, 5);
 
-          const url = config.qr_intermediary_url.replace('{id}', currentSession!.id);
+          const url = config.qr_intermediary_url.replace('{id}', newSession!.id);
           QRCode.toCanvas(canvas, url, {
             errorCorrectionLevel: 'low',
             scale: 10,
@@ -157,19 +167,44 @@ export default class CriiptoAuthQrCode {
         const handleMessage = async (message: MessageEvent<any>) => {
           if (qrPromise.cancelled) return;
 
-          for (const session of sessionHistory) {
+          // ACK phase
+          if (!qrPromise.acknowledged) {
+            for (const session of sessionHistory.slice().reverse()) {
+              const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
+                {
+                  name: session.keyPair.algorithm
+                },
+                session.keyPair.privateKey,
+                base64ToArrayBuffer(message.data)
+              ).catch(err => {
+                return null; // Failed to decrypt, not the correct session
+              });
+  
+              if (!decrypted) {
+                continue;
+              }
+
+              const data : Message = JSON.parse(atob(arrayBufferToBase64(decrypted)));
+              if (IsAckMessage(data)) {
+                sessionHistory = [session];
+                currentSession = session;
+                qrPromise.acknowledge();
+              }
+            }
+          }
+          else if (currentSession) { // Response phase
             const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
               {
-                name: session.keyPair.algorithm
+                name: currentSession.keyPair.algorithm
               },
-              session.keyPair.privateKey,
+              currentSession.keyPair.privateKey,
               base64ToArrayBuffer(message.data)
             ).catch(err => {
               return null; // Failed to decrypt, not the correct session
             });
 
             if (!decrypted) {
-              continue;
+              return;
             }
             
             const data : Message = JSON.parse(atob(arrayBufferToBase64(decrypted)));
@@ -189,11 +224,6 @@ export default class CriiptoAuthQrCode {
                 reject(authorizeError);
                 this.#_websocket.removeEventListener('message', handleMessage);
               });
-            } else if (IsAckMessage(data)) {
-              isAcked = true;
-              sessionHistory = [session];
-              currentSession = session;
-              qrPromise.acknowledge();
             } else if (IsCancelMessage(data)) {
               reject(new UserCancelledError('access_denied', 'User cancelled login.'));
               cleanup();

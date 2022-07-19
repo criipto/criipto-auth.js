@@ -14,6 +14,10 @@
         <strong>code response</strong>
         <div id="qrcode_code" style="width: 400px; height: 400px"></div>
       </div>
+      <div>
+        <strong>id_token (after cancel and resume)</strong>
+        <div id="qrcode_cancel" style="width: 400px; height: 400px"></div>
+      </div>
     </div>
     <textarea id="result" style="width: 400px; height: 400px"></textarea>
     <script type="text/javascript">
@@ -23,10 +27,7 @@
         store: sessionStorage
       });
 
-      const promise = criiptoAuth.qr.authorize(document.getElementById('qrcode_token'));
-      // setTimeout(() => promise.cancel(), 2000);
-
-      promise.then((result) => {
+      criiptoAuth.qr.authorize(document.getElementById('qrcode_token')).then((result) => {
         console.log(result);
         document.getElementById('result').innerHTML = JSON.stringify(result);
       }).catch(err => {
@@ -37,6 +38,28 @@
       criiptoAuth.qr.authorize(document.getElementById('qrcode_code'), {
         responseType: 'code'
       }).then((result) => {
+        console.log(result);
+        document.getElementById('result').innerHTML = JSON.stringify(result);
+      }).catch(err => {
+        console.log(err);
+        document.getElementById('result').innerHTML = err.toString();
+      });
+
+      let promise = criiptoAuth.qr.authorize(document.getElementById('qrcode_cancel'));
+      setTimeout(() => {
+        promise.cancel();
+        
+        promise = criiptoAuth.qr.authorize(document.getElementById('qrcode_cancel'));
+        promise.then((result) => {
+          console.log(result);
+          document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          console.log(err);
+          document.getElementById('result').innerHTML = err.toString();
+        })
+      }, 6000);
+
+      promise.then((result) => {
         console.log(result);
         document.getElementById('result').innerHTML = JSON.stringify(result);
       }).catch(err => {
