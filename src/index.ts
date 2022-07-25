@@ -81,6 +81,15 @@ export class CriiptoAuth {
     return this.#_criiptoConfigurationPromise;
   }
 
+  async logout(options: {redirectUri: string}) {
+    const {redirectUri} = options;
+    const configuration = await this.fetchOpenIDConfiguration();
+
+    const url = `${configuration.end_session_endpoint}?post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
+
+    window.location.href = url;
+  }
+
   authorizeResponsive(queries:AuthorizeResponsiveParams): Promise<AuthorizeResponse | void> {
     let match:RedirectAuthorizeParams | PopupAuthorizeParams | undefined = undefined;
 

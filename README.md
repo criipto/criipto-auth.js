@@ -1,6 +1,6 @@
-# criipto-auth.js
+# @criipto/auth-js
 
-Javascript toolkit for Criipto Verify using PKCE
+Accept logins from MitID, NemID, Swedish BankID, Norwegian BankID and other e-ID providers in your Javascript app with `@criipto/auth-js`.
 
 ## Index
 
@@ -137,6 +137,16 @@ console.log(match.id_token);
 ```
 
 Returns an object with a code or id_token key if present in the `window.location` search (query params) or hash.
+
+## Logout
+
+If you have SSO enabled for your domain and you are not using `prompt=login` you can use `logout()` to clear the users SSO session.
+
+```javascript
+criiptoAuth.logout({
+  redirectUri: 'http://localhost:8000/example/index.html',
+});
+```
 
 ## QRCode 
 

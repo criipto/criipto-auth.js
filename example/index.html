@@ -11,12 +11,14 @@
       <button id="button_login_redirect_code">Login (code + redirect)</button>
       <button id="button_login_redirect_query_acr_values">Login (PKCE + redirect + multiple ACR values)</button>
       <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
+      <button id="button_login_redirect_query_sso">Login (PKCE + redirect + SSO)</button>
       <button id="button_login_popup">Login (PKCE + popup)</button>
       <button id="button_login_popup_code">Login (popup + code)</button>
       <button id="button_login_popup_backdrop_disabled">Login (popup + no backdrop)</button>
       <button id="button_login_popup_da">Login (PKCE + popup + Danish)</button>
       <button id="button_login_popup_se">Login (PKCE + popup + Swedish)</button>
       <button id="button_login_popup_nb">Login (PKCE + popup + Norwegian)</button>
+      <button id="button_logout">Logout</button>
     </div>
     <textarea id="result" style="width: 800px; height: 800px"></textarea>
     <script type="text/javascript">
@@ -72,6 +74,12 @@
           state: Math.random().toString(),
           nonce: Math.random().toString(),
           prompt: 'login'
+        });
+      });
+
+      document.getElementById('button_login_redirect_query_sso').addEventListener('click', () => {
+        criiptoAuth.redirect.authorize({
+          redirectUri: 'http://localhost:8080/example/index.html'
         });
       });
 
@@ -145,6 +153,12 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        });
+      });
+
+      document.getElementById('button_logout').addEventListener('click', () => {
+        criiptoAuth.logout({
+          redirectUri: 'http://localhost:8080/example/index.html'
         });
       });
     </script>
