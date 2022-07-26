@@ -59,6 +59,8 @@ export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {
   redirectUri?: string;
 };
 
+export type SilentAuthorizeParams = Partial<Omit<AuthorizeParams, 'prompt' | 'pkce'>>;
+
 export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
   acrValues?: string | string[];
   redirectUri?: string;

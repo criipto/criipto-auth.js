@@ -19,6 +19,7 @@
       <button id="button_login_popup_se">Login (PKCE + popup + Swedish)</button>
       <button id="button_login_popup_nb">Login (PKCE + popup + Norwegian)</button>
       <button id="button_logout">Logout</button>
+      <button id="button_check_session">Check Session</button>
     </div>
     <textarea id="result" style="width: 800px; height: 800px"></textarea>
     <script type="text/javascript">
@@ -159,6 +160,18 @@
       document.getElementById('button_logout').addEventListener('click', () => {
         criiptoAuth.logout({
           redirectUri: 'http://localhost:8080/example/index.html'
+        });
+      });
+      
+      document.getElementById('button_check_session').addEventListener('click', () => {
+        criiptoAuth.checkSession({
+          redirectUri: 'http://localhost:8080/example/index.html'
+        }).then((result) => {
+          console.log(result);
+          document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch((error) => {
+          console.log(error);
+          document.getElementById('result').innerHTML = JSON.stringify(error);
         });
       });
     </script>

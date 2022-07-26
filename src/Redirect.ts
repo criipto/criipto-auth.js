@@ -13,6 +13,9 @@ export default class CriiptoAuthRedirect {
     this.store = this.criiptoAuth.store;
   }
 
+  /**
+   * Start a redirect based authorize request
+   */
   async authorize(params: RedirectAuthorizeParams): Promise<void> {
     const redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
     const responseType = params.responseType ?? 'id_token';
