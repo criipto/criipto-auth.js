@@ -56,15 +56,6 @@ export default class CriiptoAuthSilent {
         generatePKCE() : Promise.resolve(undefined)
     );
 
-    savePKCEState(this.criiptoAuth.store, pkce && "code_verifier" in pkce ? {
-      response_type: 'id_token',
-      redirect_uri: redirectUri!,
-      pkce_code_verifier: pkce.code_verifier
-    } : {
-      response_type: 'code',
-      redirect_uri: redirectUri!
-    });
-
     const url = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
       ...params,
       responseMode: 'post_message',
@@ -73,15 +64,23 @@ export default class CriiptoAuthSilent {
       prompt: 'none'
     }));
 
+    const timeout = params.timeout || 10000;
     const iframe = this.open(url);
 
-    return this.listen(iframe).then(response => {
-      return this.criiptoAuth.processResponse(
-        response,
-        pkce && "code_verifier" in pkce ? 
-          {code_verifier: pkce.code_verifier, redirect_uri: redirectUri!} :
-          undefined
-      ).then(response => response!);
-    }).finally(() => this.remove(iframe));
+    return Promise.race([
+      new Promise<never>((_, reject) => {
+        setTimeout(() => {
+          reject('Timed out')
+        }, timeout);
+    }),
+      this.listen(iframe).then(response => {
+        return this.criiptoAuth.processResponse(
+          response,
+          pkce && "code_verifier" in pkce ? 
+            {code_verifier: pkce.code_verifier, redirect_uri: redirectUri!} :
+            undefined
+        ).then(response => response!)
+      })
+    ]).finally(() => this.remove(iframe));
   }
 }
