@@ -4,6 +4,7 @@
     "sourceMap": true,
     "lib": [
       "dom",
+      "dom.iterable",
       "es7",
       "es2017.object",
       "es2018.promise"

@@ -1,6 +1,6 @@
-import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt, ResponseType} from './types';
+import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt, ResponseType, SilentAuthorizeParams} from './types';
 import {ALL_VIA} from './types';
-import {generate as generatePKCE, PKCE, PKCEPublicPart} from './pkce';
+import {generate as generatePKCE, PKCE, PKCEPublicPart, savePKCEState} from './pkce';
 export {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
 export {savePKCEState, getPKCEState, clearPKCEState} from './pkce';
 import OAuth2Error from './OAuth2Error';
@@ -10,6 +10,7 @@ import CriiptoConfiguration from './CriiptoConfiguration';
 import CriiptoAuthRedirect from './Redirect';
 import CriiptoAuthPopup from './Popup';
 import CriiptoAuthQrCode from './QrCode';
+import CriiptoAuthSilent from './Silent';
 
 export {PromiseCancelledError, UserCancelledError} from './QrCode';
 
@@ -45,6 +46,7 @@ export class CriiptoAuth {
   popup: CriiptoAuthPopup;
   redirect: CriiptoAuthRedirect;
   qr: CriiptoAuthQrCode;
+  silent: CriiptoAuthSilent;
   store: Storage;
   scope: string;
 
@@ -59,6 +61,7 @@ export class CriiptoAuth {
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
     this.qr = new CriiptoAuthQrCode(this);
+    this.silent = new CriiptoAuthSilent(this);
     this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`, this.clientID);
     this.#_criiptoConfiguration = new CriiptoConfiguration(`https://${this.domain}`, this.clientID);
   }
@@ -81,6 +84,10 @@ export class CriiptoAuth {
     return this.#_criiptoConfigurationPromise;
   }
 
+  /**
+   * Logout the user, clearing any SSO state
+   * Will redirect the user to clear the session and then redirect back to `redirectUri`
+   */
   async logout(options: {redirectUri: string}) {
     const {redirectUri} = options;
     const configuration = await this.fetchOpenIDConfiguration();
@@ -88,6 +95,20 @@ export class CriiptoAuth {
     const url = `${configuration.end_session_endpoint}?post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
 
     window.location.href = url;
+  }
+
+  /**
+   * Start a redirect based authorize request
+   */
+  authorize(options: RedirectAuthorizeParams) {
+    return this.redirect.authorize(options);
+  }
+
+  /*
+   * Performs an iframe-based authorize to see if there is an existing SSO session
+   */
+  async checkSession(params: SilentAuthorizeParams) {
+    return this.silent.authorize(params);
   }
 
   authorizeResponsive(queries:AuthorizeResponsiveParams): Promise<AuthorizeResponse | void> {
