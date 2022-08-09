@@ -10,6 +10,7 @@ import type {AuthorizeResponse, AuthorizeUrlParamsOptional} from './types';
 type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'>;
 
 const REFRESH_INTERVAL = 2500;
+const MAX_SESSIONS = Math.floor(30000 / REFRESH_INTERVAL);
 
 type Session = {
   id: string
@@ -149,7 +150,7 @@ export default class CriiptoAuthQrCode {
           }
 
           const newSession = await this.#createSession({action: {authorize: authorizeUrl}});
-          sessionHistory = sessionHistory.concat([newSession]).slice(0, 5);
+          sessionHistory = sessionHistory.concat([newSession]).slice(0, MAX_SESSIONS);
 
           const url = config.qr_intermediary_url.replace('{id}', newSession!.id);
           QRCode.toCanvas(canvas, url, {
@@ -169,7 +170,8 @@ export default class CriiptoAuthQrCode {
 
           // ACK phase
           if (!qrPromise.acknowledged) {
-            for (const session of sessionHistory.slice().reverse()) {
+            const sessions = sessionHistory.slice().reverse();
+            for (const session of sessions) {
               const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
                 {
                   name: session.keyPair.algorithm
@@ -179,7 +181,7 @@ export default class CriiptoAuthQrCode {
               ).catch(err => {
                 return null; // Failed to decrypt, not the correct session
               });
-  
+
               if (!decrypted) {
                 continue;
               }

@@ -27,7 +27,10 @@
         store: sessionStorage
       });
 
-      criiptoAuth.qr.authorize(document.getElementById('qrcode_token')).then((result) => {
+      const tokenPromise = criiptoAuth.qr.authorize(document.getElementById('qrcode_token'));
+      tokenPromise.onAcknowledged = () => document.getElementById('qrcode_token').innerHTML = 'Acked';
+
+      tokenPromise.then((result) => {
         console.log(result);
         document.getElementById('result').innerHTML = JSON.stringify(result);
       }).catch(err => {
@@ -35,9 +38,11 @@
         document.getElementById('result').innerHTML = err.toString();
       });
 
-      criiptoAuth.qr.authorize(document.getElementById('qrcode_code'), {
+      const codePromise = criiptoAuth.qr.authorize(document.getElementById('qrcode_code'), {
         responseType: 'code'
-      }).then((result) => {
+      });
+      codePromise.onAcknowledged = () => document.getElementById('qrcode_code').innerHTML = 'Acked';
+      codePromise.then((result) => {
         console.log(result);
         document.getElementById('result').innerHTML = JSON.stringify(result);
       }).catch(err => {
@@ -50,6 +55,7 @@
         promise.cancel();
         
         promise = criiptoAuth.qr.authorize(document.getElementById('qrcode_cancel'));
+        promise.onAcknowledged = () => document.getElementById('qrcode_cancel').innerHTML = 'Acked';
         promise.then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
