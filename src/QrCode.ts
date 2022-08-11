@@ -67,9 +67,6 @@ export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
 }
 
 const MARK_RATIO = 0.15;
-const mark = new Image();
-mark.src = markSrc;
-
 
 export default class CriiptoAuthQrCode {
   criiptoAuth: CriiptoAuth
@@ -77,6 +74,7 @@ export default class CriiptoAuthQrCode {
   #_sessionAPI: SessionAPI
   #_websocket: WebSocket
   #_setupPromise: Promise<CriiptoConfiguration>
+  #_mark: HTMLImageElement
 
   constructor(criiptoAuth: CriiptoAuth) {
     this.criiptoAuth = criiptoAuth;
@@ -85,6 +83,9 @@ export default class CriiptoAuthQrCode {
   async setup() {
     if (!this.#_setupPromise) {
       this.#_setupPromise = Promise.resolve().then(async () => {
+        this.#_mark = new Image();
+        this.#_mark.src = markSrc;
+
         this.#_clientID = generateClientId();
         const config = await this.criiptoAuth.fetchCriiptoConfiguration();;
         this.#_sessionAPI = new SessionAPI(config.csdc_session_url);
@@ -175,7 +176,7 @@ export default class CriiptoAuthQrCode {
           if (branding) {
             context.imageSmoothingEnabled = false;
             context.drawImage(
-              mark,
+              this.#_mark,
               (canvas.width - markWidth) / 2,
               (canvas.width - markHeight) / 2,
               markWidth,
