@@ -159,7 +159,7 @@ export default class CriiptoAuthQrCode {
           }
 
           const newSession = await this.#createSession({action: {authorize: authorizeUrl}});
-          sessionHistory = sessionHistory.concat([newSession]).slice(0, MAX_SESSIONS);
+          sessionHistory = [newSession].concat(sessionHistory).slice(0, MAX_SESSIONS);
 
           const url = config.qr_intermediary_url.replace('{id}', newSession!.id);
           const qrCode = await QRCode.toCanvas(url, {
@@ -195,8 +195,7 @@ export default class CriiptoAuthQrCode {
 
           // ACK phase
           if (!qrPromise.acknowledged) {
-            const sessions = sessionHistory.slice().reverse();
-            for (const session of sessions) {
+            for (const session of sessionHistory) {
               const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
                 {
                   name: session.keyPair.algorithm
