@@ -26,6 +26,7 @@
     "./coverage"
   ],
   "files": [
+    "src/global.d.ts",
     "src/index.ts"
   ]
 }

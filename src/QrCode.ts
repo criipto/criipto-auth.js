@@ -7,6 +7,8 @@ import { generatePKCE } from './index';
 import OAuth2Error from './OAuth2Error';
 import type {AuthorizeResponse, AuthorizeUrlParamsOptional} from './types';
 
+import markSrc from './criipto-qr-mark.png';
+
 type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'>;
 
 const REFRESH_INTERVAL = 2500;
@@ -63,6 +65,11 @@ export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
     if (this.onAcknowledged) this.onAcknowledged();
   }
 }
+
+const MARK_RATIO = 0.15;
+const mark = new Image();
+mark.src = markSrc;
+
 
 export default class CriiptoAuthQrCode {
   criiptoAuth: CriiptoAuth
@@ -123,6 +130,7 @@ export default class CriiptoAuthQrCode {
       try {
         const config = await this.setup();
         const redirectUri = config.qr_intermediary_url.replace('{id}', '');
+        const branding = config.client.qr_branding !== false;
 
         const pkce = await (
           params?.pkce ?
@@ -153,11 +161,27 @@ export default class CriiptoAuthQrCode {
           sessionHistory = sessionHistory.concat([newSession]).slice(0, MAX_SESSIONS);
 
           const url = config.qr_intermediary_url.replace('{id}', newSession!.id);
-          QRCode.toCanvas(canvas, url, {
+          const qrCode = await QRCode.toCanvas(url, {
             errorCorrectionLevel: 'low',
             scale: 10,
             width: canvas.width
           });
+
+          const markWidth = canvas.width * MARK_RATIO;
+          const markHeight = canvas.height * MARK_RATIO;
+          const context = canvas.getContext('2d')!;
+          context.drawImage(qrCode, 0, 0);
+
+          if (branding) {
+            context.imageSmoothingEnabled = false;
+            context.drawImage(
+              mark,
+              (canvas.width - markWidth) / 2,
+              (canvas.width - markHeight) / 2,
+              markWidth,
+              markHeight
+            );
+          }
         };
 
         await refresh();
