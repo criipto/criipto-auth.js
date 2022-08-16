@@ -12,7 +12,7 @@ import CriiptoAuthPopup from './Popup';
 import CriiptoAuthQrCode from './QrCode';
 import CriiptoAuthSilent from './Silent';
 
-export {PromiseCancelledError, UserCancelledError} from './QrCode';
+export {PromiseCancelledError, UserCancelledError, QrNotEnabledError} from './QrCode';
 
 export * as CSDC from './csdc/index';
 

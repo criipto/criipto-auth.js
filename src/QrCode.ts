@@ -33,6 +33,12 @@ export class UserCancelledError extends OAuth2Error {
     super(error, error_description, state);
   }
 }
+export class QrNotEnabledError extends Error {
+  constructor(message: string) {
+    super(message);
+    Object.setPrototypeOf(this, QrNotEnabledError.prototype);
+  }
+}
 
 export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
   public onCancel: () => void | PromiseLike<void>
@@ -131,7 +137,7 @@ export default class CriiptoAuthQrCode {
       try {
         const config = await this.setup();
         if (!config.client.qr_enabled) {
-          throw new Error(`QR is not enabled for this Criipto Application. Please go to https://dashboard.criipto.com and enable it.`);
+          throw new QrNotEnabledError(`QR is not enabled for this Criipto Application. Please go to https://dashboard.criipto.com and enable it.`);
         }
 
         const qr_intermediary_url = (config.client.qr_intermediary_url ?? config.qr_intermediary_url);
