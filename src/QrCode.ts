@@ -130,7 +130,12 @@ export default class CriiptoAuthQrCode {
       
       try {
         const config = await this.setup();
-        const redirectUri = config.qr_intermediary_url.replace('{id}', '');
+        if (!config.client.qr_enabled) {
+          throw new Error(`QR is not enabled for this Criipto Application. Please go to https://dashboard.criipto.com and enable it.`);
+        }
+
+        const qr_intermediary_url = (config.client.qr_intermediary_url ?? config.qr_intermediary_url);
+        const redirectUri = qr_intermediary_url.replace('{id}', '');
         const branding = config.client.qr_branding !== false;
 
         const pkce = await (
@@ -161,7 +166,7 @@ export default class CriiptoAuthQrCode {
           const newSession = await this.#createSession({action: {authorize: authorizeUrl}});
           sessionHistory = [newSession].concat(sessionHistory).slice(0, MAX_SESSIONS);
 
-          const url = config.qr_intermediary_url.replace('{id}', newSession!.id);
+          const url = qr_intermediary_url.replace('{id}', newSession!.id);
           const qrCode = await QRCode.toCanvas(url, {
             errorCorrectionLevel: 'low',
             scale: 10,

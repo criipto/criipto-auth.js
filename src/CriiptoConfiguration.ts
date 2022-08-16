@@ -1,15 +1,14 @@
 type CriiptoMetadataClient = {
   client_id : string
   qr_branding : boolean
+  qr_enabled : boolean
+  qr_intermediary_url? : string
 }
 class CriiptoMetadata {
   csdc_wss_url : string;
   csdc_session_url : string;
   qr_intermediary_url : string;
-  clients : {
-    client_id : string
-    qr_branding : boolean
-  }[];
+  clients : CriiptoMetadataClient[];
 }
 
 class CriiptoConfiguration extends CriiptoMetadata {
