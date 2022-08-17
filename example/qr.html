@@ -9,6 +9,7 @@
       <div>
         <strong>id_token response</strong>
         <div id="qrcode_token" style="width: 400px; height: 400px"></div>
+        <div id="qrcode_token_link"></div>
       </div>
       <div>
         <strong>code response</strong>
@@ -39,7 +40,8 @@
       });
 
       const codePromise = criiptoAuth.qr.authorize(document.getElementById('qrcode_code'), {
-        responseType: 'code'
+        responseType: 'code',
+        margin: 0
       });
       codePromise.onAcknowledged = () => document.getElementById('qrcode_code').innerHTML = 'Acked';
       codePromise.then((result) => {

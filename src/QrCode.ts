@@ -9,7 +9,7 @@ import type {AuthorizeResponse, AuthorizeUrlParamsOptional} from './types';
 
 import markSrc from './criipto-qr-mark.png';
 
-type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'>;
+type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'> & {margin: number};
 
 const REFRESH_INTERVAL = 2500;
 const MAX_SESSIONS = Math.floor(30000 / REFRESH_INTERVAL);
@@ -176,7 +176,8 @@ export default class CriiptoAuthQrCode {
           const qrCode = await QRCode.toCanvas(url, {
             errorCorrectionLevel: 'low',
             scale: 10,
-            width: canvas.width
+            width: canvas.width,
+            margin: params?.margin ?? 4
           });
 
           const markWidth = canvas.width * MARK_RATIO;
