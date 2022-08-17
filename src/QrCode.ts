@@ -9,7 +9,7 @@ import type {AuthorizeResponse, AuthorizeUrlParamsOptional} from './types';
 
 import markSrc from './criipto-qr-mark.png';
 
-type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'> & {margin: number};
+type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, 'redirectUri'> & {margin?: number};
 
 const REFRESH_INTERVAL = 2500;
 const MAX_SESSIONS = Math.floor(30000 / REFRESH_INTERVAL);
