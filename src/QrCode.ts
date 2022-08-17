@@ -109,9 +109,11 @@ export default class CriiptoAuthQrCode {
   }
 
   #createCanvas(element: HTMLElement) {
+    const computedStyle = getComputedStyle(element);
+
     const canvas = document.createElement('canvas');
     canvas.setAttribute('data-criipto-id', 'criiptoqrcanvas');
-    canvas.width = element.clientWidth;
+    canvas.width = element.clientWidth - parseFloat(computedStyle.paddingLeft) - parseFloat(computedStyle.paddingRight);
     canvas.height = canvas.width;
 
     const existing = element.querySelector('[data-criipto-id="criiptoqrcanvas"]');
