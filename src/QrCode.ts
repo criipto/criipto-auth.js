@@ -154,6 +154,7 @@ export default class CriiptoAuthQrCode {
         );
 
         const authorizeUrl = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+          ...params,
           pkce,
           redirectUri,
           responseMode: 'query',
