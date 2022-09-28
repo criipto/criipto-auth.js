@@ -201,6 +201,9 @@ export class CriiptoAuth {
       }
 
       url.searchParams.set('criipto_sdk', `@criipto/auth-js@${VERSION}`);
+      if (params.extraUrlParams?.criipto_sdk) {
+        url.searchParams.set('criipto_sdk', params.extraUrlParams?.criipto_sdk);
+      }
 
       return url.toString();
     });
