@@ -163,6 +163,9 @@ describe('CriiptoAuth', () => {
         code_challenge: Math.random().toString(),
         code_challenge_method: 'SHA-256',
         code_verifier: Math.random().toString()
+      },
+      extraUrlParams: {
+        criipto_sdk: "test"
       }
     };
 
@@ -228,10 +231,13 @@ describe('CriiptoAuth', () => {
     it('builds without acr value', async () => {
       const actual = await auth.buildAuthorizeUrl({
         ...values,
-        acrValues: undefined
+        acrValues: undefined,
+        extraUrlParams: {
+          criipto_sdk: "test"
+        }
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`)
     });
 
     it('builds with login_hint', async () => {
@@ -239,10 +245,13 @@ describe('CriiptoAuth', () => {
       const actual = await auth.buildAuthorizeUrl({
         ...values,
         acrValues: undefined,
-        loginHint
+        loginHint,
+        extraUrlParams: {
+          criipto_sdk: "test"
+        }
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&login_hint=${loginHint}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&login_hint=${loginHint}&criipto_sdk=test`)
     });
 
     it('builds with prompt', async () => {
@@ -250,10 +259,13 @@ describe('CriiptoAuth', () => {
       const actual = await auth.buildAuthorizeUrl({
         ...values,
         acrValues: undefined,
-        prompt
+        prompt,
+        extraUrlParams: {
+          criipto_sdk: "test"
+        }
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&prompt=${prompt}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&prompt=${prompt}&criipto_sdk=test`)
     });
 
     it('builds with ui_locales', async () => {
@@ -261,57 +273,66 @@ describe('CriiptoAuth', () => {
       const actual = await auth.buildAuthorizeUrl({
         ...values,
         acrValues: undefined,
-        uiLocales
+        uiLocales,
+        extraUrlParams: {
+          criipto_sdk: "test"
+        }
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&ui_locales=${uiLocales}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&ui_locales=${uiLocales}&criipto_sdk=test`)
     });
 
     it('builds url with extra url parameters (random)', async () => {
       const key = Math.random().toString();
       const val = Math.random().toString();
-      const extraUrlParams = {[key]: val};
+      const extraUrlParams = {[key]: val, criipto_sdk: "test"};
       const actual = await auth.buildAuthorizeUrl({
         ...values,
         extraUrlParams
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&${key}=${val}`);
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&${key}=${val}&criipto_sdk=test`);
     });
 
     it('builds url with extra url parameters', async () => {
-      const extraUrlParams = {connection: 'my-connection'};
+      const extraUrlParams = {connection: 'my-connection', criipto_sdk: 'test'};
       const actual = await auth.buildAuthorizeUrl({
         ...values,
-        extraUrlParams
+        extraUrlParams,
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&connection=my-connection`);
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&connection=my-connection&criipto_sdk=test`);
     });
 
     it('builds with custom scope', async () => {
       const scope ='openid profile';
       const actual = await auth.buildAuthorizeUrl({
         ...values,
-        scope: scope
+        scope: scope,
+        extraUrlParams: {
+          criipto_sdk: "test"
+        }
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${scope.replace(/ /, "+")}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`);
+      expect(actual).toBe(`${authorization_endpoint}?scope=${scope.replace(/ /, "+")}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`);
     });
 
     it('builds with custom json response_mode', async () => {
       const actual = await auth.buildAuthorizeUrl({
         ...values,
-        responseMode: 'json'
+        responseMode: 'json',
+        extraUrlParams: {
+          criipto_sdk: "test"
+        }
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=json&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`);
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=json&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`);
     });
 
     it('builds url', async () => {
       const actual = await auth.buildAuthorizeUrl(values);
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${values.acrValues}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`)
     });
 
     it('builds url with multiple acr values as array', async () => {
@@ -319,10 +340,10 @@ describe('CriiptoAuth', () => {
 
       const actual = await auth.buildAuthorizeUrl({
         ...values,
-        acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr']
+        acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr'],
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${encodeURIComponent('urn:grn:authn:dk:mitid:low urn:grn:authn:se:bankid:another-device:qr').replace("%20", "+")}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${encodeURIComponent('urn:grn:authn:dk:mitid:low urn:grn:authn:se:bankid:another-device:qr').replace("%20", "+")}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`)
     });
 
     it('builds url with multiple acr values as space seperated', async () => {
@@ -333,7 +354,7 @@ describe('CriiptoAuth', () => {
         acrValues: 'urn:grn:authn:dk:mitid:low urn:grn:authn:se:bankid:another-device:qr'
       });
 
-      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${encodeURIComponent('urn:grn:authn:dk:mitid:low urn:grn:authn:se:bankid:another-device:qr').replace("%20", "+")}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&acr_values=${encodeURIComponent('urn:grn:authn:dk:mitid:low urn:grn:authn:se:bankid:another-device:qr').replace("%20", "+")}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`)
     });
   });
 
