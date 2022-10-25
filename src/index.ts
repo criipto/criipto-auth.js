@@ -31,6 +31,11 @@ interface CriiptoAuthOptions {
   responseType?: ResponseType;
   acrValues?: string | string[];
   scope?: string;
+
+  /**
+   * @deprecated Development use only
+   */
+  protocol?: "https" | "http"
 }
 export class CriiptoAuth {
   // Private class fields aren't yet supported in all browsers so this is simply removed by the compiler for now.
@@ -62,8 +67,10 @@ export class CriiptoAuth {
     this.redirect = new CriiptoAuthRedirect(this);
     this.qr = new CriiptoAuthQrCode(this);
     this.silent = new CriiptoAuthSilent(this);
-    this._openIdConfiguration = new OpenIDConfiguration(`https://${this.domain}`, this.clientID);
-    this.#_criiptoConfiguration = new CriiptoConfiguration(`https://${this.domain}`, this.clientID);
+
+    const protocol = options.protocol ?? 'https';
+    this._openIdConfiguration = new OpenIDConfiguration(`${protocol}://${this.domain}`, this.clientID);
+    this.#_criiptoConfiguration = new CriiptoConfiguration(`${protocol}://${this.domain}`, this.clientID);
   }
 
   _setup() {
