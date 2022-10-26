@@ -153,6 +153,7 @@ export default class CriiptoAuthQrCode {
               generatePKCE() : Promise.resolve(undefined)
         );
 
+        const state = params?.state;
         const authorizeUrl = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
           ...params,
           pkce,
@@ -254,7 +255,8 @@ export default class CriiptoAuthQrCode {
               cleanup();
 
               await this.criiptoAuth.processResponse({
-                code: data.code
+                code: data.code,
+                state
               }, (pkce && "code_verifier" in pkce) ? {
                 redirect_uri: redirectUri,
                 code_verifier: pkce.code_verifier
@@ -266,10 +268,10 @@ export default class CriiptoAuthQrCode {
                 this.#_websocket.removeEventListener('message', handleMessage);
               });
             } else if (IsCancelMessage(data)) {
-              reject(new UserCancelledError('access_denied', 'User cancelled login.'));
+              reject(new UserCancelledError('access_denied', 'User cancelled login.', state));
               cleanup();
             } else if (IsOAuth2ErrorMessage(data)) {
-              reject(new OAuth2Error(data.error, data.error_description ?? undefined));
+              reject(new OAuth2Error(data.error, data.error_description ?? undefined, state));
               this.#_websocket.removeEventListener('message', handleMessage);
               cleanup();
             }
