@@ -14,7 +14,7 @@ export interface AuthorizeUrlParams {
   state?: string;
   loginHint?: string;
   uiLocales?: string;
-  extraUrlParams?: {[key: string]: string};
+  extraUrlParams?: {[key: string]: string | null};
   scope: string;
   prompt?: Prompt;
   nonce?: string
@@ -29,7 +29,7 @@ export interface AuthorizeUrlParamsOptional {
   state?: string
   loginHint?: string;
   uiLocales?: string;
-  extraUrlParams?: {[key: string]: string};
+  extraUrlParams?: {[key: string]: string | null};
   scope?: string;
   prompt?: Prompt;
   nonce?: string

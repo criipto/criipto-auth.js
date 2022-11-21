@@ -194,13 +194,18 @@ export class CriiptoAuth {
 
       if (params.extraUrlParams) {
         for (let entry of Object.entries(params.extraUrlParams)) {
+          if (!entry[1]) continue;
           url.searchParams.append(entry[0], entry[1]);
         }
       }
 
       url.searchParams.set('criipto_sdk', `@criipto/auth-js@${VERSION}`);
-      if (params.extraUrlParams?.criipto_sdk) {
-        url.searchParams.set('criipto_sdk', params.extraUrlParams?.criipto_sdk);
+      if (params.extraUrlParams?.criipto_sdk !== undefined) {
+        if (params.extraUrlParams?.criipto_sdk === null) {
+          url.searchParams.delete('criipto_sdk');
+        } else {
+          url.searchParams.set('criipto_sdk', params.extraUrlParams?.criipto_sdk);
+        }
       }
 
       return url.toString();

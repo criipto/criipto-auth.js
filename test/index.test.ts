@@ -228,6 +228,18 @@ describe('CriiptoAuth', () => {
       expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}&criipto_sdk=test`)
     });
 
+    it('builds without criipto_sdk', async () => {
+      const actual = await auth.buildAuthorizeUrl({
+        ...values,
+        acrValues: undefined,
+        extraUrlParams: {
+          criipto_sdk: null
+        }
+      });
+
+      expect(actual).toBe(`${authorization_endpoint}?scope=${values.scope}&client_id=${clientID}&redirect_uri=${encodeURIComponent(values.redirectUri)}&response_type=${values.responseType}&response_mode=${values.responseMode}&code_challenge=${values.pkce!.code_challenge}&code_challenge_method=${values.pkce!.code_challenge_method}`)
+    });
+
     it('builds with login_hint', async () => {
       const loginHint = Math.random().toString();
       const actual = await auth.buildAuthorizeUrl({
