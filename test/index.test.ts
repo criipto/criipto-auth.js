@@ -206,18 +206,6 @@ describe('CriiptoAuth', () => {
       });
     });
 
-    it('throws an error if acrValues is not one of supported', async () => {
-      auth._openIdConfiguration.acr_values_supported = [Math.random().toString()];
-
-      expect.assertions(1);
-      await auth.buildAuthorizeUrl({
-        ...values,
-        acrValues: Math.random().toString()
-      }).catch(err => {
-        expect(err.message).toMatch(`acrValues must be one of ${auth._openIdConfiguration.acr_values_supported.join(',')}`);
-      });
-    });
-
     it('throws an error if redirectUri is not defined', async () => {
       expect.assertions(1);
       await auth.buildAuthorizeUrl({

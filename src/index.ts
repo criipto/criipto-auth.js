@@ -153,15 +153,6 @@ export class CriiptoAuth {
             params.acrValues :
               params.acrValues.includes(" ") ? params.acrValues.split(" ") : params.acrValues
           : undefined
-      if (this._openIdConfiguration.acr_values_supported && acrValues) {
-        if (Array.isArray(acrValues)) {
-          if (acrValues.some(v => !this._openIdConfiguration.acr_values_supported.includes(v))) {
-            throw new Error(`acrValues must all be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
-          }
-        } else if (!this._openIdConfiguration.acr_values_supported.includes(acrValues)) {
-          throw new Error(`acrValues must be one of ${this._openIdConfiguration.acr_values_supported.join(',')}`);
-        }
-      }
 
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
