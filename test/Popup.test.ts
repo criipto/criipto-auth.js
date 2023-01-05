@@ -5,8 +5,10 @@ import * as pkce from '../src/pkce';
 import CriiptoAuth, { OAuth2Error, OpenIDConfiguration } from '../src/index';
 import CriiptoAuthPopup from '../src/Popup';
 import {CRIIPTO_POPUP_ID, CRIIPTO_POPUP_BACKDROP_ID, CRIIPTO_AUTHORIZE_RESPONSE} from '../src/util';
+import {jwtVerify} from 'jose';
 
 jest.mock('../src/pkce');
+jest.mock('jose');
 (pkce.generate as any).mockImplementation(() => {
   return Promise.resolve({
     code_verifier: Math.random().toString(),
@@ -15,8 +17,14 @@ jest.mock('../src/pkce');
   });
 });
 
+(jwtVerify as any).mockResolvedValue({
+  payload: {}
+});
+
 const metadata_example = {
+  issuer: 'https://example.com',
   authorization_endpoint: 'https://example.com',
+  jwks_uri: 'https://example.com',
   response_modes_supported: [
     "query",
     "form_post",

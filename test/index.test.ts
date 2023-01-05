@@ -46,7 +46,10 @@ describe('CriiptoAuth', () => {
   describe('_setup', () => {
     beforeEach(() => {
       const fetchMetadataMock:jest.Mock = mockedOpenID.mock.instances[0].fetchMetadata as jest.Mock;
-      fetchMetadataMock.mockImplementation(() => Promise.resolve());
+      fetchMetadataMock.mockImplementation(() => Promise.resolve({
+        issuer: 'https://example.com',
+        jwks_uri: 'https://example.com',
+      }));
     });
 
     it('tells OpenIDConfiguration to fetch metadata', async () => {
@@ -176,6 +179,7 @@ describe('CriiptoAuth', () => {
 
       auth._openIdConfiguration = new OpenIDConfiguration(domain, clientID);
       auth._openIdConfiguration.authority = domain;
+      auth._openIdConfiguration.issuer = `https://${domain}`;
       auth._openIdConfiguration.authorization_endpoint = authorization_endpoint;
       auth._openIdConfiguration.response_modes_supported = [values.responseMode];
       auth._openIdConfiguration.response_types_supported = [values.responseType];
