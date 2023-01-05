@@ -1,6 +1,17 @@
 import {PKCE, PKCEPublicPart} from './pkce';
 
 export type GenericObject = { [key: string]: any };
+export type Claims = {
+  iss: string
+  aud: string
+  identityscheme: string
+  authenticationtype: string
+  sub: string
+  iat: number
+  exp: number
+  [key: string]: string | number
+}
+
 
 export type Prompt = undefined | 'none' | 'login';
 export type ResponseType = 'code' | 'id_token';
@@ -38,6 +49,8 @@ export interface AuthorizeUrlParamsOptional {
 export interface AuthorizeResponse extends GenericObject {
   code?: string;
   id_token?: string;
+  /** Only available when id_token is */
+  claims?: Claims;
   error?: string;
   error_description?: string;
   state?: string;

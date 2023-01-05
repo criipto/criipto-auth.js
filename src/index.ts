@@ -1,9 +1,10 @@
-import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt, ResponseType, SilentAuthorizeParams} from './types';
+import type {AuthorizeUrlParams, AuthorizeUrlParamsOptional, AuthorizeResponse, AuthorizeResponsiveParams, RedirectAuthorizeParams, PopupAuthorizeParams, Prompt, ResponseType, SilentAuthorizeParams, Claims} from './types';
 import {ALL_VIA} from './types';
 import {generate as generatePKCE, PKCE, PKCEPublicPart, savePKCEState} from './pkce';
 export {parseAuthorizeParamsFromUrl, parseAuthorizeResponseFromLocation} from './util';
 export {savePKCEState, getPKCEState, clearPKCEState} from './pkce';
 import OAuth2Error from './OAuth2Error';
+import {createRemoteJWKSet, jwtVerify} from 'jose';
 
 import OpenIDConfiguration from './OpenIDConfiguration';
 import CriiptoConfiguration from './CriiptoConfiguration';
@@ -39,21 +40,22 @@ interface CriiptoAuthOptions {
 }
 export class CriiptoAuth {
   // Private class fields aren't yet supported in all browsers so this is simply removed by the compiler for now.
-  #_setupPromise: Promise<void>;
-  _openIdConfiguration: OpenIDConfiguration;
+  #_setupPromise: Promise<OpenIDConfiguration>
+  _openIdConfiguration: OpenIDConfiguration
 
-  #_criiptoConfigurationPromise: Promise<CriiptoConfiguration>;
-  #_criiptoConfiguration: CriiptoConfiguration;
+  #_criiptoConfigurationPromise: Promise<CriiptoConfiguration>
+  #_criiptoConfiguration: CriiptoConfiguration
+  #_jwks: ReturnType<typeof createRemoteJWKSet>
 
-  options: CriiptoAuthOptions;
-  domain: string;
-  clientID: string;
-  popup: CriiptoAuthPopup;
-  redirect: CriiptoAuthRedirect;
-  qr: CriiptoAuthQrCode;
-  silent: CriiptoAuthSilent;
-  store: Storage;
-  scope: string;
+  options: CriiptoAuthOptions
+  domain: string
+  clientID: string
+  popup: CriiptoAuthPopup
+  redirect: CriiptoAuthRedirect
+  qr: CriiptoAuthQrCode
+  silent: CriiptoAuthSilent
+  store: Storage
+  scope: string
 
   constructor(options: CriiptoAuthOptions) {
     if (!options.domain || !options.clientID || !options.store) throw new Error('new criipto.Auth({domain, clientID, store}) required');
@@ -75,7 +77,10 @@ export class CriiptoAuth {
 
   _setup() {
     if (!this.#_setupPromise) {
-      this.#_setupPromise = this._openIdConfiguration.fetchMetadata();
+      this.#_setupPromise = this._openIdConfiguration.fetchMetadata().then(metadata => {
+        this.#_jwks = createRemoteJWKSet(new URL(metadata.jwks_uri));
+        return metadata;
+      });
     }
     return this.#_setupPromise;
   }
@@ -237,6 +242,18 @@ export class CriiptoAuth {
       }).then((response : any) => {
         return response.json();
       }).then((params : AuthorizeResponse) => {
+        if (params.id_token) {
+          return jwtVerify(params.id_token!, this.#_jwks, {
+            issuer: this._openIdConfiguration.issuer,
+            audience: this.clientID,
+          }).then(({ payload }) => {
+            return {
+              ...params,
+              state,
+              claims: payload as Claims
+            };
+          });
+        }
         return {...params, state};
       })
     });    
