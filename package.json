@@ -11,7 +11,8 @@
     "clean": "rm -rf ./dist/",
     "prepublishOnly": "npm run clean && npm run build",
     "build": "webpack --config webpack.config.js && tsc --declaration --emitDeclarationOnly",
-    "dev": "webpack --config webpack.config.dev.js --watch"
+    "dev": "webpack --config webpack.config.dev.js --watch",
+    "example": "npx http-server"
   },
   "author": "",
   "devDependencies": {
@@ -28,6 +29,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
+    "jose": "^4.11.2",
     "qrcode": "^1.5.1"
   }
 }

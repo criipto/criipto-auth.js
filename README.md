@@ -101,12 +101,13 @@ Provides a convenient way to pick authorization method (`popup` or `redirect`) b
 ### authorize
 
 ```javascript
-await criiptoAuth.popup.authorize({
+const response = await criiptoAuth.popup.authorize({
   width: 300,
   height: 400,
   redirectUri: 'http://localhost:8000/example/popup-callback.html',
   acrValues: 'urn:grn:authn:dk:nemid:poces'
 });
+console.log(response.id_token, response.claims);
 ```
 
 - **width (optional, number)**: Width of the popup.
@@ -133,7 +134,7 @@ Redirects the users browser tab to the authorization url. After authorization th
 ```javascript
 const match = await criiptoAuth.redirect.match();
 console.log(match.code);
-console.log(match.id_token);
+console.log(match.id_token, match.claims);
 ```
 
 Returns an object with a code or id_token key if present in the `window.location` search (query params) or hash.
