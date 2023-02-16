@@ -5,6 +5,7 @@
   "types": "dist/index.d.ts",
   "main": "dist/criipto-auth.cjs.js",
   "module": "dist/criipto-auth.esm.js",
+  "unpkg": "dist/criipto-auth.umd.js",
   "scripts": {
     "test": "jest",
     "coverage": "jest --collect-coverage",
