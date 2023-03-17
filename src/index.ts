@@ -246,6 +246,7 @@ export class CriiptoAuth {
           return jwtVerify(params.id_token!, this.#_jwks, {
             issuer: this._openIdConfiguration.issuer,
             audience: this.clientID,
+            clockTolerance: 5 * 60
           }).then(({ payload }) => {
             return {
               ...params,
