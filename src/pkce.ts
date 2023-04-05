@@ -12,7 +12,7 @@ export interface PKCE {
 }
 export type PKCEPublicPart = Omit<PKCE, 'code_verifier'>;
 
-export function generate() : Promise<PKCE> {
+export async function generate() : Promise<PKCE> {
   const encoder = new TextEncoder();
   const bytes = new Uint8Array(32);
   window.crypto.getRandomValues(bytes);
@@ -20,11 +20,11 @@ export function generate() : Promise<PKCE> {
   const code_challenge_method = 'S256';
   const subtle = ((window.crypto as any).webkitSubtle as SubtleCrypto) ?? window.crypto.subtle;
 
-  return Promise.resolve(subtle.digest('SHA-256', encoder.encode(code_verifier)))
-    .then(arrayBuffer => base64URLEncode(new Uint8Array(arrayBuffer)))
-    .then<PKCE>(code_challenge => {
-      return {code_verifier, code_challenge, code_challenge_method};  
-    });
+  if (!subtle) throw new Error(`SubtleCrypto implementation required to generate PKCE values`);
+
+  const arrayBuffer = await subtle.digest('SHA-256', encoder.encode(code_verifier));
+  const code_challenge = base64URLEncode(new Uint8Array(arrayBuffer));
+  return {code_verifier, code_challenge, code_challenge_method};
 }
 
 export const PKCE_STATE_KEY = '@criipto/verify-js:pkce:state';
