@@ -48,7 +48,7 @@ export async function SendWebsocketDirectMessage(
   message: Message
 ) {
   const encoder = new TextEncoder();
-  const cipher : ArrayBuffer = await crypto.subtle.encrypt({name: "RSA-OAEP"}, publicKey, encoder.encode(JSON.stringify(message)));
+  const cipher : ArrayBuffer = await globalThis.crypto.subtle.encrypt({name: "RSA-OAEP"}, publicKey, encoder.encode(JSON.stringify(message)));
   const wrapper : WebsocketDirectMessageWrapper = {
     type: 'DM',
     recipientClientId: recipientClientId,

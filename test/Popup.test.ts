@@ -70,17 +70,6 @@ describe('CriiptoAuthPopup', () => {
         addEventListener: windowAddEventListener,
         removeEventListener: jest.fn(),
         close: windowClose,
-        crypto: {
-          getRandomValues: (arr : any) => crypto.randomBytes(arr.length),
-          subtle: {
-            digest: (algo : string, value : Uint8Array) => {
-              const hash = crypto.createHash('sha256');
-              hash.update(value);
-
-              return hash.digest('hex');
-            }
-          }
-        },
         btoa: (input : string) => Buffer.from(input).toString('base64'),
         screenLeft: 0,
         screenTop: 0,

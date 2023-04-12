@@ -15,10 +15,11 @@ export type PKCEPublicPart = Omit<PKCE, 'code_verifier'>;
 export async function generate() : Promise<PKCE> {
   const encoder = new TextEncoder();
   const bytes = new Uint8Array(32);
-  window.crypto.getRandomValues(bytes);
+
+  globalThis.crypto.getRandomValues(bytes);
   const code_verifier = base64URLEncode(bytes);
   const code_challenge_method = 'S256';
-  const subtle = ((window.crypto as any).webkitSubtle as SubtleCrypto) ?? window.crypto.subtle;
+  const subtle = ((globalThis.crypto as any).webkitSubtle as SubtleCrypto) ?? globalThis.crypto.subtle;
 
   if (!subtle) throw new Error(`SubtleCrypto implementation required to generate PKCE values`);
 

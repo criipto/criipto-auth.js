@@ -212,7 +212,7 @@ export default class CriiptoAuthQrCode {
           // ACK phase
           if (!qrPromise.acknowledged) {
             for (const session of sessionHistory) {
-              const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
+              const decrypted : ArrayBuffer | null = await globalThis.crypto.subtle.decrypt(
                 {
                   name: session.keyPair.algorithm
                 },
@@ -235,7 +235,7 @@ export default class CriiptoAuthQrCode {
             }
           }
           else if (currentSession) { // Response phase
-            const decrypted : ArrayBuffer | null = await crypto.subtle.decrypt(
+            const decrypted : ArrayBuffer | null = await globalThis.crypto.subtle.decrypt(
               {
                 name: currentSession.keyPair.algorithm
               },

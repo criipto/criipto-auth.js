@@ -19,17 +19,6 @@ describe('CriiptoAuthRedirect', () => {
     Object.defineProperty(global, 'window', {
       writable: true,
       value: {
-        crypto: {
-          getRandomValues: (arr : any) => crypto.randomBytes(arr.length),
-          subtle: {
-            digest: (algo : string, value : Uint8Array) => {
-              const hash = crypto.createHash('sha256');
-              hash.update(value);
-
-              return hash.digest('hex');
-            }
-          }
-        },
         btoa: (input : string) => Buffer.from(input).toString('base64')
       }
     });
@@ -82,7 +71,8 @@ describe('CriiptoAuthRedirect', () => {
 
       await redirect.authorize({
         redirectUri,
-        acrValues
+        acrValues,
+        pkce
       });
 
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
