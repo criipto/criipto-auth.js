@@ -232,7 +232,7 @@ export class CriiptoAuth {
     body.append('code_verifier', pkce!.code_verifier);
 
     return this._setup().then(() => {
-      return window.fetch(this._openIdConfiguration.token_endpoint, {
+      return globalThis.fetch(this._openIdConfiguration.token_endpoint, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/x-www-form-urlencoded'

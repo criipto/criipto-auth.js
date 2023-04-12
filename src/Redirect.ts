@@ -42,7 +42,7 @@ export default class CriiptoAuthRedirect {
       pkce
     }));
 
-    window.location.href = url;
+    globalThis.location.href = url;
   }
 
   /* 

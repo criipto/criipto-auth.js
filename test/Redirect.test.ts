@@ -22,7 +22,7 @@ describe('CriiptoAuthRedirect', () => {
         btoa: (input : string) => Buffer.from(input).toString('base64')
       }
     });
-    Object.defineProperty(window, 'location', {
+    Object.defineProperty(globalThis, 'location', {
       writable: true,
       value: {}
     });
@@ -54,7 +54,7 @@ describe('CriiptoAuthRedirect', () => {
         scope: 'openid'
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
-      expect(window.location.href).toBe(authorizeUrl);
+      expect(globalThis.location.href).toBe(authorizeUrl);
     });
 
     it('builds authorize url with existing PKCE values', async () => {
@@ -84,7 +84,7 @@ describe('CriiptoAuthRedirect', () => {
         scope: 'openid'
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
-      expect(window.location.href).toBe(authorizeUrl);
+      expect(globalThis.location.href).toBe(authorizeUrl);
     });
   });
 
@@ -149,8 +149,8 @@ describe('CriiptoAuthRedirect', () => {
       const error = Math.random().toString();
       const error_description = Math.random().toString();
 
-      window.location = {
-        ...window.location,
+      globalThis.location = {
+        ...globalThis.location,
         hash: '',
         search: `?error=${error}&error_description=${error_description}`
       };

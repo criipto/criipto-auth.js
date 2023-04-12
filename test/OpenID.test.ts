@@ -10,7 +10,7 @@ describe('OpenIDConfiguration', () => {
       value: {}
     });
 
-    (window.fetch as any) = fetch = jest.fn();
+    (globalThis.fetch as any) = fetch = jest.fn();
   });
 
   it('fetches well-known metadata via authority', async () => {

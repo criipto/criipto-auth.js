@@ -148,7 +148,7 @@ describe('CriiptoAuthPopup', () => {
     });
 
     it('opens popup, receives callback with id_token redirectUri', async () => {
-      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+      (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
         if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata_example)
@@ -189,7 +189,7 @@ describe('CriiptoAuthPopup', () => {
     });
 
     it('opens popup, receives callback with code redirectUri', async () => {
-      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+      (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
         if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata_example)
@@ -246,7 +246,7 @@ describe('CriiptoAuthPopup', () => {
       };
       const id_token = Math.random().toString();
 
-      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+      (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
         if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata)
@@ -293,7 +293,7 @@ describe('CriiptoAuthPopup', () => {
       const result = await authorizePromise;
       expect(result.id_token).toBe(id_token);
 
-      const fetchCall = (window.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
+      const fetchCall = (globalThis.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
       expect(fetchCall[1].body).toContain(`code_verifier=`);
     });
 
@@ -304,7 +304,7 @@ describe('CriiptoAuthPopup', () => {
       };
       const id_token = Math.random().toString();
 
-      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+      (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
         if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata)
@@ -348,7 +348,7 @@ describe('CriiptoAuthPopup', () => {
       const result = await authorizePromise;
       expect(result.id_token).toBe(id_token);
 
-      const fetchCall = (window.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
+      const fetchCall = (globalThis.fetch as any).mock.calls.find(([url] : string[]) => url === metadata.token_endpoint);
       expect(fetchCall[1].body).toContain(`code_verifier=`);
     });
 
@@ -358,7 +358,7 @@ describe('CriiptoAuthPopup', () => {
         token_endpoint: Math.random().toString(),
       };
 
-      (window.fetch as any) = jest.fn<typeof window.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+      (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
         if (url.toString().includes('.well-known/openid-configuration')) {
           return {
             json: () => Promise.resolve(metadata_example)
