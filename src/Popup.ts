@@ -176,9 +176,6 @@ export class CriiptoAuthPopupBackdrop {
   constructor(popup: CriiptoAuthPopup) {
     this.popup = popup;
     this.enabled = true;
-
-    this.handleOpen = this.handleOpen.bind(this);
-    this.handleCancel = this.handleCancel.bind(this);
   }
 
   render(params: PopupAuthorizeParams) {
@@ -197,8 +194,8 @@ export class CriiptoAuthPopupBackdrop {
       element.innerHTML = template;
 
       document.body.appendChild(element);
-      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID)?.addEventListener('click', this.handleOpen);
-      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID)?.addEventListener('click', this.handleCancel);
+      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_OPEN_ID)?.addEventListener('click', () => this.handleOpen());
+      document.getElementById(CRIIPTO_POPUP_BACKDROP_BUTTON_CLOSE_ID)?.addEventListener('click', () => this.handleCancel());
     }
   }
 
