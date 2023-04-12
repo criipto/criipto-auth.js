@@ -23,7 +23,7 @@ class CriiptoConfiguration extends CriiptoMetadata {
   }
 
   fetchMetadata(): Promise<CriiptoConfiguration> {
-    return window.fetch(`${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}`)
+    return globalThis.fetch(`${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}`)
       .then(response => response.json())
       .then((metadata: CriiptoMetadata) => {
         Object.assign(this, metadata);

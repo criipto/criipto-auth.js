@@ -1,5 +1,5 @@
 function base64URLEncode(input : Uint8Array) {
-  return window.btoa(String.fromCharCode(...input))
+  return globalThis.btoa(String.fromCharCode(...input))
       .replace(/\+/g, '-')
       .replace(/\//g, '_')
       .replace(/=/g, '');
