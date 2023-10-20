@@ -18,8 +18,8 @@ export default class CriiptoAuthPopup {
   open(url: string, params: PopupAuthorizeParams): Window {
     let {width, height} = params;
 
-    width = width || 330;
-    height = height || 600;
+    width = width || 400;
+    height = height || 660;
 
     const dualScreenLeft = window.screenLeft ?? window.screenX;
     const dualScreenTop = window.screenTop ?? window.screenY;
@@ -50,7 +50,7 @@ export default class CriiptoAuthPopup {
           event.source === this.window || 
           event.origin === `https://${this.criiptoAuth.domain}`;
         if (!allowed) return;
-        const eventType:string | null = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
+        const eventType:string | null = (event.data && event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE)) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
         // Deprecated
         if (eventType === CRIIPTO_AUTHORIZE_RESPONSE) {
           const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
