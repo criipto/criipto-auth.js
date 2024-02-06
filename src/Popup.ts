@@ -50,17 +50,20 @@ export default class CriiptoAuthPopup {
           event.source === this.window || 
           event.origin === `https://${this.criiptoAuth.domain}`;
         if (!allowed) return;
-        const eventType:string | null = (event.data && event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE)) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
+        if (!event.data) return;
+        if (typeof event.data !== 'string') return;
+
+        const eventType : string | null = event.data.startsWith(CRIIPTO_AUTHORIZE_RESPONSE) ? CRIIPTO_AUTHORIZE_RESPONSE : null;
         // Deprecated
         if (eventType === CRIIPTO_AUTHORIZE_RESPONSE) {
-          const eventData:GenericObject = eventType === CRIIPTO_AUTHORIZE_RESPONSE ? JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, '')) : null;
+          const eventData:GenericObject = JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, ''));
           
           if (eventData && (eventData.code || eventData.id_token || eventData.error)) {
             window.removeEventListener('message', receiveMessage);
             this.window.close();
             resolve(eventData as AuthorizeResponse);
           }
-        } else if (event.data && (event.data.includes('code=') || event.data.includes('id_token=') || event.data.includes('error='))) {
+        } else if (event.data.includes('code=') || event.data.includes('id_token=') || event.data.includes('error=')) {
           window.removeEventListener('message', receiveMessage);
           this.window.close();
           resolve(parseAuthorizeResponseFromUrl(event.data));
