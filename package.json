@@ -30,7 +30,7 @@
     "webpack-cli": "^4.10.0"
   },
   "dependencies": {
-    "jose": "^4.11.2",
+    "jose": "^4.15.5",
     "qrcode": "^1.5.1"
   }
 }
