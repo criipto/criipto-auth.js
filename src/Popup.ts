@@ -65,7 +65,7 @@ export default class CriiptoAuthPopup {
           }
         } else if (event.data.includes('code=') || event.data.includes('id_token=') || event.data.includes('error=')) {
           const response = parseAuthorizeResponseFromUrl(event.data);
-          if (params.state && response.state && params.state !== response.state) return;
+          if (params.state && params.state !== response.state) return;
 
           window.removeEventListener('message', receiveMessage);
           this.window.close();
