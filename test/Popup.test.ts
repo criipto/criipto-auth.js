@@ -119,7 +119,7 @@ describe('CriiptoAuthPopup', () => {
       expect(actual).toBe(createdWindow);
       expect(popup.window).toBe(actual);
       expect(window.open).toHaveBeenCalledTimes(1);
-      expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=330,height=600,top=200,left=335`);
+      expect(window.open).toHaveBeenCalledWith(authorizeUrl, CRIIPTO_POPUP_ID, `width=400,height=660,top=170,left=300`);
     });
 
     it('allows disabling backdrop', async () => {
