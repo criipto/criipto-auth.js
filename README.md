@@ -31,12 +31,12 @@ criiptoAuth.popup.authorize({
   width: 300,
   height: 400,
   redirectUri: 'http://localhost:8000/example/popup-callback.html',
-  acrValues: 'urn:grn:authn:dk:nemid:poces'
+  acrValues: 'urn:grn:authn:dk:mitid:substantial'
 });
 
 criiptoAuth.redirect.authorize({
   redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:nemid:poces'
+  acrValues: 'urn:grn:authn:dk:mitid:substantial'
 });
 ```
 
@@ -56,7 +56,7 @@ var criiptoAuth = new CriiptoAuth({
   clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
   store: sessionStorage,
   redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:nemid:poces'
+  acrValues: 'urn:grn:authn:dk:mitid:substantial'
 });
 ```
 
@@ -71,7 +71,7 @@ Parameters:
 All authorization methods like `criiptoAuth.popup.authorize`, `criiptoAuth.redirect.authorize` and `criiptoAuth.authorizeResponsive` take a set of authorization parameters. These authorization parameters can also be provided by default via the `CriiptoAuth` constructor.
 
 - **redirectUri (string)**: The URL where Criipto will call back to with the result of a successful or failed authentication. It must be whitelisted in the "Callback URLs" in your Criipto application settings.
-- **acrValues (string)**: What EID to use for authentication, such as `urn:grn:authn:dk:nemid:poces`, a list of acceptable values can be found at `https://{YOUR_CRIIPTO_DOMAIN}/.well-known/openid-configuration`
+- **acrValues (string)**: What EID to use for authentication, such as `urn:grn:authn:dk:mitid:substantial`, a list of acceptable values can be found at `https://{YOUR_CRIIPTO_DOMAIN}/.well-known/openid-configuration`
 
 ### authorizeResponsive
 
@@ -80,14 +80,14 @@ criiptoAuth.authorizeResponsive({
   '(min-width: 768px)': {
     via: 'popup',
     redirectUri: 'http://localhost:8000/example/popup-callback.html',
-    acrValues: 'urn:grn:authn:dk:nemid:poces',
+    acrValues: 'urn:grn:authn:dk:mitid:substantial',
     width: 320,
     height: 460
   },
   '(max-width: 767px)': {
     via: 'redirect',
     redirectUri: 'http://localhost:8000/example/index.html',
-    acrValues: 'urn:grn:authn:dk:nemid:poces'
+    acrValues: 'urn:grn:authn:dk:mitid:substantial'
   }
 });
 ```
@@ -105,7 +105,12 @@ const response = await criiptoAuth.popup.authorize({
   width: 300,
   height: 400,
   redirectUri: 'http://localhost:8000/example/popup-callback.html',
-  acrValues: 'urn:grn:authn:dk:nemid:poces'
+  acrValues: 'urn:grn:authn:dk:mitid:substantial',
+  /** Using a random state is helpful, 
+   * if your users are able to
+   * trigger new popups while a request
+   * is still pending */
+  state: Math.random().toString()
 });
 console.log(response.id_token, response.claims);
 ```
@@ -121,7 +126,7 @@ console.log(response.id_token, response.claims);
 ```javascript
 criiptoAuth.redirect.authorize({
   redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:nemid:poces'
+  acrValues: 'urn:grn:authn:dk:mitid:substantial'
 });
 ```
 
@@ -153,7 +158,7 @@ criiptoAuth.logout({
 
 ```javascript
 criiptoAuth.qr.authorize(document.getElementById('qr_code_div', {
-  acrValues: 'urn:grn:authn:dk:nemid:poces',
+  acrValues: 'urn:grn:authn:dk:mitid:substantial',
 }).then(session => {
   // onAcknowledged is executed when the QR code is first scanned
   session.onAcknowledged = () => {
