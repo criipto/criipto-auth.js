@@ -43,7 +43,7 @@ export default class CriiptoAuthPopup {
     return this.window;
   }
 
-  listen() {
+  listen(params: PopupAuthorizeParams) {
     return new Promise<AuthorizeResponse>((resolve, reject) => {
       const receiveMessage = (event: MessageEvent) => {
         const allowed = 
@@ -64,9 +64,12 @@ export default class CriiptoAuthPopup {
             resolve(eventData as AuthorizeResponse);
           }
         } else if (event.data.includes('code=') || event.data.includes('id_token=') || event.data.includes('error=')) {
+          const response = parseAuthorizeResponseFromUrl(event.data);
+          if (params.state && response.state && params.state !== response.state) return;
+
           window.removeEventListener('message', receiveMessage);
           this.window.close();
-          resolve(parseAuthorizeResponseFromUrl(event.data));
+          resolve(response);
         }
       };
   
@@ -94,7 +97,7 @@ export default class CriiptoAuthPopup {
   trigger(initialParams: PopupAuthorizeParams): Promise<AuthorizeResponse> {
     return this.buildAuthorizeUrl(initialParams).then(({url, params}) => {
       this.open(url, initialParams);
-      return this.listen().then(response => {
+      return this.listen(initialParams).then(response => {
         return this.criiptoAuth.processResponse(
           response,
           params.pkce && "code_verifier" in params.pkce ? 

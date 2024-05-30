@@ -13,6 +13,7 @@
       <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
       <button id="button_login_redirect_query_sso">Login (PKCE + redirect + SSO)</button>
       <button id="button_login_popup">Login (PKCE + popup)</button>
+      <button id="button_login_popup_state">Login (PKCE + popup + state)</button>
       <button id="button_login_popup_code">Login (popup + code)</button>
       <button id="button_login_popup_backdrop_disabled">Login (popup + no backdrop)</button>
       <button id="button_login_popup_da">Login (PKCE + popup + Danish)</button>
@@ -93,6 +94,18 @@
         criiptoAuth.popup.authorize({
           redirectUri: window.location.origin + '/example/index.html',
           prompt: 'login'
+        }).then((result) => {
+          console.log(result);
+          document.getElementById('result').innerHTML = JSON.stringify(result);
+        });
+      });
+
+      document.getElementById('button_login_popup_state').addEventListener('click', () => {
+        criiptoAuth.popup.authorize({
+          redirectUri: window.location.origin + '/example/index.html',
+          prompt: 'login',
+          state: Math.random().toString(),
+          backdrop: false
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
