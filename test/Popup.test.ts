@@ -188,6 +188,47 @@ describe('CriiptoAuthPopup', () => {
       expect(result.id_token).toBe(id_token);
     });
 
+    it('respects state', async () => {
+      (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
+        if (url.toString().includes('.well-known/openid-configuration')) {
+          return {
+            json: () => Promise.resolve(metadata_example)
+          } as any;
+        }
+        throw new Error('Unexpected url');
+      });
+
+      const id_token = Math.random().toString();
+      const state = Math.random().toString();
+      const params = {
+        redirectUri: Math.random().toString(),
+        acrValues: 'urn:grn:authn:dk:nemid:poces',
+        state
+      };
+      const messageEvent = {
+        source: createdWindow,
+        data: `https://example.com/?id_token=${id_token}&state=${state}`
+      };
+
+      const triggerPromise = popup.trigger(params);
+      await new Promise((resolve) => setImmediate(resolve));
+      expect(popup.open).toHaveBeenCalledTimes(1);
+      expect(popup._latestParams.acrValues).toEqual(params.acrValues); 
+      expect(popup._latestParams.redirectUri).toEqual(params.redirectUri); 
+
+      await Promise.resolve(); // Wait for a promise cycle
+      const messageEventListener = windowAddEventListener.mock.calls.find(listener => listener[0] === 'message') as any;
+      expect(messageEventListener).toBeDefined();
+
+      /** ignored events, bad state */
+      messageEventListener[1]({...messageEvent, data: `https://example.com/?id_token=${id_token}&state=${Math.random().toString()}`});
+      messageEventListener[1]({...messageEvent, data: `https://example.com/?id_token=${id_token}&state=${Math.random().toString()}`});
+      messageEventListener[1]({...messageEvent, data: `https://example.com/?id_token=${id_token}&state=${Math.random().toString()}`});
+      messageEventListener[1](messageEvent);
+      const result = await triggerPromise;
+      expect(result.id_token).toBe(id_token);
+    });
+
     it('opens popup, receives callback with code redirectUri', async () => {
       (globalThis.fetch as any) = jest.fn<typeof globalThis.fetch>().mockImplementation(async (url : RequestInfo | URL) => {
         if (url.toString().includes('.well-known/openid-configuration')) {
