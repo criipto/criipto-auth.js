@@ -172,7 +172,8 @@
 
       document.getElementById('button_logout').addEventListener('click', () => {
         criiptoAuth.logout({
-          redirectUri: window.location.origin + '/example/index.html'
+          redirectUri: window.location.origin + '/example/index.html',
+          state: Math.random().toString()
         });
       });
       

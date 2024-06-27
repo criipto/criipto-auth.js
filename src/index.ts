@@ -100,13 +100,15 @@ export class CriiptoAuth {
    * Logout the user, clearing any SSO state
    * Will redirect the user to clear the session and then redirect back to `redirectUri`
    */
-  async logout(options: {redirectUri: string}) {
-    const {redirectUri} = options;
+  async logout(options: {redirectUri: string, state?: string}) {
+    const {redirectUri, state} = options;
     const configuration = await this.fetchOpenIDConfiguration();
 
-    const url = `${configuration.end_session_endpoint}?post_logout_redirect_uri=${encodeURIComponent(redirectUri)}`;
+    const url = new URL(configuration.end_session_endpoint);
+    url.searchParams.set('post_logout_redirect_uri', redirectUri);
+    if (state) url.searchParams.set('state', state);
 
-    window.location.href = url;
+    window.location.href = url.href;
   }
 
   /**
