@@ -88,10 +88,14 @@ export default class CriiptoAuthPopup {
       };
       const checkWindow = () => {
         if (!this.checker) return;
+        if (!params.redirectUri) return;
         const retry = () => this.checker = window.setTimeout(checkWindow, 250);
 
         try {
-          if (this.window.location.href.replace(this.window.location.search, '') === params.redirectUri) {
+          const redirectUri = new URL(params.redirectUri);
+          const actual = this.window.location.href.replace(this.window.location.search, '');
+          const expected = redirectUri.href.replace(redirectUri.search, '');
+          if (actual === expected) {
             const response = parseAuthorizeResponseFromUrl(this.window.location.href);
             const success = respond(response);
             if (success) return;

@@ -133,7 +133,7 @@
 
       document.getElementById('button_login_popup_backdrop_disabled').addEventListener('click', () => {
         criiptoAuth.popup.trigger({
-          redirectUri: window.location.origin + '/example/index.html',
+          redirectUri: window.location.origin + '/example/index.html?querytest=isenabled',
           prompt: 'login',
           responseType: 'code',
           backdrop: false
