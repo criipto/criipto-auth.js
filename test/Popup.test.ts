@@ -144,6 +144,7 @@ describe('CriiptoAuthPopup', () => {
     beforeEach(() => {
       createdWindow = {close: jest.fn()} as any as Window;
       (window as any).open = jest.fn().mockImplementation(() => createdWindow);
+      (window as any).setTimeout = jest.fn();
       jest.spyOn(popup, 'open');
     });
 
@@ -278,6 +279,7 @@ describe('CriiptoAuthPopup', () => {
       createdWindow = {close: jest.fn()} as any as Window;
       (window as any).open = jest.fn().mockImplementation(() => createdWindow);
       jest.spyOn(popup, 'open');
+      (window as any).setTimeout = jest.fn();
     });
 
     it('opens popup, receives callback with JSON and does PKCE token exchange', async () => {

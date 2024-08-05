@@ -9,6 +9,7 @@ export default class CriiptoAuthPopup {
   _latestUrl: string;
   backdrop: CriiptoAuthPopupBackdrop;
   window: Window;
+  checker: number;
 
   constructor(criiptoAuth: CriiptoAuth) {
     this.criiptoAuth = criiptoAuth;
@@ -45,6 +46,25 @@ export default class CriiptoAuthPopup {
 
   listen(params: PopupAuthorizeParams) {
     return new Promise<AuthorizeResponse>((resolve, reject) => {
+      if (this.checker) clearTimeout(this.checker);
+
+      const respond = (response: AuthorizeResponse) => {
+        if (!response.code && !response.error && !response.id_token) {
+          // Empty/invalid response
+          return false;
+        }
+        if (params.state && params.state !== response.state) {
+          // Not the expected response
+          return false;
+        }
+
+        window.removeEventListener('message', receiveMessage);
+        if (this.checker) clearTimeout(this.checker);
+        this.window.close();
+        resolve(response);
+        return true;
+      }
+
       const receiveMessage = (event: MessageEvent) => {
         const allowed = 
           event.source === this.window || 
@@ -59,20 +79,31 @@ export default class CriiptoAuthPopup {
           const eventData:GenericObject = JSON.parse(event.data.replace(CRIIPTO_AUTHORIZE_RESPONSE, ''));
           
           if (eventData && (eventData.code || eventData.id_token || eventData.error)) {
-            window.removeEventListener('message', receiveMessage);
-            this.window.close();
-            resolve(eventData as AuthorizeResponse);
+            respond(eventData as AuthorizeResponse);
           }
         } else if (event.data.includes('code=') || event.data.includes('id_token=') || event.data.includes('error=')) {
           const response = parseAuthorizeResponseFromUrl(event.data);
-          if (params.state && params.state !== response.state) return;
-
-          window.removeEventListener('message', receiveMessage);
-          this.window.close();
-          resolve(response);
+          respond(response);
         }
       };
-  
+      const checkWindow = () => {
+        if (!this.checker) return;
+        const retry = () => this.checker = window.setTimeout(checkWindow, 250);
+
+        try {
+          if (this.window.location.href.replace(this.window.location.search, '') === params.redirectUri) {
+            const response = parseAuthorizeResponseFromUrl(this.window.location.href);
+            const success = respond(response);
+            if (success) return;
+          }
+
+          retry();
+        } catch (err) {
+          retry();
+        }
+      };
+
+      this.checker = window.setTimeout(checkWindow, 250);
       window.addEventListener('message', receiveMessage);
     }).finally(() => {
       this.backdrop.remove();

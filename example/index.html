@@ -88,6 +88,8 @@
       criiptoAuth.redirect.match().then(result => {
         console.log(result);
         document.getElementById('result').innerHTML = JSON.stringify(result);
+      }).catch(err => {
+        document.getElementById('result').innerHTML = JSON.stringify(err);
       });
 
       document.getElementById('button_login_popup').addEventListener('click', () => {
@@ -97,6 +99,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
 
@@ -109,6 +113,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
 
@@ -120,6 +126,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
 
@@ -132,6 +140,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
       
@@ -144,6 +154,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
 
@@ -155,6 +167,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
 
@@ -167,6 +181,8 @@
         }).then((result) => {
           console.log(result);
           document.getElementById('result').innerHTML = JSON.stringify(result);
+        }).catch(err => {
+          document.getElementById('result').innerHTML = JSON.stringify(err);
         });
       });
 
@@ -174,7 +190,7 @@
         criiptoAuth.logout({
           redirectUri: window.location.origin + '/example/index.html',
           state: Math.random().toString()
-        });
+        })
       });
       
       document.getElementById('button_check_session').addEventListener('click', () => {
