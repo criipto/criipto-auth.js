@@ -48,9 +48,14 @@ export default class CriiptoAuthRedirect {
   /* 
    * Asynchronously check url for oauth2 response parameters and perform PKCE/token exchange
    */
-  match(): Promise<AuthorizeResponse | null> {
-    if (!("location" in globalThis)) return Promise.resolve(null);
-    const params = parseAuthorizeResponseFromLocation(globalThis.location);
+  match(opts: {location?: URL} = {}): Promise<AuthorizeResponse | null> {
+    const location =
+      opts.location ??
+      ("location" in globalThis ? globalThis.location : undefined);
+    
+    if (!location) return Promise.resolve(null);
+    
+    const params = parseAuthorizeResponseFromLocation(location);
     if (!params.code && !params.error && !params.id_token) return Promise.resolve(null);
     if (params.error) return Promise.reject(new OAuth2Error(params.error, params.error_description, params.state))
     if (params.id_token) return Promise.resolve(params);
@@ -75,9 +80,13 @@ export default class CriiptoAuthRedirect {
   /*
    * Synchronously check url for oauth2 response parameters, does not PKCE or token exchange.
    */
-  hasMatch() {
-    if (!("location" in globalThis)) return false;
-    const params = parseAuthorizeResponseFromLocation(globalThis.location);
+  hasMatch(opts: {location?: Location} = {}) {
+    const location =
+      opts.location ??
+      ("location" in globalThis ? globalThis.location : undefined);
+    
+    if (!location) return false;
+    const params = parseAuthorizeResponseFromLocation(location);
     if (!params.code && !params.error && !params.id_token) return false;
     return true;
   }

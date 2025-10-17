@@ -166,5 +166,24 @@ describe('CriiptoAuthRedirect', () => {
         expect(err).toStrictEqual(new OAuth2Error(error, error_description));
       });
     });
+    
+    it('can read error from explicitly passed URL', async () => {
+      const error = Math.random().toString();
+      const error_description = Math.random().toString();
+
+      const location = new URL(`http://localhost?${new URLSearchParams({
+        error,
+        error_description,
+      })}`);
+
+      savePKCEState(auth.store, {
+        response_type: 'id_token',
+        redirect_uri: Math.random().toString(),
+        pkce_code_verifier: Math.random().toString(),
+      });
+      expect(redirect.match({ location }))
+        .rejects
+        .toStrictEqual(new OAuth2Error(error, error_description));
+    });
   });
 });
