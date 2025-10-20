@@ -38,14 +38,14 @@ export function parseAuthorizeParamsFromUrl(input: string) : AuthorizeUrlParamsO
   };
 }
 
-export function parseQueryParamsFromLocation(location: Location): GenericObject {
+export function parseQueryParamsFromLocation(location: Location | URL): GenericObject {
   return {
     ...parseQueryParams(location.search),
     ...parseQueryParams(location.hash)
   };
 }
 
-export function parseAuthorizeResponseFromLocation(location: Location): AuthorizeResponse {
+export function parseAuthorizeResponseFromLocation(location: Location | URL): AuthorizeResponse {
   return parseQueryParamsFromLocation(location);
 }
 
