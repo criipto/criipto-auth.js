@@ -146,6 +146,67 @@ export class CriiptoAuth {
     throw new Error('Invalid media query');
   }
 
+  buildAuthorizeUrlParams(params: AuthorizeUrlParams) {
+    const acrValues =
+      params.acrValues ?
+        Array.isArray(params.acrValues) ?
+          params.acrValues :
+            params.acrValues.includes(" ") ? params.acrValues.split(" ") : params.acrValues
+        : undefined
+
+    const searchParams = new URLSearchParams();
+    searchParams.append('scope', params.scope);
+    searchParams.append('client_id', this.clientID);
+    if (acrValues) {
+      searchParams.append('acr_values', Array.isArray(acrValues) ? acrValues.join(' ') : acrValues);
+    }
+    searchParams.append('redirect_uri', params.redirectUri);
+    searchParams.append('response_type', params.responseType);
+    searchParams.append('response_mode', params.responseMode);
+
+    if (params.pkce) {
+      searchParams.append('code_challenge', params.pkce.code_challenge);
+      searchParams.append('code_challenge_method', params.pkce.code_challenge_method);
+    }
+
+    if (params.state) {
+      searchParams.append('state', params.state);
+    }
+
+    if (params.nonce) {
+      searchParams.append('nonce', params.nonce);
+    }
+
+    if (params.loginHint) {
+      searchParams.append('login_hint', params.loginHint);
+    }
+
+    if (params.uiLocales) {
+      searchParams.append('ui_locales', params.uiLocales);
+    }
+
+    if (params.prompt) {
+      searchParams.append('prompt', params.prompt);
+    }
+
+    if (params.extraUrlParams) {
+      for (let entry of Object.entries(params.extraUrlParams)) {
+        if (!entry[1]) continue;
+        searchParams.append(entry[0], entry[1]);
+      }
+    }
+
+    searchParams.set('criipto_sdk', `@criipto/auth-js@${VERSION}`);
+    if (params.extraUrlParams?.criipto_sdk !== undefined) {
+      if (params.extraUrlParams?.criipto_sdk === null) {
+        searchParams.delete('criipto_sdk');
+      } else {
+        searchParams.set('criipto_sdk', params.extraUrlParams?.criipto_sdk);
+      }
+    }
+    return searchParams;
+  }
+
   buildAuthorizeUrl(params: AuthorizeUrlParams) {
     return this._setup().then(() => {
       // Criipto offers a `json` embrace-and-extend response-mode to support certain native app flows
@@ -154,66 +215,10 @@ export class CriiptoAuth {
       if (!response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${response_modes_supported.join(',')}`);
       if (!this._openIdConfiguration.response_types_supported.includes(params.responseType)) throw new Error(`responseType must be one of ${this._openIdConfiguration.response_types_supported.join(',')}`);
 
-      const acrValues =
-        params.acrValues ?
-          Array.isArray(params.acrValues) ?
-            params.acrValues :
-              params.acrValues.includes(" ") ? params.acrValues.split(" ") : params.acrValues
-          : undefined
-
       if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
       const url = new URL(this._openIdConfiguration.authorization_endpoint);
-
-      url.searchParams.append('scope', params.scope);
-      url.searchParams.append('client_id', this.clientID);
-      if (acrValues) {
-        url.searchParams.append('acr_values', Array.isArray(acrValues) ? acrValues.join(' ') : acrValues);
-      }
-      url.searchParams.append('redirect_uri', params.redirectUri);
-      url.searchParams.append('response_type', params.responseType);
-      url.searchParams.append('response_mode', params.responseMode);
-
-      if (params.pkce) {
-        url.searchParams.append('code_challenge', params.pkce.code_challenge);
-        url.searchParams.append('code_challenge_method', params.pkce.code_challenge_method);
-      }
-
-      if (params.state) {
-        url.searchParams.append('state', params.state);
-      }
-
-      if (params.nonce) {
-        url.searchParams.append('nonce', params.nonce);
-      }
-
-      if (params.loginHint) {
-        url.searchParams.append('login_hint', params.loginHint);
-      }
-
-      if (params.uiLocales) {
-        url.searchParams.append('ui_locales', params.uiLocales);
-      }
-
-      if (params.prompt) {
-        url.searchParams.append('prompt', params.prompt);
-      }
-
-      if (params.extraUrlParams) {
-        for (let entry of Object.entries(params.extraUrlParams)) {
-          if (!entry[1]) continue;
-          url.searchParams.append(entry[0], entry[1]);
-        }
-      }
-
-      url.searchParams.set('criipto_sdk', `@criipto/auth-js@${VERSION}`);
-      if (params.extraUrlParams?.criipto_sdk !== undefined) {
-        if (params.extraUrlParams?.criipto_sdk === null) {
-          url.searchParams.delete('criipto_sdk');
-        } else {
-          url.searchParams.set('criipto_sdk', params.extraUrlParams?.criipto_sdk);
-        }
-      }
+      url.search = this.buildAuthorizeUrlParams(params).toString();
 
       return url.toString();
     });
