@@ -14,9 +14,9 @@ export default class CriiptoAuthRedirect {
   }
 
   /**
-   * Start a redirect based authorize request
+   * Start redirect based authorize request via PAR
    */
-  async authorize(params: RedirectAuthorizeParams): Promise<void> {
+  async par(params: RedirectAuthorizeParams) : Promise<{request_uri: string, trace_id: string | null}> {
     const redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
     const responseType = params.responseType ?? 'id_token';
     const pkce = await (
@@ -35,14 +35,73 @@ export default class CriiptoAuthRedirect {
       redirect_uri: redirectUri!
     });
 
-    const url = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+    const authorizeParams = this.criiptoAuth.buildAuthorizeUrlParams(this.criiptoAuth.buildAuthorizeParams({
       ...params,
       responseMode: 'query',
       responseType: 'code',
       pkce
     }));
 
-    globalThis.location.href = url;
+    const configuration = await this.criiptoAuth.fetchOpenIDConfiguration();
+    const response = await fetch(configuration.pushed_authorization_request_endpoint, {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/x-www-form-urlencoded',
+         // Prefer: 'return-trace-id',
+      },
+      body: authorizeParams
+    });
+
+    if (response.status !== 201) {
+      // Left vague, developers should inspect dev tools for the full response
+      throw new Error(`${configuration.pushed_authorization_request_endpoint} responded ${response.status}`);
+    }
+
+    const data = await response.json() as {request_uri: string};
+    const traceId = response.headers.get('trace-id') ?? response.headers.get('Trace-Id');
+    if (!data.request_uri) {
+      // Left vague, developers should inspect dev tools for the full response
+      throw new Error(`${configuration.pushed_authorization_request_endpoint} returned invalid response`);
+    }
+    return {request_uri: data.request_uri, trace_id: traceId}
+  }
+
+  /**
+   * Start a redirect based authorize request
+   */
+  async authorize(params: RedirectAuthorizeParams | {request_uri: string}): Promise<void> {
+    if ('request_uri' in params) {
+      const url = await this.criiptoAuth.buildAuthorizeUrl(params);
+
+      globalThis.location.href = url;
+    } else {
+      const redirectUri = params.redirectUri || this.criiptoAuth.options.redirectUri;
+      const responseType = params.responseType ?? 'id_token';
+      const pkce = await (
+        params.pkce ?
+          Promise.resolve(params.pkce) :
+          responseType === 'id_token' ?
+            generatePKCE() : Promise.resolve(undefined)
+      );
+
+      savePKCEState(this.store, pkce && "code_verifier" in pkce ? {
+        response_type: 'id_token',
+        redirect_uri: redirectUri!,
+        pkce_code_verifier: pkce.code_verifier
+      } : {
+        response_type: 'code',
+        redirect_uri: redirectUri!
+      });
+
+      const url = await this.criiptoAuth.buildAuthorizeUrl(this.criiptoAuth.buildAuthorizeParams({
+        ...params,
+        responseMode: 'query',
+        responseType: 'code',
+        pkce
+      }));
+
+      globalThis.location.href = url;
+    }
   }
 
   /* 

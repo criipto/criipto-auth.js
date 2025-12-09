@@ -10,6 +10,7 @@ class OpenIDMetadata {
   subject_types_supported: string[];
   acr_values_supported: string[];
   id_token_signing_alg_values_supported: string[];
+  pushed_authorization_request_endpoint: string;
 }
 
 class OpenIDConfiguration extends OpenIDMetadata {

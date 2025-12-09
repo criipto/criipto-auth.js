@@ -8,6 +8,7 @@
     <div>
       <button id="button_login_responsive">Login (responsive)</button>
       <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
+      <button id="button_login_redirect_par">Login (PAR)</button>
       <button id="button_login_redirect_code">Login (code + redirect)</button>
       <button id="button_login_redirect_query_acr_values">Login (PKCE + redirect + multiple ACR values)</button>
       <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
@@ -52,6 +53,15 @@
           redirectUri: window.location.origin + '/example/index.html',
           prompt: 'login'
         });
+      });
+
+      document.getElementById('button_login_redirect_par').addEventListener('click', async () => {
+        const response = await criiptoAuth.redirect.par({
+          redirectUri: window.location.origin + '/example/index.html',
+          prompt: 'login'
+        });
+        console.log(response.trace_id);
+        criiptoAuth.redirect.authorize(response);
       });
 
       document.getElementById('button_login_redirect_code').addEventListener('click', () => {

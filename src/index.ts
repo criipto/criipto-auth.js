@@ -207,20 +207,27 @@ export class CriiptoAuth {
     return searchParams;
   }
 
-  buildAuthorizeUrl(params: AuthorizeUrlParams) {
+  buildAuthorizeUrl(params: AuthorizeUrlParams | {request_uri: string}) {
     return this._setup().then(() => {
-      // Criipto offers a `json` embrace-and-extend response-mode to support certain native app flows
-      // Criipto also offers a `post_message` response-mode to support popup flows
-      const response_modes_supported = this._openIdConfiguration.response_modes_supported.concat(['json', 'post_message']);
-      if (!response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${response_modes_supported.join(',')}`);
-      if (!this._openIdConfiguration.response_types_supported.includes(params.responseType)) throw new Error(`responseType must be one of ${this._openIdConfiguration.response_types_supported.join(',')}`);
+      if ('request_uri' in params) {
+        const url = new URL(this._openIdConfiguration.authorization_endpoint);
+        url.searchParams.set('request_uri', params.request_uri);
+        url.searchParams.set('client_id', this.clientID);
+        return url.toString();
+      } else {
+        // Criipto offers a `json` embrace-and-extend response-mode to support certain native app flows
+        // Criipto also offers a `post_message` response-mode to support popup flows
+        const response_modes_supported = this._openIdConfiguration.response_modes_supported.concat(['json', 'post_message']);
+        if (!response_modes_supported.includes(params.responseMode)) throw new Error(`responseMode must be one of ${response_modes_supported.join(',')}`);
+        if (!this._openIdConfiguration.response_types_supported.includes(params.responseType)) throw new Error(`responseType must be one of ${this._openIdConfiguration.response_types_supported.join(',')}`);
 
-      if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
+        if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
-      const url = new URL(this._openIdConfiguration.authorization_endpoint);
-      url.search = this.buildAuthorizeUrlParams(params).toString();
+        const url = new URL(this._openIdConfiguration.authorization_endpoint);
+        url.search = this.buildAuthorizeUrlParams(params).toString();
 
-      return url.toString();
+        return url.toString();
+      }
     });
   }
 
