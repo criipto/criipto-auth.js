@@ -1,79 +1,77 @@
-const path = require('path');
+const path = require("path");
 const CopyPlugin = require("copy-webpack-plugin");
-const webpack = require('webpack');
+const webpack = require("webpack");
 
 const commonConfig = {
-  mode: 'production',
-  devtool: 'source-map',
-  entry: './src/index.ts',
+  mode: "production",
+  devtool: "source-map",
+  entry: "./src/index.ts",
   module: {
     rules: [
       {
         test: /\.tsx?$/,
-        loader: 'ts-loader'
+        loader: "ts-loader",
       },
       {
         test: /\.(png|jpg|gif|svg)$/i,
         use: [
           {
-            loader: 'url-loader',
+            loader: "url-loader",
             options: {
               limit: true,
             },
           },
-        ]
-      }
-    ]
+        ],
+      },
+    ],
   },
   resolve: {
-    extensions: [ '.ts', '.tsx', '.js' ]
+    extensions: [".ts", ".tsx", ".js"],
   },
   plugins: [
     new webpack.DefinePlugin({
-      __VERSION__: JSON.stringify(require("./package.json").version)
+      __VERSION__: JSON.stringify(require("./package.json").version),
     }),
     new CopyPlugin({
-      patterns: [
-        { from: "src/index.css", to: "index.css" }
-      ]
-    })
-  ]
-}
+      patterns: [{ from: "src/index.css", to: "index.css" }],
+    }),
+  ],
+};
 
 module.exports = [
   {
     ...commonConfig,
     experiments: {
-      outputModule: true
+      outputModule: true,
     },
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'criipto-auth.esm.js',
+      path: path.resolve(__dirname, "dist"),
+      filename: "criipto-auth.esm.js",
       library: {
-        type: 'module'
-      }
-    }
+        type: "module",
+      },
+    },
   },
   {
     ...commonConfig,
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'criipto-auth.cjs.js',
+      path: path.resolve(__dirname, "dist"),
+      filename: "criipto-auth.cjs.js",
       library: {
-        type: 'commonjs'
-      }
-    }
+        type: "commonjs",
+      },
+    },
   },
   {
     ...commonConfig,
     output: {
-      path: path.resolve(__dirname, 'dist'),
-      filename: 'criipto-auth.umd.js',
+      path: path.resolve(__dirname, "dist"),
+      filename: "criipto-auth.umd.js",
       library: {
-        name: 'CriiptoAuth',
-        type: 'umd',
-        export: 'default'
-      }
-    }
-  }
+        name: "CriiptoAuth",
+        type: "umd",
+        export: "default",
+      },
+    },
+  },
 ];

@@ -2,13 +2,7 @@
   "declaration": true,
   "compilerOptions": {
     "sourceMap": true,
-    "lib": [
-      "dom",
-      "dom.iterable",
-      "es7",
-      "es2017.object",
-      "es2018.promise"
-    ],
+    "lib": ["dom", "dom.iterable", "es7", "es2017.object", "es2018.promise"],
     "target": "es6",
     "outDir": "./dist",
     "noImplicitAny": true,
@@ -16,17 +10,8 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "types": [
-      "jest"
-    ]
+    "types": ["jest"]
   },
-  "exclude": [
-    "./node_modules",
-    "./test",
-    "./coverage"
-  ],
-  "files": [
-    "src/global.d.ts",
-    "src/index.ts"
-  ]
+  "exclude": ["./node_modules", "./test", "./coverage"],
+  "files": ["src/global.d.ts", "src/index.ts"]
 }

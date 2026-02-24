@@ -13,7 +13,15 @@
       </div>
       <div>
         <strong>code + state response</strong>
-        <div id="qrcode_code" style="width: 400px; height: 400px; padding: 20px;box-sizing: border-box;"></div>
+        <div
+          id="qrcode_code"
+          style="
+            width: 400px;
+            height: 400px;
+            padding: 20px;
+            box-sizing: border-box;
+          "
+        ></div>
       </div>
       <div>
         <strong>id_token (after cancel and resume)</strong>
@@ -23,58 +31,79 @@
     <textarea id="result" style="width: 400px; height: 400px"></textarea>
     <script type="text/javascript">
       var criiptoAuth = new CriiptoAuth({
-        domain: 'samples.criipto.id',
-        clientID: 'urn:criipto:samples:criipto-auth',
-        store: sessionStorage
+        domain: "samples.criipto.id",
+        clientID: "urn:criipto:samples:criipto-auth",
+        store: sessionStorage,
       });
 
-      const tokenPromise = criiptoAuth.qr.authorize(document.getElementById('qrcode_token'));
-      tokenPromise.onAcknowledged = () => document.getElementById('qrcode_token').innerHTML = 'Acked';
+      const tokenPromise = criiptoAuth.qr.authorize(
+        document.getElementById("qrcode_token"),
+      );
+      tokenPromise.onAcknowledged = () =>
+        (document.getElementById("qrcode_token").innerHTML = "Acked");
 
-      tokenPromise.then((result) => {
-        console.log(result);
-        document.getElementById('result').innerHTML = JSON.stringify(result);
-      }).catch(err => {
-        console.log(err);
-        document.getElementById('result').innerHTML = err.toString();
-      });
+      tokenPromise
+        .then((result) => {
+          console.log(result);
+          document.getElementById("result").innerHTML = JSON.stringify(result);
+        })
+        .catch((err) => {
+          console.log(err);
+          document.getElementById("result").innerHTML = err.toString();
+        });
 
-      const codePromise = criiptoAuth.qr.authorize(document.getElementById('qrcode_code'), {
-        responseType: 'code',
-        state: Math.random().toString(),
-        margin: 0
-      });
-      codePromise.onAcknowledged = () => document.getElementById('qrcode_code').innerHTML = 'Acked';
-      codePromise.then((result) => {
-        console.log(result);
-        document.getElementById('result').innerHTML = JSON.stringify(result);
-      }).catch(err => {
-        console.log(err);
-        document.getElementById('result').innerHTML = err.toString();
-      });
+      const codePromise = criiptoAuth.qr.authorize(
+        document.getElementById("qrcode_code"),
+        {
+          responseType: "code",
+          state: Math.random().toString(),
+          margin: 0,
+        },
+      );
+      codePromise.onAcknowledged = () =>
+        (document.getElementById("qrcode_code").innerHTML = "Acked");
+      codePromise
+        .then((result) => {
+          console.log(result);
+          document.getElementById("result").innerHTML = JSON.stringify(result);
+        })
+        .catch((err) => {
+          console.log(err);
+          document.getElementById("result").innerHTML = err.toString();
+        });
 
-      let promise = criiptoAuth.qr.authorize(document.getElementById('qrcode_cancel'));
+      let promise = criiptoAuth.qr.authorize(
+        document.getElementById("qrcode_cancel"),
+      );
       setTimeout(() => {
         promise.cancel();
-        
-        promise = criiptoAuth.qr.authorize(document.getElementById('qrcode_cancel'));
-        promise.onAcknowledged = () => document.getElementById('qrcode_cancel').innerHTML = 'Acked';
-        promise.then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          console.log(err);
-          document.getElementById('result').innerHTML = err.toString();
-        })
+
+        promise = criiptoAuth.qr.authorize(
+          document.getElementById("qrcode_cancel"),
+        );
+        promise.onAcknowledged = () =>
+          (document.getElementById("qrcode_cancel").innerHTML = "Acked");
+        promise
+          .then((result) => {
+            console.log(result);
+            document.getElementById("result").innerHTML =
+              JSON.stringify(result);
+          })
+          .catch((err) => {
+            console.log(err);
+            document.getElementById("result").innerHTML = err.toString();
+          });
       }, 6000);
 
-      promise.then((result) => {
-        console.log(result);
-        document.getElementById('result').innerHTML = JSON.stringify(result);
-      }).catch(err => {
-        console.log(err);
-        document.getElementById('result').innerHTML = err.toString();
-      });
+      promise
+        .then((result) => {
+          console.log(result);
+          document.getElementById("result").innerHTML = JSON.stringify(result);
+        })
+        .catch((err) => {
+          console.log(err);
+          document.getElementById("result").innerHTML = err.toString();
+        });
     </script>
   </body>
 </html>

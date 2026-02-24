@@ -1,20 +1,19 @@
-import {PKCE, PKCEPublicPart} from './pkce';
+import { PKCE, PKCEPublicPart } from "./pkce";
 
 export type GenericObject = { [key: string]: any };
 export type Claims = {
-  iss: string
-  aud: string
-  identityscheme: string
-  authenticationtype: string
-  sub: string
-  iat: number
-  exp: number
-  [key: string]: string | number
-}
+  iss: string;
+  aud: string;
+  identityscheme: string;
+  authenticationtype: string;
+  sub: string;
+  iat: number;
+  exp: number;
+  [key: string]: string | number;
+};
 
-
-export type Prompt = undefined | 'none' | 'login';
-export type ResponseType = 'code' | 'id_token';
+export type Prompt = undefined | "none" | "login";
+export type ResponseType = "code" | "id_token";
 
 export interface AuthorizeUrlParams {
   acrValues?: string | string[];
@@ -25,11 +24,11 @@ export interface AuthorizeUrlParams {
   state?: string;
   loginHint?: string;
   uiLocales?: string;
-  extraUrlParams?: {[key: string]: string | null};
+  extraUrlParams?: { [key: string]: string | null };
   scope: string;
   prompt?: Prompt;
-  nonce?: string
-};
+  nonce?: string;
+}
 
 export interface AuthorizeUrlParamsOptional {
   acrValues?: string | string[];
@@ -37,14 +36,14 @@ export interface AuthorizeUrlParamsOptional {
   responseType?: ResponseType;
   responseMode?: string;
   pkce?: PKCE | PKCEPublicPart;
-  state?: string
+  state?: string;
   loginHint?: string;
   uiLocales?: string;
-  extraUrlParams?: {[key: string]: string | null};
+  extraUrlParams?: { [key: string]: string | null };
   scope?: string;
   prompt?: Prompt;
-  nonce?: string
-};
+  nonce?: string;
+}
 
 export interface AuthorizeResponse extends GenericObject {
   code?: string;
@@ -54,14 +53,16 @@ export interface AuthorizeResponse extends GenericObject {
   error?: string;
   error_description?: string;
   state?: string;
-};
+}
 
-export const ALL_VIA = ['redirect', 'popup'] as const; // TS 3.4
+export const ALL_VIA = ["redirect", "popup"] as const; // TS 3.4
 type ViaTuple = typeof ALL_VIA;
 type Via = ViaTuple[number];
 
-export interface AuthorizeParams extends Partial<Omit<AuthorizeUrlParams, 'responseMode'>> {
-  via: Via,
+export interface AuthorizeParams extends Partial<
+  Omit<AuthorizeUrlParams, "responseMode">
+> {
+  via: Via;
   acrValues?: string | string[];
   redirectUri?: string;
   responseType?: ResponseType;
@@ -70,9 +71,11 @@ export interface AuthorizeParams extends Partial<Omit<AuthorizeUrlParams, 'respo
 export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {
   acrValues?: string | string[];
   redirectUri?: string;
-};
+}
 
-export type SilentAuthorizeParams = Partial<Omit<AuthorizeParams, 'prompt' | 'pkce'>> & {timeout?: number};
+export type SilentAuthorizeParams = Partial<
+  Omit<AuthorizeParams, "prompt" | "pkce">
+> & { timeout?: number };
 
 export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
   acrValues?: string | string[];
@@ -80,8 +83,8 @@ export interface PopupAuthorizeParams extends Partial<AuthorizeParams> {
   width?: number;
   height?: number;
   backdrop?: boolean;
-};
+}
 
 export interface AuthorizeResponsiveParams {
-  [key: string]: AuthorizeParams | PopupAuthorizeParams
+  [key: string]: AuthorizeParams | PopupAuthorizeParams;
 }
