@@ -155,8 +155,8 @@ export default class CriiptoAuthPopup {
       responseMode: "post_message",
     });
 
-    return this.criiptoAuth.buildAuthorizeUrl(fullParams).then((url) => {
-      return { url, params: fullParams };
+    return this.criiptoAuth.pushAuthorizationRequest(fullParams).then((url) => {
+      return { url: url.toString(), params: fullParams };
     });
   }
 

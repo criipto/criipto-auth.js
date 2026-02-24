@@ -34,44 +34,47 @@ describe("CriiptoAuthRedirect", () => {
 
   describe("authorize", () => {
     it("builds authorize url and redirects browser", async () => {
-      const authorizeUrl = Math.random().toString();
+      const authorizeUrl = new URL(
+        `https://example.com/${Math.random().toString()}`,
+      );
       const redirectUri = Math.random().toString();
       const acrValues = "urn:grn:authn:dk:nemid:poces";
 
-      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(authorizeUrl);
-        });
-      });
+      auth.pushAuthorizationRequest = jest
+        .fn<(typeof auth)["pushAuthorizationRequest"]>()
+        .mockResolvedValue({ authorizeUrl, traceId: "" });
 
       await redirect.authorize({
         redirectUri,
         acrValues,
       });
 
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
-        redirectUri,
-        acrValues,
-        responseMode: "query",
-        responseType: "code",
-        pkce: expect.any(Object),
-        scope: "openid",
-      });
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
-      expect(globalThis.location.href).toBe(authorizeUrl);
+      expect(auth.pushAuthorizationRequest).toHaveBeenCalledWith(
+        {
+          redirectUri,
+          acrValues,
+          responseMode: "query",
+          responseType: "code",
+          pkce: expect.any(Object),
+          scope: "openid",
+        },
+        undefined,
+      );
+      expect(auth.pushAuthorizationRequest).toHaveBeenCalledTimes(1);
+      expect(globalThis.location.href).toBe(authorizeUrl.toString());
     });
 
     it("builds authorize url with existing PKCE values", async () => {
-      const authorizeUrl = Math.random().toString();
+      const authorizeUrl = new URL(
+        `https://example.com/${Math.random().toString()}`,
+      );
       const redirectUri = Math.random().toString();
       const acrValues = "urn:grn:authn:dk:nemid:poces";
       const pkce = await generatePKCE();
 
-      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
-        return new Promise((resolve) => {
-          resolve(authorizeUrl);
-        });
-      });
+      auth.pushAuthorizationRequest = jest
+        .fn<(typeof auth)["pushAuthorizationRequest"]>()
+        .mockResolvedValue({ authorizeUrl, traceId: "" });
 
       await redirect.authorize({
         redirectUri,
@@ -79,16 +82,19 @@ describe("CriiptoAuthRedirect", () => {
         pkce,
       });
 
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
-        redirectUri,
-        acrValues,
-        responseMode: "query",
-        responseType: "code",
-        pkce,
-        scope: "openid",
-      });
-      expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
-      expect(globalThis.location.href).toBe(authorizeUrl);
+      expect(auth.pushAuthorizationRequest).toHaveBeenCalledWith(
+        {
+          redirectUri,
+          acrValues,
+          responseMode: "query",
+          responseType: "code",
+          pkce,
+          scope: "openid",
+        },
+        undefined,
+      );
+      expect(auth.pushAuthorizationRequest).toHaveBeenCalledTimes(1);
+      expect(globalThis.location.href).toBe(authorizeUrl.toString());
     });
   });
 

@@ -290,6 +290,7 @@ export class CriiptoAuth {
   }
 
   async buildAuthorizeUrl(params: AuthorizeUrlParams) {
+    await this._setup();
     const url = new URL(this._openIdConfiguration.authorization_endpoint);
     for (const [key, value] of (
       await this.buildAuthorizeUrlSearchParams(params)
@@ -297,6 +298,42 @@ export class CriiptoAuth {
       url.searchParams.set(key, value);
     }
     return url.toString();
+  }
+
+  async pushAuthorizationRequest(params: AuthorizeUrlParams): Promise<URL> {
+    await this._setup();
+    const parUrl = new URL(
+      this._openIdConfiguration.pushed_authorization_request_endpoint,
+    );
+
+    const response = await fetch(parUrl, {
+      body: await this.buildAuthorizeUrlSearchParams(params),
+      method: "POST",
+    });
+
+    if (response.status !== 201) {
+      let errorDescription = response.statusText;
+      try {
+        const errorResponse = (await response.json()) as {
+          error_description?: string;
+        };
+        errorDescription = errorResponse.error_description ?? "";
+      } catch {
+        // This space intentionally left blank. In case we cannot parse the JSON from the response,
+        // we want to throw par initialization error, not a JSON parsing error.
+      }
+      throw new Error(
+        `Error during PAR request (code: ${response.status}) (description: ${errorDescription})`,
+      );
+    }
+
+    const body = await response.json();
+
+    const url = new URL(this._openIdConfiguration.authorization_endpoint);
+    url.searchParams.append("request_uri", body["request_uri"]);
+    url.searchParams.append("client_id", this.clientID);
+
+    return url;
   }
 
   processResponse(

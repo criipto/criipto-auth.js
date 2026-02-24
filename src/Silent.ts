@@ -61,7 +61,7 @@ export default class CriiptoAuthSilent {
       ? generatePKCE()
       : Promise.resolve(undefined));
 
-    const url = await this.criiptoAuth.buildAuthorizeUrl(
+    const url = await this.criiptoAuth.pushAuthorizationRequest(
       this.criiptoAuth.buildAuthorizeParams({
         ...params,
         responseMode: "post_message",
@@ -72,7 +72,7 @@ export default class CriiptoAuthSilent {
     );
 
     const timeout = params.timeout || 10000;
-    const iframe = this.open(url);
+    const iframe = this.open(url.toString());
 
     return Promise.race([
       new Promise<never>((_, reject) => {

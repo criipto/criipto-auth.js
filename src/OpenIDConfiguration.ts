@@ -2,6 +2,7 @@ class OpenIDMetadata {
   issuer: string;
   jwks_uri: string;
   authorization_endpoint: string;
+  pushed_authorization_request_endpoint: string;
   token_endpoint: string;
   userinfo_endpoint: string;
   end_session_endpoint: string;

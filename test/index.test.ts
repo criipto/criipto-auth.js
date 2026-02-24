@@ -489,4 +489,56 @@ describe("CriiptoAuth", () => {
       ).toThrow("redirectUri must be defined");
     });
   });
+
+  describe("pushAuthorizationRequest", () => {
+    beforeEach(() => {
+      auth._setup = jest
+        .fn<(typeof auth)["_setup"]>()
+        .mockResolvedValue(auth._openIdConfiguration);
+
+      auth._openIdConfiguration.authorization_endpoint =
+        "https://example.com/oauth2/par";
+      auth._openIdConfiguration.pushed_authorization_request_endpoint =
+        "https://example.com/oauth2/authorize";
+      auth._openIdConfiguration.response_modes_supported = [
+        "query",
+        "form_post",
+        "fragment",
+        "post_message",
+      ];
+      auth._openIdConfiguration.response_types_supported = [
+        "code",
+        "id_token",
+        "code id_token",
+      ];
+    });
+
+    it("returns PAR URL", async () => {
+      const request_uri = Math.random().toString();
+      (globalThis.fetch as any) = jest
+        .fn<typeof globalThis.fetch>()
+        .mockImplementation(async (url: RequestInfo | URL) => {
+          if (
+            url.toString() ===
+            auth._openIdConfiguration.pushed_authorization_request_endpoint
+          ) {
+            return new Response(JSON.stringify({ request_uri }), {
+              status: 201,
+            });
+          }
+          throw new Error("Unexpected url");
+        });
+
+      const { authorizeUrl } = await auth.pushAuthorizationRequest({
+        redirectUri: "https://example.com",
+        responseMode: "json",
+        responseType: "code",
+        scope: "openid",
+      });
+
+      expect(authorizeUrl.toString()).toEqual(
+        `${auth._openIdConfiguration.authorization_endpoint}?request_uri=${request_uri}&client_id=${clientID}`,
+      );
+    });
+  });
 });

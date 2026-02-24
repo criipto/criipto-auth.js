@@ -48,7 +48,7 @@ export default class CriiptoAuthRedirect {
           },
     );
 
-    const url = await this.criiptoAuth.buildAuthorizeUrl(
+    const url = await this.criiptoAuth.pushAuthorizationRequest(
       this.criiptoAuth.buildAuthorizeParams({
         ...params,
         responseMode: "query",
@@ -57,7 +57,7 @@ export default class CriiptoAuthRedirect {
       }),
     );
 
-    globalThis.location.href = url;
+    globalThis.location.href = url.toString();
   }
 
   /*
