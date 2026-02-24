@@ -23,7 +23,7 @@
 .criipto-auth-popup-backdrop-content {
   width: 350px;
   z-index: 11;
-  color: #FFF;
+  color: #fff;
   display: flex;
   align-items: center;
   flex-direction: column;

@@ -4,11 +4,12 @@ export default class SessionAPI {
   constructor(URL: string) {
     this.URL = URL;
 
-    if (!URL.includes('{id}')) throw new Error('Expected URL to include {id} template arg.');
+    if (!URL.includes("{id}"))
+      throw new Error("Expected URL to include {id} template arg.");
   }
 
-  async get<T = object>(id: string) : Promise<T | null> {
-    const url = this.URL.replace('{id}', id);
+  async get<T = object>(id: string): Promise<T | null> {
+    const url = this.URL.replace("{id}", id);
     const response = await fetch(url);
 
     if (response.ok) return await response.json();
@@ -18,13 +19,13 @@ export default class SessionAPI {
   }
 
   async save(id: string, session: object) {
-    const url = this.URL.replace('{id}', id);
+    const url = this.URL.replace("{id}", id);
     const response = await fetch(url, {
-      method: 'POST',
+      method: "POST",
       body: JSON.stringify(session),
       headers: {
-        "Content-Type": "application/json"
-      }
+        "Content-Type": "application/json",
+      },
     });
 
     if (response.ok) return;
@@ -33,9 +34,9 @@ export default class SessionAPI {
   }
 
   async delete(id: string) {
-    const url = this.URL.replace('{id}', id);
+    const url = this.URL.replace("{id}", id);
     const response = await fetch(url, {
-      method: 'DELETE'
+      method: "DELETE",
     });
 
     if (response.ok) return;

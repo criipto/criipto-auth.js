@@ -1,38 +1,42 @@
-import {describe, beforeEach, it, expect, jest} from '@jest/globals';
-import * as crypto from 'crypto';
-import {MemoryStore} from './helper';
-import CriiptoAuth, { generatePKCE, OAuth2Error, savePKCEState } from '../src/index';
-import CriiptoAuthRedirect from '../src/Redirect';
+import { describe, beforeEach, it, expect, jest } from "@jest/globals";
+import * as crypto from "crypto";
+import { MemoryStore } from "./helper";
+import CriiptoAuth, {
+  generatePKCE,
+  OAuth2Error,
+  savePKCEState,
+} from "../src/index";
+import CriiptoAuthRedirect from "../src/Redirect";
 
-describe('CriiptoAuthRedirect', () => {
-  let auth:CriiptoAuth, redirect:CriiptoAuthRedirect;
+describe("CriiptoAuthRedirect", () => {
+  let auth: CriiptoAuth, redirect: CriiptoAuthRedirect;
 
   beforeEach(() => {
     auth = new CriiptoAuth({
       domain: Math.random().toString(),
       clientID: Math.random().toString(),
-      store: new MemoryStore()
+      store: new MemoryStore(),
     });
 
     redirect = new CriiptoAuthRedirect(auth);
 
-    Object.defineProperty(global, 'window', {
+    Object.defineProperty(global, "window", {
       writable: true,
       value: {
-        btoa: (input : string) => Buffer.from(input).toString('base64')
-      }
+        btoa: (input: string) => Buffer.from(input).toString("base64"),
+      },
     });
-    Object.defineProperty(globalThis, 'location', {
+    Object.defineProperty(globalThis, "location", {
       writable: true,
-      value: {}
+      value: {},
     });
   });
 
-  describe('authorize', () => {
-    it('builds authorize url and redirects browser', async () => {
+  describe("authorize", () => {
+    it("builds authorize url and redirects browser", async () => {
       const authorizeUrl = Math.random().toString();
-      const redirectUri =  Math.random().toString();
-      const acrValues = 'urn:grn:authn:dk:nemid:poces';
+      const redirectUri = Math.random().toString();
+      const acrValues = "urn:grn:authn:dk:nemid:poces";
 
       (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
         return new Promise((resolve) => {
@@ -42,25 +46,25 @@ describe('CriiptoAuthRedirect', () => {
 
       await redirect.authorize({
         redirectUri,
-        acrValues
+        acrValues,
       });
 
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
         redirectUri,
         acrValues,
-        responseMode: 'query',
-        responseType: 'code',
+        responseMode: "query",
+        responseType: "code",
         pkce: expect.any(Object),
-        scope: 'openid'
+        scope: "openid",
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(globalThis.location.href).toBe(authorizeUrl);
     });
 
-    it('builds authorize url with existing PKCE values', async () => {
+    it("builds authorize url with existing PKCE values", async () => {
       const authorizeUrl = Math.random().toString();
-      const redirectUri =  Math.random().toString();
-      const acrValues = 'urn:grn:authn:dk:nemid:poces';
+      const redirectUri = Math.random().toString();
+      const acrValues = "urn:grn:authn:dk:nemid:poces";
       const pkce = await generatePKCE();
 
       (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
@@ -72,23 +76,23 @@ describe('CriiptoAuthRedirect', () => {
       await redirect.authorize({
         redirectUri,
         acrValues,
-        pkce
+        pkce,
       });
 
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledWith({
         redirectUri,
         acrValues,
-        responseMode: 'query',
-        responseType: 'code',
+        responseMode: "query",
+        responseType: "code",
         pkce,
-        scope: 'openid'
+        scope: "openid",
       });
       expect(auth.buildAuthorizeUrl).toHaveBeenCalledTimes(1);
       expect(globalThis.location.href).toBe(authorizeUrl);
     });
   });
 
-  describe('match', () => {
+  describe("match", () => {
     // it('returns auth response if we are currently on a redirect end uri', async () => {
     //   const code = Math.random().toString();
     //   const id_token = Math.random().toString();
@@ -140,50 +144,52 @@ describe('CriiptoAuthRedirect', () => {
     //   expect(match?.id_token).toBe(id_token);
     // });
 
-    it('returns null', async () => {
+    it("returns null", async () => {
       const match = await redirect.match();
       expect(match).toBe(null);
     });
 
-    it('rejects with error', async () => {
+    it("rejects with error", async () => {
       const error = Math.random().toString();
       const error_description = Math.random().toString();
 
       globalThis.location = {
         ...globalThis.location,
-        hash: '',
-        search: `?error=${error}&error_description=${error_description}`
+        hash: "",
+        search: `?error=${error}&error_description=${error_description}`,
       };
 
       expect.assertions(1);
 
       savePKCEState(auth.store, {
-        response_type: 'id_token',
+        response_type: "id_token",
         redirect_uri: Math.random().toString(),
         pkce_code_verifier: Math.random().toString(),
       });
-      await redirect.match().catch(err => {
+      await redirect.match().catch((err) => {
         expect(err).toStrictEqual(new OAuth2Error(error, error_description));
       });
     });
-    
-    it('can read error from explicitly passed URL', async () => {
+
+    it("can read error from explicitly passed URL", async () => {
       const error = Math.random().toString();
       const error_description = Math.random().toString();
 
-      const location = new URL(`http://localhost?${new URLSearchParams({
-        error,
-        error_description,
-      })}`);
+      const location = new URL(
+        `http://localhost?${new URLSearchParams({
+          error,
+          error_description,
+        })}`,
+      );
 
       savePKCEState(auth.store, {
-        response_type: 'id_token',
+        response_type: "id_token",
         redirect_uri: Math.random().toString(),
         pkce_code_verifier: Math.random().toString(),
       });
-      expect(redirect.match({ location }))
-        .rejects
-        .toStrictEqual(new OAuth2Error(error, error_description));
+      expect(redirect.match({ location })).rejects.toStrictEqual(
+        new OAuth2Error(error, error_description),
+      );
     });
   });
 });

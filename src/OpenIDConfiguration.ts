@@ -14,7 +14,7 @@ class OpenIDMetadata {
 
 class OpenIDConfiguration extends OpenIDMetadata {
   authority: string;
-  clientID: string
+  clientID: string;
 
   constructor(authority: string, clientID: string) {
     super();
@@ -23,12 +23,15 @@ class OpenIDConfiguration extends OpenIDMetadata {
   }
 
   fetchMetadata(): Promise<OpenIDConfiguration> {
-    return globalThis.fetch(`${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`)
-      .then(response => response.json())
+    return globalThis
+      .fetch(
+        `${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`,
+      )
+      .then((response) => response.json())
       .then((metadata: OpenIDMetadata) => {
         Object.assign(this, metadata);
         return this;
-      })
+      });
   }
 }
 

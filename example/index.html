@@ -9,201 +9,281 @@
       <button id="button_login_responsive">Login (responsive)</button>
       <button id="button_login_redirect_query">Login (PKCE + redirect)</button>
       <button id="button_login_redirect_code">Login (code + redirect)</button>
-      <button id="button_login_redirect_query_acr_values">Login (PKCE + redirect + multiple ACR values)</button>
-      <button id="button_login_redirect_query_state">Login (PKCE + redirect + state)</button>
-      <button id="button_login_redirect_query_sso">Login (PKCE + redirect + SSO)</button>
+      <button id="button_login_redirect_query_acr_values">
+        Login (PKCE + redirect + multiple ACR values)
+      </button>
+      <button id="button_login_redirect_query_state">
+        Login (PKCE + redirect + state)
+      </button>
+      <button id="button_login_redirect_query_sso">
+        Login (PKCE + redirect + SSO)
+      </button>
       <button id="button_login_popup">Login (PKCE + popup)</button>
-      <button id="button_login_popup_state">Login (PKCE + popup + state)</button>
+      <button id="button_login_popup_state">
+        Login (PKCE + popup + state)
+      </button>
       <button id="button_login_popup_code">Login (popup + code)</button>
-      <button id="button_login_popup_backdrop_disabled">Login (popup + no backdrop)</button>
+      <button id="button_login_popup_backdrop_disabled">
+        Login (popup + no backdrop)
+      </button>
       <button id="button_login_popup_da">Login (PKCE + popup + Danish)</button>
       <button id="button_login_popup_se">Login (PKCE + popup + Swedish)</button>
-      <button id="button_login_popup_nb">Login (PKCE + popup + Norwegian)</button>
+      <button id="button_login_popup_nb">
+        Login (PKCE + popup + Norwegian)
+      </button>
       <button id="button_logout">Logout</button>
       <button id="button_check_session">Check Session</button>
     </div>
     <textarea id="result" style="width: 800px; height: 800px"></textarea>
     <script type="text/javascript">
       var criiptoAuth = new CriiptoAuth({
-        domain: 'samples.criipto.id',
-        clientID: 'urn:criipto:samples:criipto-auth',
-        store: sessionStorage
+        domain: "samples.criipto.id",
+        clientID: "urn:criipto:samples:criipto-auth",
+        store: sessionStorage,
       });
 
-      document.getElementById('button_login_responsive').addEventListener('click', () => {
-        criiptoAuth.authorizeResponsive({
-          '(min-width: 601px)': {
-            via: 'popup',
-            redirectUri: window.location.origin + '/example/index.html',
-            acrValues: 'urn:grn:authn:dk:mitid:low',
-            prompt: 'login'
-          },
-          '(max-width: 600px)': {
-            via: 'redirect',
-            redirectUri: window.location.origin + '/example/index.html',
-            acrValues: 'urn:grn:authn:dk:mitid:low',
-            prompt: 'login'
-          }
+      document
+        .getElementById("button_login_responsive")
+        .addEventListener("click", () => {
+          criiptoAuth.authorizeResponsive({
+            "(min-width: 601px)": {
+              via: "popup",
+              redirectUri: window.location.origin + "/example/index.html",
+              acrValues: "urn:grn:authn:dk:mitid:low",
+              prompt: "login",
+            },
+            "(max-width: 600px)": {
+              via: "redirect",
+              redirectUri: window.location.origin + "/example/index.html",
+              acrValues: "urn:grn:authn:dk:mitid:low",
+              prompt: "login",
+            },
+          });
         });
-      });
 
-      document.getElementById('button_login_redirect_query').addEventListener('click', () => {
-        criiptoAuth.redirect.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          prompt: 'login'
+      document
+        .getElementById("button_login_redirect_query")
+        .addEventListener("click", () => {
+          criiptoAuth.redirect.authorize({
+            redirectUri: window.location.origin + "/example/index.html",
+            prompt: "login",
+          });
         });
-      });
 
-      document.getElementById('button_login_redirect_code').addEventListener('click', () => {
-        criiptoAuth.redirect.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          prompt: 'login',
-          responseType: 'code'
+      document
+        .getElementById("button_login_redirect_code")
+        .addEventListener("click", () => {
+          criiptoAuth.redirect.authorize({
+            redirectUri: window.location.origin + "/example/index.html",
+            prompt: "login",
+            responseType: "code",
+          });
         });
-      });
 
-      document.getElementById('button_login_redirect_query_acr_values').addEventListener('click', () => {
-        criiptoAuth.redirect.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          acrValues: ['urn:grn:authn:dk:mitid:low', 'urn:grn:authn:se:bankid:another-device:qr'],
-          prompt: 'login'
+      document
+        .getElementById("button_login_redirect_query_acr_values")
+        .addEventListener("click", () => {
+          criiptoAuth.redirect.authorize({
+            redirectUri: window.location.origin + "/example/index.html",
+            acrValues: [
+              "urn:grn:authn:dk:mitid:low",
+              "urn:grn:authn:se:bankid:another-device:qr",
+            ],
+            prompt: "login",
+          });
         });
-      });
 
-      document.getElementById('button_login_redirect_query_state').addEventListener('click', () => {
-        criiptoAuth.redirect.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          state: Math.random().toString(),
-          nonce: Math.random().toString(),
-          prompt: 'login'
+      document
+        .getElementById("button_login_redirect_query_state")
+        .addEventListener("click", () => {
+          criiptoAuth.redirect.authorize({
+            redirectUri: window.location.origin + "/example/index.html",
+            state: Math.random().toString(),
+            nonce: Math.random().toString(),
+            prompt: "login",
+          });
         });
-      });
 
-      document.getElementById('button_login_redirect_query_sso').addEventListener('click', () => {
-        criiptoAuth.redirect.authorize({
-          redirectUri: window.location.origin + '/example/index.html'
+      document
+        .getElementById("button_login_redirect_query_sso")
+        .addEventListener("click", () => {
+          criiptoAuth.redirect.authorize({
+            redirectUri: window.location.origin + "/example/index.html",
+          });
         });
-      });
 
-      criiptoAuth.redirect.match().then(result => {
-        console.log(result);
-        document.getElementById('result').innerHTML = JSON.stringify(result);
-      }).catch(err => {
-        document.getElementById('result').innerHTML = JSON.stringify(err);
-      });
-
-      document.getElementById('button_login_popup').addEventListener('click', () => {
-        criiptoAuth.popup.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          prompt: 'login'
-        }).then((result) => {
+      criiptoAuth.redirect
+        .match()
+        .then((result) => {
           console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-
-      document.getElementById('button_login_popup_state').addEventListener('click', () => {
-        criiptoAuth.popup.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          prompt: 'login',
-          state: Math.random().toString(),
-          backdrop: false
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-
-      document.getElementById('button_login_popup_code').addEventListener('click', () => {
-        criiptoAuth.popup.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          prompt: 'login',
-          responseType: 'code'
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-
-      document.getElementById('button_login_popup_backdrop_disabled').addEventListener('click', () => {
-        criiptoAuth.popup.trigger({
-          redirectUri: window.location.origin + '/example/index.html?querytest=isenabled',
-          prompt: 'login',
-          responseType: 'code',
-          backdrop: false
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-      
-
-      document.getElementById('button_login_popup_da').addEventListener('click', () => {
-        criiptoAuth.popup.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          uiLocales: 'da',
-          prompt: 'login'
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-
-      document.getElementById('button_login_popup_se').addEventListener('click', () => {
-        criiptoAuth.popup.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          uiLocales: 'se',
-          prompt: 'login'
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-
-      document.getElementById('button_login_popup_nb').addEventListener('click', () => {
-        criiptoAuth.popup.authorize({
-          redirectUri: window.location.origin + '/example/index.html',
-          loginHint: 'flow:sign',
-          uiLocales: 'nb',
-          prompt: 'login'
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch(err => {
-          document.getElementById('result').innerHTML = JSON.stringify(err);
-        });
-      });
-
-      document.getElementById('button_logout').addEventListener('click', () => {
-        criiptoAuth.logout({
-          redirectUri: window.location.origin + '/example/index.html',
-          state: Math.random().toString()
+          document.getElementById("result").innerHTML = JSON.stringify(result);
         })
-      });
-      
-      document.getElementById('button_check_session').addEventListener('click', () => {
-        criiptoAuth.checkSession({
-          redirectUri: window.location.origin + '/example/index.html'
-        }).then((result) => {
-          console.log(result);
-          document.getElementById('result').innerHTML = JSON.stringify(result);
-        }).catch((error) => {
-          console.log(error);
-          document.getElementById('result').innerHTML = JSON.stringify(error);
+        .catch((err) => {
+          document.getElementById("result").innerHTML = JSON.stringify(err);
+        });
+
+      document
+        .getElementById("button_login_popup")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .authorize({
+              redirectUri: window.location.origin + "/example/index.html",
+              prompt: "login",
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document
+        .getElementById("button_login_popup_state")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .authorize({
+              redirectUri: window.location.origin + "/example/index.html",
+              prompt: "login",
+              state: Math.random().toString(),
+              backdrop: false,
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document
+        .getElementById("button_login_popup_code")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .authorize({
+              redirectUri: window.location.origin + "/example/index.html",
+              prompt: "login",
+              responseType: "code",
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document
+        .getElementById("button_login_popup_backdrop_disabled")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .trigger({
+              redirectUri:
+                window.location.origin +
+                "/example/index.html?querytest=isenabled",
+              prompt: "login",
+              responseType: "code",
+              backdrop: false,
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document
+        .getElementById("button_login_popup_da")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .authorize({
+              redirectUri: window.location.origin + "/example/index.html",
+              uiLocales: "da",
+              prompt: "login",
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document
+        .getElementById("button_login_popup_se")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .authorize({
+              redirectUri: window.location.origin + "/example/index.html",
+              uiLocales: "se",
+              prompt: "login",
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document
+        .getElementById("button_login_popup_nb")
+        .addEventListener("click", () => {
+          criiptoAuth.popup
+            .authorize({
+              redirectUri: window.location.origin + "/example/index.html",
+              loginHint: "flow:sign",
+              uiLocales: "nb",
+              prompt: "login",
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
+        });
+
+      document.getElementById("button_logout").addEventListener("click", () => {
+        criiptoAuth.logout({
+          redirectUri: window.location.origin + "/example/index.html",
+          state: Math.random().toString(),
         });
       });
+
+      document
+        .getElementById("button_check_session")
+        .addEventListener("click", () => {
+          criiptoAuth
+            .checkSession({
+              redirectUri: window.location.origin + "/example/index.html",
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((error) => {
+              console.log(error);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(error);
+            });
+        });
     </script>
   </body>
 </html>

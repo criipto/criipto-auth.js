@@ -19,24 +19,24 @@ npm install --save @criipto/auth-js
 ## Usage
 
 ```javascript
-import CriiptoAuth from '@criipto/auth-js';
+import CriiptoAuth from "@criipto/auth-js";
 
 var criiptoAuth = new CriiptoAuth({
-  domain: '{YOUR_CRIIPTO_DOMAIN}',
-  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
-  store: sessionStorage
+  domain: "{YOUR_CRIIPTO_DOMAIN}",
+  clientID: "{YOUR_CRIIPTO_APPLICATION_ID}",
+  store: sessionStorage,
 });
 
 criiptoAuth.popup.authorize({
   width: 300,
   height: 400,
-  redirectUri: 'http://localhost:8000/example/popup-callback.html',
-  acrValues: 'urn:grn:authn:dk:mitid:substantial'
+  redirectUri: "http://localhost:8000/example/popup-callback.html",
+  acrValues: "urn:grn:authn:dk:mitid:substantial",
 });
 
 criiptoAuth.redirect.authorize({
-  redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:mitid:substantial'
+  redirectUri: "http://localhost:8000/example/index.html",
+  acrValues: "urn:grn:authn:dk:mitid:substantial",
 });
 ```
 
@@ -46,17 +46,17 @@ criiptoAuth.redirect.authorize({
 
 ```javascript
 var criiptoAuth = new CriiptoAuth({
-  domain: '{YOUR_CRIIPTO_DOMAIN}',
-  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
-  store: sessionStorage
+  domain: "{YOUR_CRIIPTO_DOMAIN}",
+  clientID: "{YOUR_CRIIPTO_APPLICATION_ID}",
+  store: sessionStorage,
 });
 
 var criiptoAuth = new CriiptoAuth({
-  domain: '{YOUR_CRIIPTO_DOMAIN}',
-  clientID: '{YOUR_CRIIPTO_APPLICATION_ID}',
+  domain: "{YOUR_CRIIPTO_DOMAIN}",
+  clientID: "{YOUR_CRIIPTO_APPLICATION_ID}",
   store: sessionStorage,
-  redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:mitid:substantial'
+  redirectUri: "http://localhost:8000/example/index.html",
+  acrValues: "urn:grn:authn:dk:mitid:substantial",
 });
 ```
 
@@ -77,24 +77,24 @@ All authorization methods like `criiptoAuth.popup.authorize`, `criiptoAuth.redir
 
 ```javascript
 criiptoAuth.authorizeResponsive({
-  '(min-width: 768px)': {
-    via: 'popup',
-    redirectUri: 'http://localhost:8000/example/popup-callback.html',
-    acrValues: 'urn:grn:authn:dk:mitid:substantial',
+  "(min-width: 768px)": {
+    via: "popup",
+    redirectUri: "http://localhost:8000/example/popup-callback.html",
+    acrValues: "urn:grn:authn:dk:mitid:substantial",
     width: 320,
-    height: 460
+    height: 460,
   },
-  '(max-width: 767px)': {
-    via: 'redirect',
-    redirectUri: 'http://localhost:8000/example/index.html',
-    acrValues: 'urn:grn:authn:dk:mitid:substantial'
-  }
+  "(max-width: 767px)": {
+    via: "redirect",
+    redirectUri: "http://localhost:8000/example/index.html",
+    acrValues: "urn:grn:authn:dk:mitid:substantial",
+  },
 });
 ```
 
 Provides a convenient way to pick authorization method (`popup` or `redirect`) based on a CSS media query (screen size).
 
-- **{[mediaQuery: string]: {via: 'popup' | 'redirect', [Authorization parameters](#authorization-parameters)}}** 
+- **{[mediaQuery: string]: {via: 'popup' | 'redirect', [Authorization parameters](#authorization-parameters)}}**
 
 ## Auth.popup
 
@@ -104,13 +104,13 @@ Provides a convenient way to pick authorization method (`popup` or `redirect`) b
 const response = await criiptoAuth.popup.authorize({
   width: 300,
   height: 400,
-  redirectUri: 'http://localhost:8000/example/popup-callback.html',
-  acrValues: 'urn:grn:authn:dk:mitid:substantial',
-  /** Using a random state is helpful, 
+  redirectUri: "http://localhost:8000/example/popup-callback.html",
+  acrValues: "urn:grn:authn:dk:mitid:substantial",
+  /** Using a random state is helpful,
    * if your users are able to
    * trigger new popups while a request
    * is still pending */
-  state: Math.random().toString()
+  state: Math.random().toString(),
 });
 console.log(response.id_token, response.claims);
 ```
@@ -125,8 +125,8 @@ console.log(response.id_token, response.claims);
 
 ```javascript
 criiptoAuth.redirect.authorize({
-  redirectUri: 'http://localhost:8000/example/index.html',
-  acrValues: 'urn:grn:authn:dk:mitid:substantial'
+  redirectUri: "http://localhost:8000/example/index.html",
+  acrValues: "urn:grn:authn:dk:mitid:substantial",
 });
 ```
 
@@ -150,11 +150,11 @@ If you have SSO enabled for your domain and you are not using `prompt=login` you
 
 ```javascript
 criiptoAuth.logout({
-  redirectUri: 'http://localhost:8000/example/index.html',
+  redirectUri: "http://localhost:8000/example/index.html",
 });
 ```
 
-## QRCode 
+## QRCode
 
 ```javascript
 criiptoAuth.qr.authorize(document.getElementById('qr_code_div', {
