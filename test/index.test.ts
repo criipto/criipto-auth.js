@@ -540,5 +540,49 @@ describe("CriiptoAuth", () => {
         `${auth._openIdConfiguration.authorization_endpoint}?request_uri=${request_uri}&client_id=${clientID}`,
       );
     });
+
+    it("supports traceparent and returns trace ID", async () => {
+      const _traceId = Math.random().toString();
+      const _traceParent = Math.random().toString();
+      (globalThis.fetch as any) = jest
+        .fn<typeof globalThis.fetch>()
+        .mockImplementation(async (url: RequestInfo | URL) => {
+          if (
+            url.toString() ===
+            auth._openIdConfiguration.pushed_authorization_request_endpoint
+          ) {
+            return new Response(JSON.stringify({}), {
+              status: 201,
+              headers: {
+                "trace-id": _traceId,
+              },
+            });
+          }
+          throw new Error("Unexpected url");
+        });
+
+      const { traceId } = await auth.pushAuthorizationRequest(
+        {
+          redirectUri: "https://example.com",
+          responseMode: "json",
+          responseType: "code",
+          scope: "openid",
+        },
+        _traceParent,
+      );
+
+      expect(traceId).toEqual(_traceId);
+
+      expect(globalThis.fetch).toHaveBeenCalledTimes(1);
+      expect(global.fetch).toHaveBeenCalledWith(
+        expect.anything(),
+        expect.objectContaining({
+          headers: {
+            Prefer: "return-trace-id",
+            traceparent: _traceParent,
+          },
+        }),
+      );
+    });
   });
 });

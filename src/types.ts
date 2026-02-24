@@ -53,6 +53,7 @@ export interface AuthorizeResponse extends GenericObject {
   error?: string;
   error_description?: string;
   state?: string;
+  traceId?: string;
 }
 
 export const ALL_VIA = ["redirect", "popup"] as const; // TS 3.4
@@ -66,6 +67,7 @@ export interface AuthorizeParams extends Partial<
   acrValues?: string | string[];
   redirectUri?: string;
   responseType?: ResponseType;
+  traceParent?: string;
 }
 
 export interface RedirectAuthorizeParams extends Partial<AuthorizeParams> {

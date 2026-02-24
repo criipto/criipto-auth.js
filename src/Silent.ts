@@ -61,18 +61,20 @@ export default class CriiptoAuthSilent {
       ? generatePKCE()
       : Promise.resolve(undefined));
 
-    const url = await this.criiptoAuth.pushAuthorizationRequest(
-      this.criiptoAuth.buildAuthorizeParams({
-        ...params,
-        responseMode: "post_message",
-        responseType: "code",
-        pkce,
-        prompt: "none",
-      }),
-    );
+    const { authorizeUrl, traceId } =
+      await this.criiptoAuth.pushAuthorizationRequest(
+        this.criiptoAuth.buildAuthorizeParams({
+          ...params,
+          responseMode: "post_message",
+          responseType: "code",
+          pkce,
+          prompt: "none",
+        }),
+        params.traceParent,
+      );
 
     const timeout = params.timeout || 10000;
-    const iframe = this.open(url.toString());
+    const iframe = this.open(authorizeUrl.toString());
 
     return Promise.race([
       new Promise<never>((_, reject) => {
@@ -80,18 +82,18 @@ export default class CriiptoAuthSilent {
           reject("Timed out");
         }, timeout);
       }),
-      this.listen(iframe).then((response) => {
-        return this.criiptoAuth
-          .processResponse(
-            response,
-            pkce && "code_verifier" in pkce
-              ? {
-                  code_verifier: pkce.code_verifier,
-                  redirect_uri: redirectUri!,
-                }
-              : undefined,
-          )
-          .then((response) => response!);
+      this.listen(iframe).then(async (response) => {
+        const authorizeResponse = await this.criiptoAuth.processResponse(
+          response,
+          pkce && "code_verifier" in pkce
+            ? {
+                code_verifier: pkce.code_verifier,
+                redirect_uri: redirectUri!,
+              }
+            : undefined,
+        );
+        authorizeResponse!.traceId = traceId;
+        return authorizeResponse!;
       }),
     ]).finally(() => this.remove(iframe));
   }

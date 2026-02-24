@@ -300,15 +300,27 @@ export class CriiptoAuth {
     return url.toString();
   }
 
-  async pushAuthorizationRequest(params: AuthorizeUrlParams): Promise<URL> {
+  async pushAuthorizationRequest(
+    params: AuthorizeUrlParams,
+    traceParent?: string,
+  ): Promise<{ authorizeUrl: URL; traceId: string }> {
     await this._setup();
     const parUrl = new URL(
       this._openIdConfiguration.pushed_authorization_request_endpoint,
     );
 
+    const headers: Record<string, any> = {
+      Prefer: "return-trace-id",
+    };
+
+    if (traceParent) {
+      headers.traceparent = traceParent;
+    }
+
     const response = await fetch(parUrl, {
       body: await this.buildAuthorizeUrlSearchParams(params),
       method: "POST",
+      headers,
     });
 
     if (response.status !== 201) {
@@ -329,11 +341,13 @@ export class CriiptoAuth {
 
     const body = await response.json();
 
-    const url = new URL(this._openIdConfiguration.authorization_endpoint);
-    url.searchParams.append("request_uri", body["request_uri"]);
-    url.searchParams.append("client_id", this.clientID);
+    const authorizeUrl = new URL(
+      this._openIdConfiguration.authorization_endpoint,
+    );
+    authorizeUrl.searchParams.append("request_uri", body["request_uri"]);
+    authorizeUrl.searchParams.append("client_id", this.clientID);
 
-    return url;
+    return { authorizeUrl, traceId: response.headers.get("Trace-Id")! };
   }
 
   processResponse(
