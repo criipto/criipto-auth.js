@@ -20,6 +20,7 @@ npm install --save @criipto/auth-js
 
 ```javascript
 import CriiptoAuth from "@criipto/auth-js";
+import "@criipto/auth-js/index.css";
 
 var criiptoAuth = new CriiptoAuth({
   domain: "{YOUR_CRIIPTO_DOMAIN}",

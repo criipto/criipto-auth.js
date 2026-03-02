@@ -10,8 +10,9 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "types": ["jest"]
+    "types": ["jest"],
+    "skipLibCheck": true,
+    "resolveJsonModule": true
   },
-  "exclude": ["./node_modules", "./test", "./coverage"],
-  "files": ["src/global.d.ts", "src/index.ts"]
+  "include": ["src"]
 }

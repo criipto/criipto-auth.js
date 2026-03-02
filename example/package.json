@@ -1,0 +1,15 @@
+{
+  "name": "example",
+  "private": true,
+  "type": "module",
+  "devDependencies": {
+    "vite": "^7.3.1"
+  },
+  "dependencies": {
+    "@criipto/auth-js": ".."
+  },
+  "scripts": {
+    "start": "vite --port 8080",
+    "build": "vite build"
+  }
+}
