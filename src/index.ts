@@ -195,101 +195,159 @@ export class CriiptoAuth {
     throw new Error("Invalid media query");
   }
 
-  buildAuthorizeUrl(params: AuthorizeUrlParams) {
-    return this._setup().then(() => {
-      // Criipto offers a `json` embrace-and-extend response-mode to support certain native app flows
-      // Criipto also offers a `post_message` response-mode to support popup flows
-      const response_modes_supported =
-        this._openIdConfiguration.response_modes_supported.concat([
-          "json",
-          "post_message",
-        ]);
-      if (!response_modes_supported.includes(params.responseMode))
-        throw new Error(
-          `responseMode must be one of ${response_modes_supported.join(",")}`,
-        );
-      if (
-        !this._openIdConfiguration.response_types_supported.includes(
-          params.responseType,
-        )
+  async buildAuthorizeUrlSearchParams(params: AuthorizeUrlParams) {
+    await this._setup();
+
+    // Criipto offers a `json` embrace-and-extend response-mode to support certain native app flows
+    // Criipto also offers a `post_message` response-mode to support popup flows
+    const response_modes_supported =
+      this._openIdConfiguration.response_modes_supported.concat([
+        "json",
+        "post_message",
+      ]);
+    if (!response_modes_supported.includes(params.responseMode))
+      throw new Error(
+        `responseMode must be one of ${response_modes_supported.join(",")}`,
+      );
+    if (
+      !this._openIdConfiguration.response_types_supported.includes(
+        params.responseType,
       )
-        throw new Error(
-          `responseType must be one of ${this._openIdConfiguration.response_types_supported.join(",")}`,
-        );
+    )
+      throw new Error(
+        `responseType must be one of ${this._openIdConfiguration.response_types_supported.join(",")}`,
+      );
 
-      const acrValues = params.acrValues
-        ? Array.isArray(params.acrValues)
-          ? params.acrValues
-          : params.acrValues.includes(" ")
-            ? params.acrValues.split(" ")
-            : params.acrValues
-        : undefined;
+    if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
 
-      if (!params.redirectUri) throw new Error(`redirectUri must be defined`);
+    const searchParams = new URLSearchParams();
+    searchParams.append("scope", params.scope);
+    searchParams.append("client_id", this.clientID);
 
-      const url = new URL(this._openIdConfiguration.authorization_endpoint);
+    const acrValues = params.acrValues
+      ? Array.isArray(params.acrValues)
+        ? params.acrValues
+        : params.acrValues.includes(" ")
+          ? params.acrValues.split(" ")
+          : params.acrValues
+      : undefined;
 
-      url.searchParams.append("scope", params.scope);
-      url.searchParams.append("client_id", this.clientID);
-      if (acrValues) {
-        url.searchParams.append(
-          "acr_values",
-          Array.isArray(acrValues) ? acrValues.join(" ") : acrValues,
-        );
+    if (acrValues) {
+      searchParams.append(
+        "acr_values",
+        Array.isArray(acrValues) ? acrValues.join(" ") : acrValues,
+      );
+    }
+    searchParams.append("redirect_uri", params.redirectUri);
+    searchParams.append("response_type", params.responseType);
+    searchParams.append("response_mode", params.responseMode);
+
+    if (params.pkce) {
+      searchParams.append("code_challenge", params.pkce.code_challenge);
+      searchParams.append(
+        "code_challenge_method",
+        params.pkce.code_challenge_method,
+      );
+    }
+
+    if (params.state) {
+      searchParams.append("state", params.state);
+    }
+
+    if (params.nonce) {
+      searchParams.append("nonce", params.nonce);
+    }
+
+    if (params.loginHint) {
+      searchParams.append("login_hint", params.loginHint);
+    }
+
+    if (params.uiLocales) {
+      searchParams.append("ui_locales", params.uiLocales);
+    }
+
+    if (params.prompt) {
+      searchParams.append("prompt", params.prompt);
+    }
+
+    if (params.extraUrlParams) {
+      for (let entry of Object.entries(params.extraUrlParams)) {
+        if (!entry[1]) continue;
+        searchParams.append(entry[0], entry[1]);
       }
-      url.searchParams.append("redirect_uri", params.redirectUri);
-      url.searchParams.append("response_type", params.responseType);
-      url.searchParams.append("response_mode", params.responseMode);
+    }
 
-      if (params.pkce) {
-        url.searchParams.append("code_challenge", params.pkce.code_challenge);
-        url.searchParams.append(
-          "code_challenge_method",
-          params.pkce.code_challenge_method,
-        );
+    searchParams.set("criipto_sdk", `@criipto/auth-js@${VERSION}`);
+    if (params.extraUrlParams?.criipto_sdk !== undefined) {
+      if (params.extraUrlParams?.criipto_sdk === null) {
+        searchParams.delete("criipto_sdk");
+      } else {
+        searchParams.set("criipto_sdk", params.extraUrlParams?.criipto_sdk);
       }
+    }
 
-      if (params.state) {
-        url.searchParams.append("state", params.state);
-      }
+    return searchParams;
+  }
 
-      if (params.nonce) {
-        url.searchParams.append("nonce", params.nonce);
-      }
+  async buildAuthorizeUrl(params: AuthorizeUrlParams) {
+    await this._setup();
+    const url = new URL(this._openIdConfiguration.authorization_endpoint);
+    for (const [key, value] of (
+      await this.buildAuthorizeUrlSearchParams(params)
+    ).entries()) {
+      url.searchParams.set(key, value);
+    }
+    return url.toString();
+  }
 
-      if (params.loginHint) {
-        url.searchParams.append("login_hint", params.loginHint);
-      }
+  async pushAuthorizationRequest(
+    params: AuthorizeUrlParams,
+    traceParent?: string,
+  ): Promise<{ authorizeUrl: URL; traceId: string }> {
+    await this._setup();
+    const parUrl = new URL(
+      this._openIdConfiguration.pushed_authorization_request_endpoint,
+    );
 
-      if (params.uiLocales) {
-        url.searchParams.append("ui_locales", params.uiLocales);
-      }
+    const headers: Record<string, any> = {
+      Prefer: "return-trace-id",
+    };
 
-      if (params.prompt) {
-        url.searchParams.append("prompt", params.prompt);
-      }
+    if (traceParent) {
+      headers.traceparent = traceParent;
+    }
 
-      if (params.extraUrlParams) {
-        for (let entry of Object.entries(params.extraUrlParams)) {
-          if (!entry[1]) continue;
-          url.searchParams.append(entry[0], entry[1]);
-        }
-      }
-
-      url.searchParams.set("criipto_sdk", `@criipto/auth-js@${VERSION}`);
-      if (params.extraUrlParams?.criipto_sdk !== undefined) {
-        if (params.extraUrlParams?.criipto_sdk === null) {
-          url.searchParams.delete("criipto_sdk");
-        } else {
-          url.searchParams.set(
-            "criipto_sdk",
-            params.extraUrlParams?.criipto_sdk,
-          );
-        }
-      }
-
-      return url.toString();
+    const response = await fetch(parUrl, {
+      body: await this.buildAuthorizeUrlSearchParams(params),
+      method: "POST",
+      headers,
     });
+
+    if (response.status !== 201) {
+      let errorDescription = response.statusText;
+      try {
+        const errorResponse = (await response.json()) as {
+          error_description?: string;
+        };
+        errorDescription = errorResponse.error_description ?? "";
+      } catch {
+        // This space intentionally left blank. In case we cannot parse the JSON from the response,
+        // we want to throw par initialization error, not a JSON parsing error.
+      }
+      throw new Error(
+        `Error during PAR request (code: ${response.status}) (description: ${errorDescription})`,
+      );
+    }
+
+    const body = await response.json();
+
+    const authorizeUrl = new URL(
+      this._openIdConfiguration.authorization_endpoint,
+    );
+    authorizeUrl.searchParams.append("request_uri", body["request_uri"]);
+    authorizeUrl.searchParams.append("client_id", this.clientID);
+
+    return { authorizeUrl, traceId: response.headers.get("Trace-Id")! };
   }
 
   processResponse(

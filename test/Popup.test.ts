@@ -28,6 +28,7 @@ jest.mock("jose");
 const metadata_example = {
   issuer: "https://example.com",
   authorization_endpoint: "https://example.com",
+  pushed_authorization_request_endpoint: "https://example.com/oauth2/par",
   jwks_uri: "https://example.com",
   response_modes_supported: ["query", "form_post", "fragment", "post_message"],
   response_types_supported: ["code", "id_token", "code id_token"],
@@ -159,9 +160,14 @@ describe("CriiptoAuthPopup", () => {
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
-            return {
-              json: () => Promise.resolve(metadata_example),
-            } as any;
+            return new Response(JSON.stringify(metadata_example));
+          }
+          if (
+            url
+              .toString()
+              .endsWith(metadata_example.pushed_authorization_request_endpoint)
+          ) {
+            return new Response(JSON.stringify({}), { status: 201 });
           }
           throw new Error("Unexpected url");
         });
@@ -204,9 +210,16 @@ describe("CriiptoAuthPopup", () => {
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
-            return {
-              json: () => Promise.resolve(metadata_example),
-            } as any;
+            return new Response(JSON.stringify(metadata_example));
+          }
+          if (
+            url
+              .toString()
+              .endsWith(metadata_example.pushed_authorization_request_endpoint)
+          ) {
+            return new Response(JSON.stringify({}), {
+              status: 201,
+            });
           }
           throw new Error("Unexpected url");
         });
@@ -258,9 +271,14 @@ describe("CriiptoAuthPopup", () => {
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
-            return {
-              json: () => Promise.resolve(metadata_example),
-            } as any;
+            return new Response(JSON.stringify(metadata_example));
+          }
+          if (
+            url
+              .toString()
+              .endsWith(metadata_example.pushed_authorization_request_endpoint)
+          ) {
+            return new Response(JSON.stringify({}), { status: 201 });
           }
           throw new Error("Unexpected url");
         });
@@ -320,14 +338,17 @@ describe("CriiptoAuthPopup", () => {
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
-            return {
-              json: () => Promise.resolve(metadata),
-            } as any;
+            return new Response(JSON.stringify(metadata));
+          }
+          if (
+            url
+              .toString()
+              .endsWith(metadata_example.pushed_authorization_request_endpoint)
+          ) {
+            return new Response(JSON.stringify({}), { status: 201 });
           }
           if (url === metadata.token_endpoint) {
-            return {
-              json: () => Promise.resolve({ id_token }),
-            };
+            return new Response(JSON.stringify({ id_token }));
           }
           throw new Error("Unexpected url");
         });
@@ -386,14 +407,17 @@ describe("CriiptoAuthPopup", () => {
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
-            return {
-              json: () => Promise.resolve(metadata),
-            } as any;
+            return new Response(JSON.stringify(metadata));
+          }
+          if (
+            url
+              .toString()
+              .endsWith(metadata_example.pushed_authorization_request_endpoint)
+          ) {
+            return new Response(JSON.stringify({}), { status: 201 });
           }
           if (url === metadata.token_endpoint) {
-            return {
-              json: () => Promise.resolve({ id_token }),
-            };
+            return new Response(JSON.stringify({ id_token }));
           }
           throw new Error("Unexpected url");
         });
@@ -446,9 +470,14 @@ describe("CriiptoAuthPopup", () => {
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
-            return {
-              json: () => Promise.resolve(metadata_example),
-            } as any;
+            return new Response(JSON.stringify(metadata));
+          }
+          if (
+            url
+              .toString()
+              .endsWith(metadata_example.pushed_authorization_request_endpoint)
+          ) {
+            return new Response(JSON.stringify({}), { status: 201 });
           }
           throw new Error("Unexpected url");
         });

@@ -12,6 +12,7 @@ import {
 } from "./pkce";
 import { OAuth2Error } from "./index";
 
+const TRACEID_KEY = "@criipto/verify-js:traceId";
 export default class CriiptoAuthRedirect {
   criiptoAuth: CriiptoAuth;
   store: Storage;
@@ -48,16 +49,20 @@ export default class CriiptoAuthRedirect {
           },
     );
 
-    const url = await this.criiptoAuth.buildAuthorizeUrl(
-      this.criiptoAuth.buildAuthorizeParams({
-        ...params,
-        responseMode: "query",
-        responseType: "code",
-        pkce,
-      }),
-    );
+    const { authorizeUrl, traceId } =
+      await this.criiptoAuth.pushAuthorizationRequest(
+        this.criiptoAuth.buildAuthorizeParams({
+          ...params,
+          responseMode: "query",
+          responseType: "code",
+          pkce,
+        }),
+        params.traceParent,
+      );
 
-    globalThis.location.href = url;
+    this.store.setItem(TRACEID_KEY, traceId);
+
+    globalThis.location.href = authorizeUrl.toString();
   }
 
   /*
@@ -82,6 +87,11 @@ export default class CriiptoAuthRedirect {
     const state = getPKCEState(this.store);
     if (!state) return Promise.reject(new Error("No redirect state available"));
 
+    const clearState = () => {
+      clearPKCEState(this.store);
+      this.store.removeItem(TRACEID_KEY);
+    };
+
     return this.criiptoAuth
       .processResponse(
         params,
@@ -94,12 +104,13 @@ export default class CriiptoAuthRedirect {
       )
       .then((response) => {
         if (response) {
-          clearPKCEState(this.store);
+          response.traceId = this.store.getItem(TRACEID_KEY) ?? undefined;
+          clearState();
         }
         return response;
       })
       .catch((err) => {
-        clearPKCEState(this.store);
+        clearState();
         return Promise.reject(err);
       });
   }

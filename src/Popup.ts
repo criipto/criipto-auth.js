@@ -155,36 +155,44 @@ export default class CriiptoAuthPopup {
       responseMode: "post_message",
     });
 
-    return this.criiptoAuth.buildAuthorizeUrl(fullParams).then((url) => {
-      return { url, params: fullParams };
-    });
+    return this.criiptoAuth
+      .pushAuthorizationRequest(fullParams, params.traceParent)
+      .then(({ authorizeUrl, traceId }) => {
+        return {
+          url: authorizeUrl.toString(),
+          params: fullParams,
+          traceId,
+        };
+      });
   }
 
   /*
    * Start customized login flow in a popup
    * You probably want to use `popup.authorize` instead.
    */
-  trigger(initialParams: PopupAuthorizeParams): Promise<AuthorizeResponse> {
-    return this.buildAuthorizeUrl(initialParams)
-      .then(({ url, params }) => {
-        this.open(url, initialParams);
-        return this.listen(initialParams).then((response) => {
-          return this.criiptoAuth
-            .processResponse(
-              response,
-              params.pkce && "code_verifier" in params.pkce
-                ? {
-                    code_verifier: params.pkce.code_verifier,
-                    redirect_uri: params.redirectUri,
-                  }
-                : undefined,
-            )
-            .then((response) => response!);
-        });
-      })
-      .finally(() => {
-        if (initialParams.backdrop !== false) this.backdrop.remove();
-      });
+  async trigger(
+    initialParams: PopupAuthorizeParams,
+  ): Promise<AuthorizeResponse> {
+    try {
+      const { url, params, traceId } =
+        await this.buildAuthorizeUrl(initialParams);
+
+      this.open(url, initialParams);
+      const listenResponse = await this.listen(initialParams);
+      const authorizeResponse = await this.criiptoAuth.processResponse(
+        listenResponse,
+        params.pkce && "code_verifier" in params.pkce
+          ? {
+              code_verifier: params.pkce.code_verifier,
+              redirect_uri: params.redirectUri,
+            }
+          : undefined,
+      );
+      authorizeResponse!.traceId = traceId;
+      return authorizeResponse!;
+    } finally {
+      if (initialParams.backdrop !== false) this.backdrop.remove();
+    }
   }
 
   /*
