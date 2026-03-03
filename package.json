@@ -1,11 +1,19 @@
 {
   "name": "@criipto/auth-js",
   "version": "3.8.1",
-  "description": "",
   "types": "dist/index.d.ts",
   "main": "dist/criipto-auth.cjs.js",
   "module": "dist/criipto-auth.esm.js",
   "unpkg": "dist/criipto-auth.umd.js",
+  "license": "MIT",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/criipto/criipto-auth.js"
+  },
+  "bugs": {
+    "url": "https://github.com/criipto/criipto-auth.js/issues"
+  },
+  "homepage": "https://github.com/criipto/criipto-auth.js#readme",
   "scripts": {
     "test": "jest",
     "coverage": "jest --collect-coverage",
