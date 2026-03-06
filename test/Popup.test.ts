@@ -552,6 +552,7 @@ describe("CriiptoAuthPopup", () => {
       window.location = {
         ...window.location,
         hash: "",
+        // @ts-expect-error
         search: `?code=${code}`,
         origin: Math.random().toString(),
       };
@@ -572,6 +573,7 @@ describe("CriiptoAuthPopup", () => {
       window.location = {
         ...window.location,
         hash: `#id_token=${id_token}`,
+        // @ts-expect-error
         search: "",
         origin: Math.random().toString(),
       };

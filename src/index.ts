@@ -32,6 +32,8 @@ import CriiptoAuthPopup from "./Popup";
 import CriiptoAuthQrCode from "./QrCode";
 import CriiptoAuthSilent from "./Silent";
 
+import { version } from "../package.json";
+
 export {
   PromiseCancelledError,
   UserCancelledError,
@@ -53,9 +55,6 @@ export {
   AuthorizeResponse,
   OAuth2Error,
 };
-
-declare var __VERSION__: string;
-export const VERSION = typeof __VERSION__ === "undefined" ? "N/A" : __VERSION__;
 
 interface CriiptoAuthOptions {
   domain: string;
@@ -277,7 +276,7 @@ export class CriiptoAuth {
       }
     }
 
-    searchParams.set("criipto_sdk", `@criipto/auth-js@${VERSION}`);
+    searchParams.set("criipto_sdk", `@criipto/auth-js@${version}`);
     if (params.extraUrlParams?.criipto_sdk !== undefined) {
       if (params.extraUrlParams?.criipto_sdk === null) {
         searchParams.delete("criipto_sdk");

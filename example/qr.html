@@ -1,8 +1,6 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script type="text/javascript" src="../dist/criipto-auth.umd.js"></script>
-    <link href="../src/index.css" type="text/css" rel="stylesheet" />
   </head>
   <body>
     <div style="display: flex; flex-flow: row; gap: 16px">
@@ -29,7 +27,10 @@
       </div>
     </div>
     <textarea id="result" style="width: 400px; height: 400px"></textarea>
-    <script type="text/javascript">
+    <script type="module">
+      import { CriiptoAuth } from "@criipto/auth-js";
+      import "@criipto/auth-js/index.css";
+
       var criiptoAuth = new CriiptoAuth({
         domain: "samples.criipto.id",
         clientID: "urn:criipto:samples:criipto-auth",

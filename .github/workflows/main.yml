@@ -13,6 +13,8 @@ jobs:
           node-version-file: ".nvmrc"
       - run: npm ci
       - run: npx prettier --check .
+      - run: npm run check
+      - run: npm run build
       - run: npm run coverage
         env:
           CI: true

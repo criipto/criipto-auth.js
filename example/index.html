@@ -1,8 +1,6 @@
 <html>
   <head>
     <meta name="viewport" content="width=device-width, initial-scale=1" />
-    <script type="text/javascript" src="../dist/criipto-auth.umd.js"></script>
-    <link href="../src/index.css" type="text/css" rel="stylesheet" />
   </head>
   <body>
     <div>
@@ -35,7 +33,10 @@
       <button id="button_check_session">Check Session</button>
     </div>
     <textarea id="result" style="width: 800px; height: 800px"></textarea>
-    <script type="text/javascript">
+    <script type="module">
+      import { CriiptoAuth } from "@criipto/auth-js";
+      import "@criipto/auth-js/index.css";
+
       var criiptoAuth = new CriiptoAuth({
         domain: "samples.criipto.id",
         clientID: "urn:criipto:samples:criipto-auth",
@@ -45,27 +46,36 @@
       document
         .getElementById("button_login_responsive")
         .addEventListener("click", () => {
-          criiptoAuth.authorizeResponsive({
-            "(min-width: 601px)": {
-              via: "popup",
-              redirectUri: window.location.origin + "/example/index.html",
-              acrValues: "urn:grn:authn:dk:mitid:low",
-              prompt: "login",
-            },
-            "(max-width: 600px)": {
-              via: "redirect",
-              redirectUri: window.location.origin + "/example/index.html",
-              acrValues: "urn:grn:authn:dk:mitid:low",
-              prompt: "login",
-            },
-          });
+          criiptoAuth
+            .authorizeResponsive({
+              "(min-width: 601px)": {
+                via: "popup",
+                redirectUri: window.location.origin,
+                acrValues: "urn:grn:authn:dk:mitid:low",
+                prompt: "login",
+              },
+              "(max-width: 600px)": {
+                via: "redirect",
+                redirectUri: window.location.origin,
+                acrValues: "urn:grn:authn:dk:mitid:low",
+                prompt: "login",
+              },
+            })
+            .then((result) => {
+              console.log(result);
+              document.getElementById("result").innerHTML =
+                JSON.stringify(result);
+            })
+            .catch((err) => {
+              document.getElementById("result").innerHTML = JSON.stringify(err);
+            });
         });
 
       document
         .getElementById("button_login_redirect_query")
         .addEventListener("click", () => {
           criiptoAuth.redirect.authorize({
-            redirectUri: window.location.origin + "/example/index.html",
+            redirectUri: window.location.origin,
             prompt: "login",
           });
         });
@@ -74,7 +84,7 @@
         .getElementById("button_login_redirect_code")
         .addEventListener("click", () => {
           criiptoAuth.redirect.authorize({
-            redirectUri: window.location.origin + "/example/index.html",
+            redirectUri: window.location.origin,
             prompt: "login",
             responseType: "code",
           });
@@ -84,7 +94,7 @@
         .getElementById("button_login_redirect_query_acr_values")
         .addEventListener("click", () => {
           criiptoAuth.redirect.authorize({
-            redirectUri: window.location.origin + "/example/index.html",
+            redirectUri: window.location.origin,
             acrValues: [
               "urn:grn:authn:dk:mitid:low",
               "urn:grn:authn:se:bankid:another-device:qr",
@@ -97,7 +107,7 @@
         .getElementById("button_login_redirect_query_state")
         .addEventListener("click", () => {
           criiptoAuth.redirect.authorize({
-            redirectUri: window.location.origin + "/example/index.html",
+            redirectUri: window.location.origin,
             state: Math.random().toString(),
             nonce: Math.random().toString(),
             prompt: "login",
@@ -108,7 +118,7 @@
         .getElementById("button_login_redirect_query_sso")
         .addEventListener("click", () => {
           criiptoAuth.redirect.authorize({
-            redirectUri: window.location.origin + "/example/index.html",
+            redirectUri: window.location.origin,
           });
         });
 
@@ -127,7 +137,7 @@
         .addEventListener("click", () => {
           criiptoAuth.popup
             .authorize({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
               prompt: "login",
             })
             .then((result) => {
@@ -145,7 +155,7 @@
         .addEventListener("click", () => {
           criiptoAuth.popup
             .authorize({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
               prompt: "login",
               state: Math.random().toString(),
               backdrop: false,
@@ -165,7 +175,7 @@
         .addEventListener("click", () => {
           criiptoAuth.popup
             .authorize({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
               prompt: "login",
               responseType: "code",
             })
@@ -185,8 +195,7 @@
           criiptoAuth.popup
             .trigger({
               redirectUri:
-                window.location.origin +
-                "/example/index.html?querytest=isenabled",
+                window.location.origin + "/index.html?querytest=isenabled",
               prompt: "login",
               responseType: "code",
               backdrop: false,
@@ -206,7 +215,7 @@
         .addEventListener("click", () => {
           criiptoAuth.popup
             .authorize({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
               uiLocales: "da",
               prompt: "login",
             })
@@ -225,7 +234,7 @@
         .addEventListener("click", () => {
           criiptoAuth.popup
             .authorize({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
               uiLocales: "se",
               prompt: "login",
             })
@@ -244,7 +253,7 @@
         .addEventListener("click", () => {
           criiptoAuth.popup
             .authorize({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
               loginHint: "flow:sign",
               uiLocales: "nb",
               prompt: "login",
@@ -261,7 +270,7 @@
 
       document.getElementById("button_logout").addEventListener("click", () => {
         criiptoAuth.logout({
-          redirectUri: window.location.origin + "/example/index.html",
+          redirectUri: window.location.origin,
           state: Math.random().toString(),
         });
       });
@@ -271,7 +280,7 @@
         .addEventListener("click", () => {
           criiptoAuth
             .checkSession({
-              redirectUri: window.location.origin + "/example/index.html",
+              redirectUri: window.location.origin,
             })
             .then((result) => {
               console.log(result);

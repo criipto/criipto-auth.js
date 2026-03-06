@@ -21,7 +21,8 @@ import { generatePKCE } from "./index";
 import OAuth2Error from "./OAuth2Error";
 import type { AuthorizeResponse, AuthorizeUrlParamsOptional } from "./types";
 
-import markSrc from "./criipto-qr-mark.png";
+const markSrc =
+  "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGgAAABoCAYAAAAdHLWhAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAEqSURBVHgB7d2rDQIBEEXRgYCkDwT9YZAICsTQBpqETxPs3eQcMQ3cPD0zpG1+5/01JG2HNIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIrbzUJul+c87q9Zk+NpP+frYf7JguIEihMoTqA4geIEihMoTqA4geIEihMoTqA4geIEihMoTqA4geIEihMoTqA4geIEihMozv+gOAuKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyjuA1QSDsex8ZN1AAAAAElFTkSuQmCC";
 
 type QrAuthorizeParams = Omit<AuthorizeUrlParamsOptional, "redirectUri"> & {
   margin?: number;
