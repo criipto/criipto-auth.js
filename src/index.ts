@@ -11,17 +11,7 @@ import type {
   Claims,
 } from "./types";
 import { ALL_VIA } from "./types";
-import {
-  generate as generatePKCE,
-  PKCE,
-  PKCEPublicPart,
-  savePKCEState,
-} from "./pkce";
-export {
-  parseAuthorizeParamsFromUrl,
-  parseAuthorizeResponseFromLocation,
-} from "./util";
-export { savePKCEState, getPKCEState, clearPKCEState } from "./pkce";
+import { generate as generatePKCE, PKCE, PKCEPublicPart } from "./pkce";
 import OAuth2Error from "./OAuth2Error";
 import { createRemoteJWKSet, jwtVerify } from "jose";
 
@@ -35,16 +25,27 @@ import CriiptoAuthSilent from "./Silent";
 import { version } from "../package.json";
 
 export {
+  parseAuthorizeParamsFromUrl,
+  parseAuthorizeResponseFromLocation,
+} from "./util";
+export { savePKCEState, getPKCEState, clearPKCEState } from "./pkce";
+
+export {
   PromiseCancelledError,
   UserCancelledError,
   QrNotEnabledError,
 } from "./QrCode";
+
+export type { CriiptoConfiguration } from "./CriiptoConfiguration";
 
 export * as CSDC from "./csdc/index";
 
 export type {
   AuthorizeUrlParams,
   AuthorizeUrlParamsOptional,
+  RedirectAuthorizeParams,
+  PopupAuthorizeParams,
+  ResponseType,
   PKCE,
   PKCEPublicPart,
 };

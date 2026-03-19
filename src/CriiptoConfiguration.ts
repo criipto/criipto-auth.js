@@ -11,7 +11,7 @@ class CriiptoMetadata {
   clients: CriiptoMetadataClient[];
 }
 
-class CriiptoConfiguration extends CriiptoMetadata {
+export class CriiptoConfiguration extends CriiptoMetadata {
   authority: string;
   clientID: string;
   client: CriiptoMetadataClient;
