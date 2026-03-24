@@ -40,6 +40,8 @@ export type { CriiptoConfiguration } from "./CriiptoConfiguration";
 
 export * as CSDC from "./csdc/index";
 
+export { IduraSDKError } from "./errors";
+
 export type {
   AuthorizeUrlParams,
   AuthorizeUrlParamsOptional,

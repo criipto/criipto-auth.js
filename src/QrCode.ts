@@ -20,6 +20,7 @@ import type CriiptoAuth from "./index";
 import { generatePKCE } from "./index";
 import OAuth2Error from "./OAuth2Error";
 import type { AuthorizeResponse, AuthorizeUrlParamsOptional } from "./types";
+import { IduraSDKError } from "./errors";
 
 const markSrc =
   "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGgAAABoCAYAAAAdHLWhAAAACXBIWXMAABYlAAAWJQFJUiTwAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAEqSURBVHgB7d2rDQIBEEXRgYCkDwT9YZAICsTQBpqETxPs3eQcMQ3cPD0zpG1+5/01JG2HNIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIoTKE6gOIHiBIrbzUJul+c87q9Zk+NpP+frYf7JguIEihMoTqA4geIEihMoTqA4geIEihMoTqA4geIEihMoTqA4geIEihMoTqA4geIEihMozv+gOAuKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyhOoDiB4gSKEyjuA1QSDsex8ZN1AAAAAElFTkSuQmCC";
@@ -39,10 +40,9 @@ type Session = {
 type PromiseReject = (reason?: any) => void;
 type PromiseResolve<T> = (value: T | PromiseLike<T>) => void;
 
-export class PromiseCancelledError extends Error {
+export class PromiseCancelledError extends IduraSDKError {
   constructor() {
     super("Promise cancelled");
-    Object.setPrototypeOf(this, PromiseCancelledError.prototype);
   }
 }
 export class UserCancelledError extends OAuth2Error {
@@ -50,12 +50,7 @@ export class UserCancelledError extends OAuth2Error {
     super(error, error_description, state);
   }
 }
-export class QrNotEnabledError extends Error {
-  constructor(message: string) {
-    super(message);
-    Object.setPrototypeOf(this, QrNotEnabledError.prototype);
-  }
-}
+export class QrNotEnabledError extends IduraSDKError {}
 
 export class CriiptoQrPromise<T = AuthorizeResponse> extends Promise<T> {
   public onCancel: () => void | PromiseLike<void>;
