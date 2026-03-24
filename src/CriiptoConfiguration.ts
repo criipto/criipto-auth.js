@@ -1,3 +1,7 @@
+import { IduraSDKError } from "./errors";
+
+export class IduraSDKConfigurationError extends IduraSDKError {}
+
 type CriiptoMetadataClient = {
   client_id: string;
   qr_branding: boolean;
@@ -22,18 +26,40 @@ export class CriiptoConfiguration extends CriiptoMetadata {
     this.clientID = clientID;
   }
 
-  fetchMetadata(): Promise<CriiptoConfiguration> {
-    return globalThis
-      .fetch(
-        `${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}`,
-      )
-      .then((response) => response.json())
-      .then((metadata: CriiptoMetadata) => {
-        Object.assign(this, metadata);
-        this.client = this.clients.find((c) => c.client_id === this.clientID)!;
+  async fetchMetadata(): Promise<CriiptoConfiguration> {
+    const response = await globalThis.fetch(
+      `${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}`,
+    );
 
-        return this;
-      });
+    if (response.status === 404) {
+      throw new IduraSDKConfigurationError(
+        "Client ID does not exist, or is not configured for this domain.",
+      );
+    } else if (response.status !== 200) {
+      throw new IduraSDKConfigurationError(
+        "Could not fetch Criipto metadata. This is probably not a Criipto domain.",
+      );
+    }
+
+    const metadata = (await response.json()) as CriiptoMetadata;
+
+    if (!metadata.clients) {
+      throw new IduraSDKConfigurationError(
+        "Unexpected Criipto metadata. This is probably not a Criipto domain.",
+      );
+    }
+
+    Object.assign(this, metadata);
+    const client = this.clients.find((c) => c.client_id === this.clientID);
+
+    if (!client) {
+      throw new IduraSDKConfigurationError(
+        "Client ID does not exist, or is not configured for this domain.",
+      );
+    }
+
+    this.client = client;
+    return this;
   }
 }
 

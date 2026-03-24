@@ -1,4 +1,6 @@
-export default class OAuth2Error extends Error {
+import { IduraSDKError } from "./errors";
+
+export default class OAuth2Error extends IduraSDKError {
   error: string;
   error_description?: string;
   state?: string;

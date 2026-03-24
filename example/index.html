@@ -43,6 +43,8 @@
         store: sessionStorage,
       });
 
+      criiptoAuth.fetchCriiptoConfiguration().then(console.log, console.error);
+
       document
         .getElementById("button_login_responsive")
         .addEventListener("click", () => {
