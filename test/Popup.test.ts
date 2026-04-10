@@ -47,15 +47,6 @@ describe("CriiptoAuthPopup", () => {
       store: new MemoryStore(),
     });
 
-    // (auth._setup as any) = jest.fn().mockImplementation(() => Promise.resolve());
-
-    // auth._openIdConfiguration = new OpenIDConfiguration(auth.domain, auth.options.clientID);
-    // auth._openIdConfiguration.authority = auth.domain;
-    // auth._openIdConfiguration.authorization_endpoint = `https://${auth.domain}/oauth2/authorize`;
-    // auth._openIdConfiguration.response_modes_supported = ["query", "fragment", "post_message"];
-    // auth._openIdConfiguration.response_types_supported = ["code", "id_token"];
-    // auth._openIdConfiguration.acr_values_supported = ['urn:grn:authn:dk:nemid:poces'];
-
     popup = new CriiptoAuthPopup(auth);
 
     jest.spyOn(popup.backdrop, "render");
