@@ -1,4 +1,4 @@
-import { describe, test, expect } from "@jest/globals";
+import { describe, test, expect } from "vitest";
 import { AuthorizeUrlParamsOptional, Prompt } from "../src/types";
 import { parseQueryParams, parseAuthorizeParamsFromUrl } from "../src/util";
 

@@ -1,4 +1,4 @@
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
+import { describe, beforeEach, it, expect, vi } from "vitest";
 import * as crypto from "crypto";
 import { MemoryStore } from "./helper";
 import * as pkce from "../src/pkce";
@@ -11,8 +11,8 @@ import {
 } from "../src/util";
 import { jwtVerify } from "jose";
 
-jest.mock("../src/pkce");
-jest.mock("jose");
+vi.mock("../src/pkce");
+vi.mock("jose");
 (pkce.generate as any).mockImplementation(() => {
   return Promise.resolve({
     code_verifier: Math.random().toString(),
@@ -37,8 +37,8 @@ const metadata_example = {
 describe("CriiptoAuthPopup", () => {
   let auth: CriiptoAuth,
     popup: CriiptoAuthPopup,
-    windowAddEventListener = jest.fn(),
-    windowClose = jest.fn();
+    windowAddEventListener = vi.fn(),
+    windowClose = vi.fn();
 
   beforeEach(() => {
     auth = new CriiptoAuth({
@@ -47,27 +47,18 @@ describe("CriiptoAuthPopup", () => {
       store: new MemoryStore(),
     });
 
-    // (auth._setup as any) = jest.fn().mockImplementation(() => Promise.resolve());
-
-    // auth._openIdConfiguration = new OpenIDConfiguration(auth.domain, auth.options.clientID);
-    // auth._openIdConfiguration.authority = auth.domain;
-    // auth._openIdConfiguration.authorization_endpoint = `https://${auth.domain}/oauth2/authorize`;
-    // auth._openIdConfiguration.response_modes_supported = ["query", "fragment", "post_message"];
-    // auth._openIdConfiguration.response_types_supported = ["code", "id_token"];
-    // auth._openIdConfiguration.acr_values_supported = ['urn:grn:authn:dk:nemid:poces'];
-
     popup = new CriiptoAuthPopup(auth);
 
-    jest.spyOn(popup.backdrop, "render");
-    jest.spyOn(popup.backdrop, "remove");
+    vi.spyOn(popup.backdrop, "render");
+    vi.spyOn(popup.backdrop, "remove");
 
-    windowAddEventListener = jest.fn();
-    windowClose = jest.fn();
+    windowAddEventListener = vi.fn();
+    windowClose = vi.fn();
     Object.defineProperty(global, "window", {
       writable: true,
       value: {
         addEventListener: windowAddEventListener,
-        removeEventListener: jest.fn(),
+        removeEventListener: vi.fn(),
         close: windowClose,
         btoa: (input: string) => Buffer.from(input).toString("base64"),
         screenLeft: 0,
@@ -88,24 +79,22 @@ describe("CriiptoAuthPopup", () => {
     Object.defineProperty(global.document, "body", {
       writable: true,
       value: {
-        appendChild: jest.fn(),
-        removeChild: jest.fn(),
+        appendChild: vi.fn(),
+        removeChild: vi.fn(),
       },
     });
 
-    (global.document.getElementById as any) = jest
+    (global.document.getElementById as any) = vi
       .fn()
       .mockImplementation((id) => {
         if (id === CRIIPTO_POPUP_BACKDROP_ID) return null;
         return {
-          addEventListener: jest.fn(),
+          addEventListener: vi.fn(),
         };
       });
-    (global.document.createElement as any) = jest
-      .fn()
-      .mockImplementation(() => ({
-        addEventListener: jest.fn(),
-      }));
+    (global.document.createElement as any) = vi.fn().mockImplementation(() => ({
+      addEventListener: vi.fn(),
+    }));
   });
 
   describe("open", () => {
@@ -115,7 +104,7 @@ describe("CriiptoAuthPopup", () => {
       const acrValues = "urn:grn:authn:dk:nemid:poces";
       const createdWindow = {};
 
-      (window.open as any) = jest.fn().mockImplementation(() => createdWindow);
+      (window.open as any) = vi.fn().mockImplementation(() => createdWindow);
 
       const actual = await popup.open(authorizeUrl, {});
 
@@ -132,7 +121,7 @@ describe("CriiptoAuthPopup", () => {
     it("allows disabling backdrop", async () => {
       const createdWindow = {};
 
-      (window.open as any) = jest.fn().mockImplementation(() => createdWindow);
+      (window.open as any) = vi.fn().mockImplementation(() => createdWindow);
 
       const params = {
         redirectUri: Math.random().toString(),
@@ -149,14 +138,14 @@ describe("CriiptoAuthPopup", () => {
     let createdWindow: Window;
 
     beforeEach(() => {
-      createdWindow = { close: jest.fn() } as any as Window;
-      (window as any).open = jest.fn().mockImplementation(() => createdWindow);
-      (window as any).setTimeout = jest.fn();
-      jest.spyOn(popup, "open");
+      createdWindow = { close: vi.fn() } as any as Window;
+      (window as any).open = vi.fn().mockImplementation(() => createdWindow);
+      (window as any).setTimeout = vi.fn();
+      vi.spyOn(popup, "open");
     });
 
     it("opens popup, receives callback with id_token redirectUri", async () => {
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
@@ -206,7 +195,7 @@ describe("CriiptoAuthPopup", () => {
     });
 
     it("respects state", async () => {
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
@@ -267,7 +256,7 @@ describe("CriiptoAuthPopup", () => {
     });
 
     it("opens popup, receives callback with code redirectUri", async () => {
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
@@ -321,10 +310,10 @@ describe("CriiptoAuthPopup", () => {
     let createdWindow: Window;
 
     beforeEach(() => {
-      createdWindow = { close: jest.fn() } as any as Window;
-      (window as any).open = jest.fn().mockImplementation(() => createdWindow);
-      jest.spyOn(popup, "open");
-      (window as any).setTimeout = jest.fn();
+      createdWindow = { close: vi.fn() } as any as Window;
+      (window as any).open = vi.fn().mockImplementation(() => createdWindow);
+      vi.spyOn(popup, "open");
+      (window as any).setTimeout = vi.fn();
     });
 
     it("opens popup, receives callback with JSON and does PKCE token exchange", async () => {
@@ -334,7 +323,7 @@ describe("CriiptoAuthPopup", () => {
       };
       const id_token = Math.random().toString();
 
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
@@ -403,7 +392,7 @@ describe("CriiptoAuthPopup", () => {
       };
       const id_token = Math.random().toString();
 
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
@@ -466,7 +455,7 @@ describe("CriiptoAuthPopup", () => {
         token_endpoint: Math.random().toString(),
       };
 
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (url.toString().includes(".well-known/openid-configuration")) {
@@ -521,10 +510,10 @@ describe("CriiptoAuthPopup", () => {
   describe("close", () => {
     it("closes the window opened by open", async () => {
       const createdWindow = {
-        close: jest.fn(),
+        close: vi.fn(),
       };
-      (window.open as any) = jest.fn().mockImplementation(() => createdWindow);
-      (auth.buildAuthorizeUrl as any) = jest.fn().mockImplementation(() => {
+      (window.open as any) = vi.fn().mockImplementation(() => createdWindow);
+      (auth.buildAuthorizeUrl as any) = vi.fn().mockImplementation(() => {
         return new Promise((resolve) => {
           resolve(Math.random().toString());
         });
@@ -540,7 +529,7 @@ describe("CriiptoAuthPopup", () => {
   describe("callback", () => {
     it("parses params from location and messages back to opener", () => {
       (window as any).opener = {
-        postMessage: jest.fn(),
+        postMessage: vi.fn(),
       };
 
       const code = Math.random().toString();
@@ -600,7 +589,7 @@ describe("CriiptoAuthPopup", () => {
         };
         popup._latestUrl = url;
         popup._latestParams = params;
-        (popup as any).open = jest.fn();
+        (popup as any).open = vi.fn();
 
         popup.backdrop.handleOpen();
 
@@ -611,7 +600,7 @@ describe("CriiptoAuthPopup", () => {
 
     describe("handleCancel", () => {
       it("tells popup to close", () => {
-        popup.close = jest.fn();
+        popup.close = vi.fn();
 
         popup.backdrop.handleCancel();
 
