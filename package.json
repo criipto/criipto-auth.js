@@ -44,7 +44,7 @@
     "vitest": "^4.1.4"
   },
   "dependencies": {
-    "jose": "^4.15.5",
+    "jose": "^6.2.2",
     "qrcode": "^1.5.1"
   },
   "lint-staged": {
