@@ -1,8 +1,8 @@
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
+import { describe, beforeEach, it, expect, vi } from "vitest";
 import OpenIDConfiguration from "../src/OpenIDConfiguration";
 
 describe("OpenIDConfiguration", () => {
-  let fetch = jest.fn();
+  let fetch = vi.fn();
 
   beforeEach(() => {
     Object.defineProperty(global, "window", {
@@ -10,7 +10,7 @@ describe("OpenIDConfiguration", () => {
       value: {},
     });
 
-    (globalThis.fetch as any) = fetch = jest.fn();
+    (globalThis.fetch as any) = fetch = vi.fn();
   });
 
   it("fetches well-known metadata via authority", async () => {

@@ -1,12 +1,12 @@
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
+import { describe, beforeEach, it, expect, vi } from "vitest";
 import { AuthorizeUrlParams, ResponseType } from "../src/types";
 import CriiptoAuth from "../src/index";
 import OpenIDConfiguration from "../src/OpenIDConfiguration";
 import { MemoryStore } from "./helper";
 
-jest.mock("../src/OpenIDConfiguration");
+vi.mock("../src/OpenIDConfiguration");
 
-const mockedOpenID = jest.mocked(OpenIDConfiguration, true);
+const mockedOpenID = vi.mocked(OpenIDConfiguration);
 
 describe("CriiptoAuth", () => {
   let domain: string, clientID: string, auth: CriiptoAuth;
@@ -61,8 +61,8 @@ describe("CriiptoAuth", () => {
 
   describe("_setup", () => {
     beforeEach(() => {
-      const fetchMetadataMock: jest.Mock = mockedOpenID.mock.instances[0]
-        .fetchMetadata as jest.Mock;
+      const fetchMetadataMock = mockedOpenID.mock.instances[0]
+        .fetchMetadata as ReturnType<typeof vi.fn>;
       fetchMetadataMock.mockImplementation(() =>
         Promise.resolve({
           issuer: "https://example.com",
@@ -83,14 +83,14 @@ describe("CriiptoAuth", () => {
   });
 
   describe("authorizeResponsive", () => {
-    let matchMediaMock = jest.fn(),
-      popupAuthorizeMock = jest.fn(),
-      redirectAuthorizeMock = jest.fn();
+    let matchMediaMock = vi.fn(),
+      popupAuthorizeMock = vi.fn(),
+      redirectAuthorizeMock = vi.fn();
 
     beforeEach(() => {
-      (window.matchMedia as any) = matchMediaMock = jest.fn();
-      (auth.popup.authorize as any) = popupAuthorizeMock = jest.fn();
-      (auth.redirect.authorize as any) = redirectAuthorizeMock = jest.fn();
+      (window.matchMedia as any) = matchMediaMock = vi.fn();
+      (auth.popup.authorize as any) = popupAuthorizeMock = vi.fn();
+      (auth.redirect.authorize as any) = redirectAuthorizeMock = vi.fn();
     });
 
     it("maps to popup", async () => {
@@ -198,7 +198,7 @@ describe("CriiptoAuth", () => {
     const authorization_endpoint: string = `https://${domain}/authorize`;
 
     beforeEach(() => {
-      (auth._setup as any) = jest
+      (auth._setup as any) = vi
         .fn()
         .mockImplementation(() => Promise.resolve());
 
@@ -492,7 +492,7 @@ describe("CriiptoAuth", () => {
 
   describe("pushAuthorizationRequest", () => {
     beforeEach(() => {
-      auth._setup = jest
+      auth._setup = vi
         .fn<(typeof auth)["_setup"]>()
         .mockResolvedValue(auth._openIdConfiguration);
 
@@ -515,7 +515,7 @@ describe("CriiptoAuth", () => {
 
     it("returns PAR URL", async () => {
       const request_uri = Math.random().toString();
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (
@@ -544,7 +544,7 @@ describe("CriiptoAuth", () => {
     it("supports traceparent and returns trace ID", async () => {
       const _traceId = Math.random().toString();
       const _traceParent = Math.random().toString();
-      (globalThis.fetch as any) = jest
+      (globalThis.fetch as any) = vi
         .fn<typeof globalThis.fetch>()
         .mockImplementation(async (url: RequestInfo | URL) => {
           if (

@@ -10,7 +10,6 @@
     "strictNullChecks": true,
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "types": ["jest"],
     "skipLibCheck": true,
     "resolveJsonModule": true
   },

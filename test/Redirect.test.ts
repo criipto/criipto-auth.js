@@ -1,4 +1,4 @@
-import { describe, beforeEach, it, expect, jest } from "@jest/globals";
+import { describe, beforeEach, it, expect, vi } from "vitest";
 import * as crypto from "crypto";
 import { MemoryStore } from "./helper";
 import CriiptoAuth, {
@@ -40,7 +40,7 @@ describe("CriiptoAuthRedirect", () => {
       const redirectUri = Math.random().toString();
       const acrValues = "urn:grn:authn:dk:nemid:poces";
 
-      auth.pushAuthorizationRequest = jest
+      auth.pushAuthorizationRequest = vi
         .fn<(typeof auth)["pushAuthorizationRequest"]>()
         .mockResolvedValue({ authorizeUrl, traceId: "" });
 
@@ -72,7 +72,7 @@ describe("CriiptoAuthRedirect", () => {
       const acrValues = "urn:grn:authn:dk:nemid:poces";
       const pkce = await generatePKCE();
 
-      auth.pushAuthorizationRequest = jest
+      auth.pushAuthorizationRequest = vi
         .fn<(typeof auth)["pushAuthorizationRequest"]>()
         .mockResolvedValue({ authorizeUrl, traceId: "" });
 
@@ -142,7 +142,7 @@ describe("CriiptoAuthRedirect", () => {
         redirect_uri: Math.random().toString(),
         pkce_code_verifier: Math.random().toString(),
       });
-      expect(redirect.match({ location })).rejects.toStrictEqual(
+      await expect(redirect.match({ location })).rejects.toStrictEqual(
         new OAuth2Error(error, error_description),
       );
     });
