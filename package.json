@@ -33,7 +33,6 @@
   },
   "author": "",
   "devDependencies": {
-    "@types/qrcode": "^1.4.2",
     "@vitest/coverage-v8": "^4.1.4",
     "husky": "^9.1.7",
     "lint-staged": "^16.2.7",
@@ -44,8 +43,7 @@
     "vitest": "^4.1.4"
   },
   "dependencies": {
-    "jose": "^6.2.2",
-    "qrcode": "^1.5.1"
+    "jose": "^6.2.2"
   },
   "lint-staged": {
     "*.{js,ts,json,md,yml,html}": "prettier --write"

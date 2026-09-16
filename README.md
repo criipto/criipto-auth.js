@@ -154,28 +154,3 @@ criiptoAuth.logout({
   redirectUri: "http://localhost:8000/example/index.html",
 });
 ```
-
-## QRCode
-
-```javascript
-criiptoAuth.qr
-  .authorize(document.getElementById("qr_code_div"), {
-    acrValues: "urn:grn:authn:dk:mitid:substantial",
-  })
-  .then((session) => {
-    // onAcknowledged is executed when the QR code is first scanned
-    session.onAcknowledged = () => {
-      console.log("Session acknowledged.");
-    };
-
-    return session.then((result) => {
-      console.log(result.id_token ?? result.code);
-    });
-  })
-  .catch((error) => {
-    console.error(`${error.error}: ${error.error_description}`);
-  });
-```
-
-A canvas with a QR code will be rendered inside the target element.
-The user can scan the QR code and then complete the Criipto login flow on their phone, however the result will end up in the initating browser (usually a desktop browser).
