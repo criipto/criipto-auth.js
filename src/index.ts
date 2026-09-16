@@ -19,7 +19,6 @@ import OpenIDConfiguration from "./OpenIDConfiguration";
 import CriiptoConfiguration from "./CriiptoConfiguration";
 import CriiptoAuthRedirect from "./Redirect";
 import CriiptoAuthPopup from "./Popup";
-import CriiptoAuthQrCode from "./QrCode";
 import CriiptoAuthSilent from "./Silent";
 
 import { version } from "../package.json";
@@ -30,15 +29,7 @@ export {
 } from "./util";
 export { savePKCEState, getPKCEState, clearPKCEState } from "./pkce";
 
-export {
-  PromiseCancelledError,
-  UserCancelledError,
-  QrNotEnabledError,
-} from "./QrCode";
-
 export type { CriiptoConfiguration } from "./CriiptoConfiguration";
-
-export * as CSDC from "./csdc/index";
 
 export { IduraSDKError } from "./errors";
 export { IduraSDKConfigurationError } from "./CriiptoConfiguration";
@@ -89,7 +80,6 @@ export class CriiptoAuth {
   clientID: string;
   popup: CriiptoAuthPopup;
   redirect: CriiptoAuthRedirect;
-  qr: CriiptoAuthQrCode;
   silent: CriiptoAuthSilent;
   store: Storage;
   scope: string;
@@ -105,7 +95,6 @@ export class CriiptoAuth {
 
     this.popup = new CriiptoAuthPopup(this);
     this.redirect = new CriiptoAuthRedirect(this);
-    this.qr = new CriiptoAuthQrCode(this);
     this.silent = new CriiptoAuthSilent(this);
 
     const protocol = options.protocol ?? "https";
