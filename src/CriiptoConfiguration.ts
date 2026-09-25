@@ -1,6 +1,4 @@
-import { IduraSDKError } from "./errors";
-
-export class IduraSDKConfigurationError extends IduraSDKError {}
+import { IduraSDKConfigurationError } from "./errors";
 
 type CriiptoMetadataClient = {
   client_id: string;
@@ -21,9 +19,15 @@ export class CriiptoConfiguration extends CriiptoMetadata {
   }
 
   async fetchMetadata(): Promise<CriiptoConfiguration> {
-    const response = await globalThis.fetch(
-      `${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}`,
-    );
+    const response = await globalThis
+      .fetch(
+        `${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}`,
+      )
+      .catch((err) => {
+        throw new IduraSDKConfigurationError(
+          `Failed to fetch '${this.authority}/.well-known/criipto-configuration?client_id=${this.clientID}': ${err.toString()}`,
+        );
+      });
 
     if (response.status === 404) {
       throw new IduraSDKConfigurationError(

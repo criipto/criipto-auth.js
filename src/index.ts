@@ -31,8 +31,7 @@ export { savePKCEState, getPKCEState, clearPKCEState } from "./pkce";
 
 export type { CriiptoConfiguration } from "./CriiptoConfiguration";
 
-export { IduraSDKError } from "./errors";
-export { IduraSDKConfigurationError } from "./CriiptoConfiguration";
+export { IduraSDKError, IduraSDKConfigurationError } from "./errors";
 
 export type {
   AuthorizeUrlParams,
