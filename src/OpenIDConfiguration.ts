@@ -1,3 +1,5 @@
+import { IduraSDKConfigurationError } from "./errors";
+
 class OpenIDMetadata {
   issuer: string;
   jwks_uri: string;
@@ -28,6 +30,11 @@ class OpenIDConfiguration extends OpenIDMetadata {
       .fetch(
         `${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}`,
       )
+      .catch((err) => {
+        throw new IduraSDKConfigurationError(
+          `Failed to fetch '${this.authority}/.well-known/openid-configuration?client_id=${this.clientID}': ${err.toString()}`,
+        );
+      })
       .then((response) => response.json())
       .then((metadata: OpenIDMetadata) => {
         Object.assign(this, metadata);
